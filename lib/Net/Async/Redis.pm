@@ -21,30 +21,143 @@ use curry::weak;
 use IO::Async::Stream;
 use Protocol::Redis;
 use JSON::MaybeXS;
+use List::Util qw(pairmap);
+use Mixin::Event::Dispatch::Bus;
 
 =head1 METHODS
 
 =cut
 
-sub protocol {
-	shift->{protocol} //= do {
-		my $proto = Protocol::Redis->new(api => 1);
-		warn "Established $proto\n";
-		my $json = JSON::MaybeXS->new->pretty(1);
-		$proto->on_message(sub {
-			my ($redis, $data) = @_;
-			warn "got message: " . $json->encode($data);
-		});
-		$proto
+sub bus { shift->{bus} //= Mixin::Event::Dispatch::Bus->new }
+
+sub psubscribe {
+	my ($self, $pattern) = @_;
+	return $self->command(
+		PSUBSCRIBE => $pattern
+	)->then(sub {
+		$self->{subscribed} = 1;
+		Future->done
+	})
+}
+
+sub attach_protocol {
+	my ($self) = @_;
+	$self->{protocol} = my $proto = Protocol::Redis->new(api => 1);
+	$self->{json} = JSON::MaybeXS->new->pretty(1);
+	$proto->on_message($self->curry::weak::on_message);
+	$proto
+}
+
+sub on_message {
+	my ($self, $redis, $data) = @_;
+	# warn "got message: " . $self->json->encode($data);
+	if($self->{subscribed}) {
+		$self->bus->invoke_event(message => $data);
+	} else {
+		my $next = shift @{$self->{pending}} or die "No pending handler";
+		$next->[1]->done($data);
 	}
 }
 
 sub keys : method {
 	my ($self, $match) = @_;
-	warn "Check for keys\n";
-	$self->stream->write(
-		"KEYS $match\x0D\x0A"
+	$match //= '*';
+	$self->debug_printf("Check for keys: %s", $match);
+	return $self->command(
+		KEYS => $match
+	)->transform(
+		done => sub {
+			map $_->{data}, @{ shift->{data} }
+		}
 	)
+}
+
+sub del : method {
+	my ($self, @keys) = @_;
+	$self->debug_printf("Delete keys: %s", join ' ', @keys);
+	return $self->command(
+		DEL => @keys
+	)->transform(
+		done => sub {
+			shift->{data}
+		}
+	)
+}
+
+sub get : method {
+	my ($self, $key) = @_;
+	$self->debug_printf('GET key: %s', $key);
+	return $self->command(
+		GET => $key
+	)->transform(
+		done => sub {
+			shift->{data}
+		}
+	)
+}
+
+sub exists : method {
+	my ($self, $key) = @_;
+	$self->debug_printf('EXISTS key: %s', $key);
+	return $self->command(
+		EXISTS => $key
+	)->transform(
+		done => sub {
+			shift->{data}
+		}
+	)
+}
+
+sub set : method {
+	my ($self, $k, $v, @opt) = @_;
+	$self->debug_printf('SET key %s, options %s', $k, join ', ', pairmap { "$a=$b" } @opt);
+	return $self->command(
+		SET => $k, $v,
+		@opt
+	)->transform(
+		done => sub {
+			shift->{data}
+		}
+	)
+}
+
+sub config_set : method {
+	my ($self, $k, $v) = @_;
+	$self->debug_printf('CONFIG SET %s = %s', $k, $v);
+	return $self->command(
+		'CONFIG SET' => $k, $v,
+	)->transform(
+		done => sub {
+			shift->{data}
+		}
+	)
+}
+
+sub watch_keyspace {
+	my ($self, $pattern, $code) = @_;
+	$pattern //= '*';
+	my $sub = '__keyspace@*__:' . $pattern;
+	my $f;
+	if($self->{have_notify}) {
+		$f = Future->done;
+	} else {
+		$self->{have_notify} = 1;
+		$f = $self->config_set(
+			'notify-keyspace-events', 'Kg$xe'
+		)
+	}
+	$f->then(sub {
+		$self->bus->subscribe_to_event(
+			message => sub {
+				my ($ev, $data) = @_;
+				return unless $data->{data}[1]{data} eq $sub;
+				my ($k, $op) = map $_->{data}, @{$data->{data}}[2, 3];
+				$k =~ s/^[^:]+://;
+				$code->($op => $k);
+			}
+		);
+		$self->psubscribe($sub)
+	})
 }
 
 sub stream { shift->{stream} }
@@ -55,18 +168,18 @@ sub scan {
 	$args{batch} //= $args{count};
 }
 
-sub del {
-	my ($self, @args) = @_;
-}
-
 sub connect {
 	my ($self, %args) = @_;
+	my $auth = delete $args{auth};
+	$args{host} //= 'localhost';
+	$args{port} //= 6379;
 	$self->{connection} //= $self->loop->connect(
-		service => 6379,
-		host    => "localhost",
+		service => $args{port},
+		host    => $args{host},
 		socktype => 'stream',
 	)->then(sub {
 		my ($sock) = @_;
+		# warn "connected\n";
 		my $stream = IO::Async::Stream->new(
 			handle => $sock,
 			on_closed => $self->curry::weak::notify_close,
@@ -81,16 +194,52 @@ sub connect {
 		Scalar::Util::weaken(
 			$self->{stream} = $stream
 		);
+		$self->attach_protocol;
 		$self->add_child($stream);
-		Future->done
+		if(defined $auth) {
+			return $self->command('AUTH', $auth)
+		} else {
+			return Future->done
+		}
 	})
 }
+
+=head1 METHODS - Internal
+
+=cut
 
 sub notify_close {
 	my ($self) = @_;
 	$self->configure(on_read => sub { 0 });
+	$_->[1]->fail('disconnected') for @{$self->{pending}};
 	$self->maybe_invoke_event(disconnect => );
 }
+
+sub command_label {
+	my ($self, @cmd) = @_;
+	return join ' ', @cmd if $cmd[0] eq 'KEYS';
+	return $cmd[0];
+}
+
+sub command {
+	my ($self, @cmd) = @_;
+	my $cmd = join ' ', @cmd;
+	my $f = $self->loop->new_future;
+	$f->label($self->command_label(@cmd));
+	push @{$self->{pending}}, [ $cmd, $f ];
+	# warn "Writing $cmd\n";
+	return $self->stream->write("$cmd\x0D\x0A")->then(sub {
+		$f
+	});
+}
+
+sub protocol {
+	my ($self) = @_;
+	$self->attach_protocol unless exists $self->{protocol};
+	$self->{protocol}
+}
+
+sub json { shift->{json} }
 
 1;
 
