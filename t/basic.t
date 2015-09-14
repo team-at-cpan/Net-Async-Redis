@@ -6,10 +6,12 @@ use Test::More;
 use Net::Async::Redis;
 use IO::Async::Loop;
 
+plan skip_all => 'set NET_ASYNC_REDIS_HOST env var to test' unless exists $ENV{NET_ASYNC_REDIS_HOST};
+
 my $loop = IO::Async::Loop->new;
 $loop->add(my $redis = Net::Async::Redis->new);
 ok(my $f = $redis->connect(
-	host => '127.0.0.1',
+	host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
 ), 'connect');
 isa_ok($f, 'Future');
 $loop->await($f);

@@ -15,7 +15,13 @@ Net::Async::Redis - talk to Redis servers via IO::Async
 
 =head1 DESCRIPTION
 
-Basic Redis functionality. Docs may arrive later.
+Redis functionality. Docs may arrive later.
+
+Supports the basics - auth/get/set/pub/sub/del/keys - but not much else. Expect APIs to change over time.
+
+Also note that L<Protocol::Redis> has a few issues to do with encoding (\r\n portability, quoting of
+values), our handling for SET leaves much to be desired, and in general there's not much in the way
+of error checking.
 
 =cut
 
