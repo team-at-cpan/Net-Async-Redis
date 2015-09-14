@@ -15,6 +15,8 @@ Net::Async::Redis - talk to Redis servers via IO::Async
 
 =head1 DESCRIPTION
 
+Basic Redis functionality. Docs may arrive later.
+
 =cut
 
 use curry::weak;
@@ -111,6 +113,8 @@ sub exists : method {
 sub set : method {
 	my ($self, $k, $v, @opt) = @_;
 	$self->debug_printf('SET key %s, options %s', $k, join ', ', pairmap { "$a=$b" } @opt);
+	$v =~ s/"/\\"/g;
+	$v = '"' . $v . '"';
 	return $self->command(
 		SET => $k, $v,
 		@opt
