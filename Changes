@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.002     2015-11-13 16:35:59+00:00 Europe/London
 	Bugs fixed:
 
 	* [RT107134](https://rt.cpan.org/Public/Bug/Display.html?id=107134) Include JSON::MaybeXS dependency
