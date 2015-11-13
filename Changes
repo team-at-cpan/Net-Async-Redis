@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+	Bugs fixed:
+
+	* [RT107134](https://rt.cpan.org/Public/Bug/Display.html?id=107134) Include JSON::MaybeXS dependency
 
 0.001     2015-09-14 02:30:30+01:00 Europe/London
 	Initial CPAN release
