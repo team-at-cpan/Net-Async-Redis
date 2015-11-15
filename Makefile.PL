@@ -20,6 +20,7 @@ my %WriteMakefileArgs = (
     "Future" => "0.30",
     "IO::Async" => 0,
     "JSON::MaybeXS" => 0,
+    "List::Util" => "1.29",
     "Mixin::Event::Dispatch" => "2.000",
     "Protocol::Redis" => 0,
     "curry" => 0,
@@ -33,7 +34,7 @@ my %WriteMakefileArgs = (
     "Test::CheckDeps" => "0.010",
     "Test::More" => "0.98"
   },
-  "VERSION" => "0.002",
+  "VERSION" => "0.003",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -48,6 +49,7 @@ my %FallbackPrereqs = (
   "IO::Handle" => 0,
   "IPC::Open3" => 0,
   "JSON::MaybeXS" => 0,
+  "List::Util" => "1.29",
   "Mixin::Event::Dispatch" => "2.000",
   "Protocol::Redis" => 0,
   "Test::CheckDeps" => "0.010",
