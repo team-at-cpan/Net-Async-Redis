@@ -8,5 +8,7 @@ requires 'namespace::clean', 0;
 
 on 'test' => sub {
 	requires 'Test::More', '>= 0.98';
+    requires 'Test::HexString', 0;
+    requires 'Test::Deep', 0;
 };
 

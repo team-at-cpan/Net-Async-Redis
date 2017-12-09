@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Dependencies:
+
+    - Added Test::HexString and Test::Deep to test deps list
 
 1.000     2017-12-09 16:51:40+08:00 Asia/Kuala_Lumpur
     First stable release. Note that there are some API changes, but
