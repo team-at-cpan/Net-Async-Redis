@@ -316,9 +316,11 @@ __END__
 
 =head1 SEE ALSO
 
+Some other Redis implementations on CPAN:
+
 =over 4
 
-=item * L<Mojo::Redis2>
+=item * L<Mojo::Redis2> - nonblocking, using the L<Mojolicious> framework, actively maintained
 
 =item * L<RedisDB>
 
