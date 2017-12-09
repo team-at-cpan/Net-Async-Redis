@@ -3,6 +3,8 @@ package Net::Async::Redis::Commands;
 use strict;
 use warnings;
 
+# VERSION
+
 =head1 NAME
 
 Net::Async::Redis::Commands - mixin that defines the Redis commands available

@@ -4,6 +4,7 @@ requires 'Future', '>= 0.30';
 requires 'IO::Async', 0;
 requires 'Ryu::Async', '>= 0.006';
 requires 'List::Util', '>= 1.29';
+requires 'namespace::clean', 0;
 
 on 'test' => sub {
 	requires 'Test::More', '>= 0.98';

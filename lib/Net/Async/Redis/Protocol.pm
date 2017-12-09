@@ -3,6 +3,8 @@ package Net::Async::Redis::Protocol;
 use strict;
 use warnings;
 
+# VERSION
+
 my $CRLF = "\x0D\x0A";
 
 sub encode {
