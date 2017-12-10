@@ -276,6 +276,10 @@ sub on_message {
             } else {
                 $log->errorf('Have pattern unsubscription for unknown channel [%s]', $channel);
             }
+        } elsif($type eq 'subscribe') {
+            $log->errorf('Have subscription for unknown channel [%s]', $channel) unless exists $self->{subscription_channel}{$channel};
+        } elsif($type eq 'punsubscribe') {
+            $log->errorf('Have subscription for unknown pattern channel [%s]', $channel) unless exists $self->{subscription_pattern_channel}{$channel};
         } else {
             $log->errorf('have unknown pubsub message type %s with channel %s payload %s', $type, $channel, $payload);
         }
