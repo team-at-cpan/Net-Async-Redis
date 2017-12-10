@@ -42,6 +42,7 @@ use Log::Any qw($log);
 
 use List::Util qw(pairmap);
 
+use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
 use Net::Async::Redis::Subscription::Message;
 
@@ -109,6 +110,20 @@ sub subscribe {
                 )
             } @channels;
             Future->done(@subs);
+        })
+}
+
+sub multi {
+    use Scalar::Util qw(reftype);
+    use namespace::clean qw(reftype);
+    my ($self, $code) = @_;
+    die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
+    my $multi = Net::Async::Redis::Multi->new(
+        redis => $self,
+    );
+    $self->next::method
+        ->then(sub {
+            $multi->exec($code)
         })
 }
 
