@@ -30,6 +30,8 @@ Assign new hash slots to receiving node.
 
 =back
 
+L<https://redis.io/commands/cluster-addslots>
+
 =cut
 
 sub cluster_addslots : method {
@@ -46,6 +48,8 @@ Return the number of failure reports active for a given node.
 =item * node-id
 
 =back
+
+L<https://redis.io/commands/cluster-count-failure-reports>
 
 =cut
 
@@ -64,6 +68,8 @@ Return the number of local keys in the specified hash slot.
 
 =back
 
+L<https://redis.io/commands/cluster-countkeysinslot>
+
 =cut
 
 sub cluster_countkeysinslot : method {
@@ -81,6 +87,8 @@ Set hash slots as unbound in receiving node.
 
 =back
 
+L<https://redis.io/commands/cluster-delslots>
+
 =cut
 
 sub cluster_delslots : method {
@@ -90,13 +98,15 @@ sub cluster_delslots : method {
 
 =head2 cluster_failover
 
-Forces a slave to perform a manual failover of its master..
+Forces a slave to perform a manual failover of its master.
 
 =over 4
 
 =item * [FORCE|TAKEOVER]
 
 =back
+
+L<https://redis.io/commands/cluster-failover>
 
 =cut
 
@@ -114,6 +124,8 @@ Remove a node from the nodes table.
 =item * node-id
 
 =back
+
+L<https://redis.io/commands/cluster-forget>
 
 =cut
 
@@ -134,6 +146,8 @@ Return local key names in the specified hash slot.
 
 =back
 
+L<https://redis.io/commands/cluster-getkeysinslot>
+
 =cut
 
 sub cluster_getkeysinslot : method {
@@ -144,6 +158,8 @@ sub cluster_getkeysinslot : method {
 =head2 cluster_info
 
 Provides info about Redis Cluster node state.
+
+L<https://redis.io/commands/cluster-info>
 
 =cut
 
@@ -161,6 +177,8 @@ Returns the hash slot of the specified key.
 =item * key
 
 =back
+
+L<https://redis.io/commands/cluster-keyslot>
 
 =cut
 
@@ -181,6 +199,8 @@ Force a node cluster to handshake with another node.
 
 =back
 
+L<https://redis.io/commands/cluster-meet>
+
 =cut
 
 sub cluster_meet : method {
@@ -191,6 +211,8 @@ sub cluster_meet : method {
 =head2 cluster_nodes
 
 Get Cluster config for the node.
+
+L<https://redis.io/commands/cluster-nodes>
 
 =cut
 
@@ -209,6 +231,8 @@ Reconfigure a node as a slave of the specified master node.
 
 =back
 
+L<https://redis.io/commands/cluster-replicate>
+
 =cut
 
 sub cluster_replicate : method {
@@ -226,6 +250,8 @@ Reset a Redis Cluster node.
 
 =back
 
+L<https://redis.io/commands/cluster-reset>
+
 =cut
 
 sub cluster_reset : method {
@@ -236,6 +262,8 @@ sub cluster_reset : method {
 =head2 cluster_saveconfig
 
 Forces the node to save cluster state on disk.
+
+L<https://redis.io/commands/cluster-saveconfig>
 
 =cut
 
@@ -253,6 +281,8 @@ Set the configuration epoch in a new node.
 =item * config-epoch
 
 =back
+
+L<https://redis.io/commands/cluster-set-config-epoch>
 
 =cut
 
@@ -275,6 +305,8 @@ Bind a hash slot to a specific node.
 
 =back
 
+L<https://redis.io/commands/cluster-setslot>
+
 =cut
 
 sub cluster_setslot : method {
@@ -292,6 +324,8 @@ List slave nodes of the specified master node.
 
 =back
 
+L<https://redis.io/commands/cluster-slaves>
+
 =cut
 
 sub cluster_slaves : method {
@@ -302,6 +336,8 @@ sub cluster_slaves : method {
 =head2 cluster_slots
 
 Get array of Cluster slot to node mappings.
+
+L<https://redis.io/commands/cluster-slots>
 
 =cut
 
@@ -314,6 +350,8 @@ sub cluster_slots : method {
 
 Enables read queries for a connection to a cluster slave node.
 
+L<https://redis.io/commands/readonly>
+
 =cut
 
 sub readonly : method {
@@ -324,6 +362,8 @@ sub readonly : method {
 =head2 readwrite
 
 Disables read queries for a connection to a cluster slave node.
+
+L<https://redis.io/commands/readwrite>
 
 =cut
 
@@ -344,6 +384,8 @@ Authenticate to the server.
 
 =back
 
+L<https://redis.io/commands/auth>
+
 =cut
 
 sub auth : method {
@@ -360,6 +402,8 @@ Echo the given string.
 =item * message
 
 =back
+
+L<https://redis.io/commands/echo>
 
 =cut
 
@@ -378,6 +422,8 @@ Ping the server.
 
 =back
 
+L<https://redis.io/commands/ping>
+
 =cut
 
 sub ping : method {
@@ -388,6 +434,8 @@ sub ping : method {
 =head2 quit
 
 Close the connection.
+
+L<https://redis.io/commands/quit>
 
 =cut
 
@@ -405,6 +453,8 @@ Change the selected database for the current connection.
 =item * index
 
 =back
+
+L<https://redis.io/commands/select>
 
 =cut
 
@@ -425,6 +475,8 @@ Swaps two Redis databases.
 
 =back
 
+L<https://redis.io/commands/swapdb>
+
 =cut
 
 sub swapdb : method {
@@ -444,6 +496,8 @@ Delete a key.
 
 =back
 
+L<https://redis.io/commands/del>
+
 =cut
 
 sub del : method {
@@ -453,13 +507,15 @@ sub del : method {
 
 =head2 dump
 
-Return a serialized version of the value stored at the specified key..
+Return a serialized version of the value stored at the specified key.
 
 =over 4
 
 =item * key
 
 =back
+
+L<https://redis.io/commands/dump>
 
 =cut
 
@@ -477,6 +533,8 @@ Determine if a key exists.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/exists>
 
 =cut
 
@@ -497,6 +555,8 @@ Set a key's time to live in seconds.
 
 =back
 
+L<https://redis.io/commands/expire>
+
 =cut
 
 sub expire : method {
@@ -516,6 +576,8 @@ Set the expiration for a key as a UNIX timestamp.
 
 =back
 
+L<https://redis.io/commands/expireat>
+
 =cut
 
 sub expireat : method {
@@ -533,6 +595,8 @@ Find all keys matching the given pattern.
 
 =back
 
+L<https://redis.io/commands/keys>
+
 =cut
 
 sub keys : method {
@@ -542,7 +606,7 @@ sub keys : method {
 
 =head2 migrate
 
-Atomically transfer a key from a Redis instance to another one..
+Atomically transfer a key from a Redis instance to another one.
 
 =over 4
 
@@ -564,6 +628,8 @@ Atomically transfer a key from a Redis instance to another one..
 
 =back
 
+L<https://redis.io/commands/migrate>
+
 =cut
 
 sub migrate : method {
@@ -582,6 +648,8 @@ Move a key to another database.
 =item * db
 
 =back
+
+L<https://redis.io/commands/move>
 
 =cut
 
@@ -602,6 +670,8 @@ Inspect the internals of Redis objects.
 
 =back
 
+L<https://redis.io/commands/object>
+
 =cut
 
 sub object : method {
@@ -618,6 +688,8 @@ Remove the expiration from a key.
 =item * key
 
 =back
+
+L<https://redis.io/commands/persist>
 
 =cut
 
@@ -638,6 +710,8 @@ Set a key's time to live in milliseconds.
 
 =back
 
+L<https://redis.io/commands/pexpire>
+
 =cut
 
 sub pexpire : method {
@@ -657,6 +731,8 @@ Set the expiration for a key as a UNIX timestamp specified in milliseconds.
 
 =back
 
+L<https://redis.io/commands/pexpireat>
+
 =cut
 
 sub pexpireat : method {
@@ -674,6 +750,8 @@ Get the time to live for a key in milliseconds.
 
 =back
 
+L<https://redis.io/commands/pttl>
+
 =cut
 
 sub pttl : method {
@@ -684,6 +762,8 @@ sub pttl : method {
 =head2 randomkey
 
 Return a random key from the keyspace.
+
+L<https://redis.io/commands/randomkey>
 
 =cut
 
@@ -704,6 +784,8 @@ Rename a key.
 
 =back
 
+L<https://redis.io/commands/rename>
+
 =cut
 
 sub rename : method {
@@ -723,6 +805,8 @@ Rename a key, only if the new key does not exist.
 
 =back
 
+L<https://redis.io/commands/renamenx>
+
 =cut
 
 sub renamenx : method {
@@ -732,7 +816,7 @@ sub renamenx : method {
 
 =head2 restore
 
-Create a key using the provided serialized value, previously obtained using DUMP..
+Create a key using the provided serialized value, previously obtained using DUMP.
 
 =over 4
 
@@ -745,6 +829,8 @@ Create a key using the provided serialized value, previously obtained using DUMP
 =item * [REPLACE]
 
 =back
+
+L<https://redis.io/commands/restore>
 
 =cut
 
@@ -775,6 +861,8 @@ Sort the elements in a list, set or sorted set.
 
 =back
 
+L<https://redis.io/commands/sort>
+
 =cut
 
 sub sort : method {
@@ -784,13 +872,15 @@ sub sort : method {
 
 =head2 touch
 
-Alters the last access time of a key(s). Returns the number of existing keys specified..
+Alters the last access time of a key(s). Returns the number of existing keys specified.
 
 =over 4
 
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/touch>
 
 =cut
 
@@ -809,6 +899,8 @@ Get the time to live for a key.
 
 =back
 
+L<https://redis.io/commands/ttl>
+
 =cut
 
 sub ttl : method {
@@ -826,6 +918,8 @@ Determine the type stored at key.
 
 =back
 
+L<https://redis.io/commands/type>
+
 =cut
 
 sub type : method {
@@ -835,13 +929,15 @@ sub type : method {
 
 =head2 unlink
 
-Delete a key asynchronously in another thread. Otherwise it is just as DEL, but non blocking..
+Delete a key asynchronously in another thread. Otherwise it is just as DEL, but non blocking.
 
 =over 4
 
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/unlink>
 
 =cut
 
@@ -861,6 +957,8 @@ Wait for the synchronous replication of all the write commands sent in the conte
 =item * timeout
 
 =back
+
+L<https://redis.io/commands/wait>
 
 =cut
 
@@ -883,6 +981,8 @@ Incrementally iterate the keys space.
 
 =back
 
+L<https://redis.io/commands/scan>
+
 =cut
 
 sub scan : method {
@@ -904,6 +1004,8 @@ Add one or more geospatial items in the geospatial index represented using a sor
 
 =back
 
+L<https://redis.io/commands/geoadd>
+
 =cut
 
 sub geoadd : method {
@@ -923,6 +1025,8 @@ Returns members of a geospatial index as standard geohash strings.
 
 =back
 
+L<https://redis.io/commands/geohash>
+
 =cut
 
 sub geohash : method {
@@ -941,6 +1045,8 @@ Returns longitude and latitude of members of a geospatial index.
 =item * member [member ...]
 
 =back
+
+L<https://redis.io/commands/geopos>
 
 =cut
 
@@ -964,6 +1070,8 @@ Returns the distance between two members of a geospatial index.
 =item * [unit]
 
 =back
+
+L<https://redis.io/commands/geodist>
 
 =cut
 
@@ -1004,6 +1112,8 @@ Query a sorted set representing a geospatial index to fetch members matching a g
 
 =back
 
+L<https://redis.io/commands/georadius>
+
 =cut
 
 sub georadius : method {
@@ -1041,6 +1151,8 @@ Query a sorted set representing a geospatial index to fetch members matching a g
 
 =back
 
+L<https://redis.io/commands/georadiusbymember>
+
 =cut
 
 sub georadiusbymember : method {
@@ -1062,6 +1174,8 @@ Delete one or more hash fields.
 
 =back
 
+L<https://redis.io/commands/hdel>
+
 =cut
 
 sub hdel : method {
@@ -1080,6 +1194,8 @@ Determine if a hash field exists.
 =item * field
 
 =back
+
+L<https://redis.io/commands/hexists>
 
 =cut
 
@@ -1100,6 +1216,8 @@ Get the value of a hash field.
 
 =back
 
+L<https://redis.io/commands/hget>
+
 =cut
 
 sub hget : method {
@@ -1116,6 +1234,8 @@ Get all the fields and values in a hash.
 =item * key
 
 =back
+
+L<https://redis.io/commands/hgetall>
 
 =cut
 
@@ -1138,6 +1258,8 @@ Increment the integer value of a hash field by the given number.
 
 =back
 
+L<https://redis.io/commands/hincrby>
+
 =cut
 
 sub hincrby : method {
@@ -1159,6 +1281,8 @@ Increment the float value of a hash field by the given amount.
 
 =back
 
+L<https://redis.io/commands/hincrbyfloat>
+
 =cut
 
 sub hincrbyfloat : method {
@@ -1176,6 +1300,8 @@ Get all the fields in a hash.
 
 =back
 
+L<https://redis.io/commands/hkeys>
+
 =cut
 
 sub hkeys : method {
@@ -1192,6 +1318,8 @@ Get the number of fields in a hash.
 =item * key
 
 =back
+
+L<https://redis.io/commands/hlen>
 
 =cut
 
@@ -1212,6 +1340,8 @@ Get the values of all the given hash fields.
 
 =back
 
+L<https://redis.io/commands/hmget>
+
 =cut
 
 sub hmget : method {
@@ -1230,6 +1360,8 @@ Set multiple hash fields to multiple values.
 =item * field value [field value ...]
 
 =back
+
+L<https://redis.io/commands/hmset>
 
 =cut
 
@@ -1252,6 +1384,8 @@ Set the string value of a hash field.
 
 =back
 
+L<https://redis.io/commands/hset>
+
 =cut
 
 sub hset : method {
@@ -1273,6 +1407,8 @@ Set the value of a hash field, only if the field does not exist.
 
 =back
 
+L<https://redis.io/commands/hsetnx>
+
 =cut
 
 sub hsetnx : method {
@@ -1292,6 +1428,8 @@ Get the length of the value of a hash field.
 
 =back
 
+L<https://redis.io/commands/hstrlen>
+
 =cut
 
 sub hstrlen : method {
@@ -1308,6 +1446,8 @@ Get all the values in a hash.
 =item * key
 
 =back
+
+L<https://redis.io/commands/hvals>
 
 =cut
 
@@ -1332,6 +1472,8 @@ Incrementally iterate hash fields and associated values.
 
 =back
 
+L<https://redis.io/commands/hscan>
+
 =cut
 
 sub hscan : method {
@@ -1343,7 +1485,7 @@ sub hscan : method {
 
 =head2 pfadd
 
-Adds the specified elements to the specified HyperLogLog..
+Adds the specified elements to the specified HyperLogLog.
 
 =over 4
 
@@ -1352,6 +1494,8 @@ Adds the specified elements to the specified HyperLogLog..
 =item * element [element ...]
 
 =back
+
+L<https://redis.io/commands/pfadd>
 
 =cut
 
@@ -1362,13 +1506,15 @@ sub pfadd : method {
 
 =head2 pfcount
 
-Return the approximated cardinality of the set(s) observed by the HyperLogLog at key(s)..
+Return the approximated cardinality of the set(s) observed by the HyperLogLog at key(s).
 
 =over 4
 
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/pfcount>
 
 =cut
 
@@ -1379,7 +1525,7 @@ sub pfcount : method {
 
 =head2 pfmerge
 
-Merge N different HyperLogLogs into a single one..
+Merge N different HyperLogLogs into a single one.
 
 =over 4
 
@@ -1388,6 +1534,8 @@ Merge N different HyperLogLogs into a single one..
 =item * sourcekey [sourcekey ...]
 
 =back
+
+L<https://redis.io/commands/pfmerge>
 
 =cut
 
@@ -1410,6 +1558,8 @@ Remove and get the first element in a list, or block until one is available.
 
 =back
 
+L<https://redis.io/commands/blpop>
+
 =cut
 
 sub blpop : method {
@@ -1428,6 +1578,8 @@ Remove and get the last element in a list, or block until one is available.
 =item * timeout
 
 =back
+
+L<https://redis.io/commands/brpop>
 
 =cut
 
@@ -1450,6 +1602,8 @@ Pop a value from a list, push it to another list and return it; or block until o
 
 =back
 
+L<https://redis.io/commands/brpoplpush>
+
 =cut
 
 sub brpoplpush : method {
@@ -1468,6 +1622,8 @@ Get an element from a list by its index.
 =item * index
 
 =back
+
+L<https://redis.io/commands/lindex>
 
 =cut
 
@@ -1492,6 +1648,8 @@ Insert an element before or after another element in a list.
 
 =back
 
+L<https://redis.io/commands/linsert>
+
 =cut
 
 sub linsert : method {
@@ -1509,6 +1667,8 @@ Get the length of a list.
 
 =back
 
+L<https://redis.io/commands/llen>
+
 =cut
 
 sub llen : method {
@@ -1525,6 +1685,8 @@ Remove and get the first element in a list.
 =item * key
 
 =back
+
+L<https://redis.io/commands/lpop>
 
 =cut
 
@@ -1545,6 +1707,8 @@ Prepend one or multiple values to a list.
 
 =back
 
+L<https://redis.io/commands/lpush>
+
 =cut
 
 sub lpush : method {
@@ -1563,6 +1727,8 @@ Prepend a value to a list, only if the list exists.
 =item * value
 
 =back
+
+L<https://redis.io/commands/lpushx>
 
 =cut
 
@@ -1585,6 +1751,8 @@ Get a range of elements from a list.
 
 =back
 
+L<https://redis.io/commands/lrange>
+
 =cut
 
 sub lrange : method {
@@ -1605,6 +1773,8 @@ Remove elements from a list.
 =item * value
 
 =back
+
+L<https://redis.io/commands/lrem>
 
 =cut
 
@@ -1627,6 +1797,8 @@ Set the value of an element in a list by its index.
 
 =back
 
+L<https://redis.io/commands/lset>
+
 =cut
 
 sub lset : method {
@@ -1648,6 +1820,8 @@ Trim a list to the specified range.
 
 =back
 
+L<https://redis.io/commands/ltrim>
+
 =cut
 
 sub ltrim : method {
@@ -1664,6 +1838,8 @@ Remove and get the last element in a list.
 =item * key
 
 =back
+
+L<https://redis.io/commands/rpop>
 
 =cut
 
@@ -1684,6 +1860,8 @@ Remove the last element in a list, prepend it to another list and return it.
 
 =back
 
+L<https://redis.io/commands/rpoplpush>
+
 =cut
 
 sub rpoplpush : method {
@@ -1702,6 +1880,8 @@ Append one or multiple values to a list.
 =item * value [value ...]
 
 =back
+
+L<https://redis.io/commands/rpush>
 
 =cut
 
@@ -1722,6 +1902,8 @@ Append a value to a list, only if the list exists.
 
 =back
 
+L<https://redis.io/commands/rpushx>
+
 =cut
 
 sub rpushx : method {
@@ -1740,6 +1922,8 @@ Listen for messages published to channels matching the given patterns.
 =item * pattern [pattern ...]
 
 =back
+
+L<https://redis.io/commands/psubscribe>
 
 =cut
 
@@ -1760,6 +1944,8 @@ Inspect the state of the Pub/Sub subsystem.
 
 =back
 
+L<https://redis.io/commands/pubsub>
+
 =cut
 
 sub pubsub : method {
@@ -1779,6 +1965,8 @@ Post a message to a channel.
 
 =back
 
+L<https://redis.io/commands/publish>
+
 =cut
 
 sub publish : method {
@@ -1795,6 +1983,8 @@ Stop listening for messages posted to channels matching the given patterns.
 =item * [pattern [pattern ...]]
 
 =back
+
+L<https://redis.io/commands/punsubscribe>
 
 =cut
 
@@ -1813,6 +2003,8 @@ Listen for messages published to the given channels.
 
 =back
 
+L<https://redis.io/commands/subscribe>
+
 =cut
 
 sub subscribe : method {
@@ -1829,6 +2021,8 @@ Stop listening for messages posted to the given channels.
 =item * [channel [channel ...]]
 
 =back
+
+L<https://redis.io/commands/unsubscribe>
 
 =cut
 
@@ -1855,6 +2049,8 @@ Execute a Lua script server side.
 
 =back
 
+L<https://redis.io/commands/eval>
+
 =cut
 
 sub eval : method {
@@ -1878,6 +2074,8 @@ Execute a Lua script server side.
 
 =back
 
+L<https://redis.io/commands/evalsha>
+
 =cut
 
 sub evalsha : method {
@@ -1887,13 +2085,15 @@ sub evalsha : method {
 
 =head2 script_debug
 
-Set the debug mode for executed scripts..
+Set the debug mode for executed scripts.
 
 =over 4
 
 =item * YES|SYNC|NO
 
 =back
+
+L<https://redis.io/commands/script-debug>
 
 =cut
 
@@ -1904,13 +2104,15 @@ sub script_debug : method {
 
 =head2 script_exists
 
-Check existence of scripts in the script cache..
+Check existence of scripts in the script cache.
 
 =over 4
 
 =item * sha1 [sha1 ...]
 
 =back
+
+L<https://redis.io/commands/script-exists>
 
 =cut
 
@@ -1921,7 +2123,9 @@ sub script_exists : method {
 
 =head2 script_flush
 
-Remove all the scripts from the script cache..
+Remove all the scripts from the script cache.
+
+L<https://redis.io/commands/script-flush>
 
 =cut
 
@@ -1932,7 +2136,9 @@ sub script_flush : method {
 
 =head2 script_kill
 
-Kill the script currently in execution..
+Kill the script currently in execution.
+
+L<https://redis.io/commands/script-kill>
 
 =cut
 
@@ -1943,13 +2149,15 @@ sub script_kill : method {
 
 =head2 script_load
 
-Load the specified Lua script into the script cache..
+Load the specified Lua script into the script cache.
 
 =over 4
 
 =item * script
 
 =back
+
+L<https://redis.io/commands/script-load>
 
 =cut
 
@@ -1964,6 +2172,8 @@ sub script_load : method {
 
 Asynchronously rewrite the append-only file.
 
+L<https://redis.io/commands/bgrewriteaof>
+
 =cut
 
 sub bgrewriteaof : method {
@@ -1974,6 +2184,8 @@ sub bgrewriteaof : method {
 =head2 bgsave
 
 Asynchronously save the dataset to disk.
+
+L<https://redis.io/commands/bgsave>
 
 =cut
 
@@ -2000,6 +2212,8 @@ Kill the connection of a client.
 
 =back
 
+L<https://redis.io/commands/client-kill>
+
 =cut
 
 sub client_kill : method {
@@ -2011,6 +2225,8 @@ sub client_kill : method {
 
 Get the list of client connections.
 
+L<https://redis.io/commands/client-list>
+
 =cut
 
 sub client_list : method {
@@ -2021,6 +2237,8 @@ sub client_list : method {
 =head2 client_getname
 
 Get the current connection name.
+
+L<https://redis.io/commands/client-getname>
 
 =cut
 
@@ -2039,6 +2257,8 @@ Stop processing commands from clients for some time.
 
 =back
 
+L<https://redis.io/commands/client-pause>
+
 =cut
 
 sub client_pause : method {
@@ -2055,6 +2275,8 @@ Instruct the server whether to reply to commands.
 =item * ON|OFF|SKIP
 
 =back
+
+L<https://redis.io/commands/client-reply>
 
 =cut
 
@@ -2073,6 +2295,8 @@ Set the current connection name.
 
 =back
 
+L<https://redis.io/commands/client-setname>
+
 =cut
 
 sub client_setname : method {
@@ -2083,6 +2307,8 @@ sub client_setname : method {
 =head2 command
 
 Get array of Redis command details.
+
+L<https://redis.io/commands/command>
 
 =cut
 
@@ -2095,6 +2321,8 @@ sub command : method {
 
 Get total number of Redis commands.
 
+L<https://redis.io/commands/command-count>
+
 =cut
 
 sub command_count : method {
@@ -2105,6 +2333,8 @@ sub command_count : method {
 =head2 command_getkeys
 
 Extract keys given a full Redis command.
+
+L<https://redis.io/commands/command-getkeys>
 
 =cut
 
@@ -2123,6 +2353,8 @@ Get array of specific Redis command details.
 
 =back
 
+L<https://redis.io/commands/command-info>
+
 =cut
 
 sub command_info : method {
@@ -2140,6 +2372,8 @@ Get the value of a configuration parameter.
 
 =back
 
+L<https://redis.io/commands/config-get>
+
 =cut
 
 sub config_get : method {
@@ -2150,6 +2384,8 @@ sub config_get : method {
 =head2 config_rewrite
 
 Rewrite the configuration file with the in memory configuration.
+
+L<https://redis.io/commands/config-rewrite>
 
 =cut
 
@@ -2170,6 +2406,8 @@ Set a configuration parameter to the given value.
 
 =back
 
+L<https://redis.io/commands/config-set>
+
 =cut
 
 sub config_set : method {
@@ -2181,6 +2419,8 @@ sub config_set : method {
 
 Reset the stats returned by INFO.
 
+L<https://redis.io/commands/config-resetstat>
+
 =cut
 
 sub config_resetstat : method {
@@ -2191,6 +2431,8 @@ sub config_resetstat : method {
 =head2 dbsize
 
 Return the number of keys in the selected database.
+
+L<https://redis.io/commands/dbsize>
 
 =cut
 
@@ -2209,6 +2451,8 @@ Get debugging information about a key.
 
 =back
 
+L<https://redis.io/commands/debug-object>
+
 =cut
 
 sub debug_object : method {
@@ -2219,6 +2463,8 @@ sub debug_object : method {
 =head2 debug_segfault
 
 Make the server crash.
+
+L<https://redis.io/commands/debug-segfault>
 
 =cut
 
@@ -2237,6 +2483,8 @@ Remove all keys from all databases.
 
 =back
 
+L<https://redis.io/commands/flushall>
+
 =cut
 
 sub flushall : method {
@@ -2253,6 +2501,8 @@ Remove all keys from the current database.
 =item * [ASYNC]
 
 =back
+
+L<https://redis.io/commands/flushdb>
 
 =cut
 
@@ -2271,6 +2521,8 @@ Get information and statistics about the server.
 
 =back
 
+L<https://redis.io/commands/info>
+
 =cut
 
 sub info : method {
@@ -2281,6 +2533,8 @@ sub info : method {
 =head2 lastsave
 
 Get the UNIX time stamp of the last successful save to disk.
+
+L<https://redis.io/commands/lastsave>
 
 =cut
 
@@ -2293,6 +2547,8 @@ sub lastsave : method {
 
 Listen for all requests received by the server in real time.
 
+L<https://redis.io/commands/monitor>
+
 =cut
 
 sub monitor : method {
@@ -2304,6 +2560,8 @@ sub monitor : method {
 
 Return the role of the instance in the context of replication.
 
+L<https://redis.io/commands/role>
+
 =cut
 
 sub role : method {
@@ -2314,6 +2572,8 @@ sub role : method {
 =head2 save
 
 Synchronously save the dataset to disk.
+
+L<https://redis.io/commands/save>
 
 =cut
 
@@ -2331,6 +2591,8 @@ Synchronously save the dataset to disk and then shut down the server.
 =item * [NOSAVE|SAVE]
 
 =back
+
+L<https://redis.io/commands/shutdown>
 
 =cut
 
@@ -2351,6 +2613,8 @@ Make the server a slave of another instance, or promote it as master.
 
 =back
 
+L<https://redis.io/commands/slaveof>
+
 =cut
 
 sub slaveof : method {
@@ -2370,6 +2634,8 @@ Manages the Redis slow queries log.
 
 =back
 
+L<https://redis.io/commands/slowlog>
+
 =cut
 
 sub slowlog : method {
@@ -2381,6 +2647,8 @@ sub slowlog : method {
 
 Internal command used for replication.
 
+L<https://redis.io/commands/sync>
+
 =cut
 
 sub sync : method {
@@ -2391,6 +2659,8 @@ sub sync : method {
 =head2 time
 
 Return the current server time.
+
+L<https://redis.io/commands/time>
 
 =cut
 
@@ -2413,6 +2683,8 @@ Add one or more members to a set.
 
 =back
 
+L<https://redis.io/commands/sadd>
+
 =cut
 
 sub sadd : method {
@@ -2430,6 +2702,8 @@ Get the number of members in a set.
 
 =back
 
+L<https://redis.io/commands/scard>
+
 =cut
 
 sub scard : method {
@@ -2446,6 +2720,8 @@ Subtract multiple sets.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/sdiff>
 
 =cut
 
@@ -2466,6 +2742,8 @@ Subtract multiple sets and store the resulting set in a key.
 
 =back
 
+L<https://redis.io/commands/sdiffstore>
+
 =cut
 
 sub sdiffstore : method {
@@ -2482,6 +2760,8 @@ Intersect multiple sets.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/sinter>
 
 =cut
 
@@ -2502,6 +2782,8 @@ Intersect multiple sets and store the resulting set in a key.
 
 =back
 
+L<https://redis.io/commands/sinterstore>
+
 =cut
 
 sub sinterstore : method {
@@ -2521,6 +2803,8 @@ Determine if a given value is a member of a set.
 
 =back
 
+L<https://redis.io/commands/sismember>
+
 =cut
 
 sub sismember : method {
@@ -2537,6 +2821,8 @@ Get all the members in a set.
 =item * key
 
 =back
+
+L<https://redis.io/commands/smembers>
 
 =cut
 
@@ -2559,6 +2845,8 @@ Move a member from one set to another.
 
 =back
 
+L<https://redis.io/commands/smove>
+
 =cut
 
 sub smove : method {
@@ -2577,6 +2865,8 @@ Remove and return one or multiple random members from a set.
 =item * [count]
 
 =back
+
+L<https://redis.io/commands/spop>
 
 =cut
 
@@ -2597,6 +2887,8 @@ Get one or multiple random members from a set.
 
 =back
 
+L<https://redis.io/commands/srandmember>
+
 =cut
 
 sub srandmember : method {
@@ -2616,6 +2908,8 @@ Remove one or more members from a set.
 
 =back
 
+L<https://redis.io/commands/srem>
+
 =cut
 
 sub srem : method {
@@ -2632,6 +2926,8 @@ Add multiple sets.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/sunion>
 
 =cut
 
@@ -2651,6 +2947,8 @@ Add multiple sets and store the resulting set in a key.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/sunionstore>
 
 =cut
 
@@ -2674,6 +2972,8 @@ Incrementally iterate Set elements.
 =item * [COUNT count]
 
 =back
+
+L<https://redis.io/commands/sscan>
 
 =cut
 
@@ -2702,6 +3002,8 @@ Add one or more members to a sorted set, or update its score if it already exist
 
 =back
 
+L<https://redis.io/commands/zadd>
+
 =cut
 
 sub zadd : method {
@@ -2718,6 +3020,8 @@ Get the number of members in a sorted set.
 =item * key
 
 =back
+
+L<https://redis.io/commands/zcard>
 
 =cut
 
@@ -2740,6 +3044,8 @@ Count the members in a sorted set with scores within the given values.
 
 =back
 
+L<https://redis.io/commands/zcount>
+
 =cut
 
 sub zcount : method {
@@ -2760,6 +3066,8 @@ Increment the score of a member in a sorted set.
 =item * member
 
 =back
+
+L<https://redis.io/commands/zincrby>
 
 =cut
 
@@ -2786,6 +3094,8 @@ Intersect multiple sorted sets and store the resulting sorted set in a new key.
 
 =back
 
+L<https://redis.io/commands/zinterstore>
+
 =cut
 
 sub zinterstore : method {
@@ -2806,6 +3116,8 @@ Count the number of members in a sorted set between a given lexicographical rang
 =item * max
 
 =back
+
+L<https://redis.io/commands/zlexcount>
 
 =cut
 
@@ -2830,6 +3142,8 @@ Return a range of members in a sorted set, by index.
 
 =back
 
+L<https://redis.io/commands/zrange>
+
 =cut
 
 sub zrange : method {
@@ -2853,6 +3167,8 @@ Return a range of members in a sorted set, by lexicographical range.
 
 =back
 
+L<https://redis.io/commands/zrangebylex>
+
 =cut
 
 sub zrangebylex : method {
@@ -2862,7 +3178,7 @@ sub zrangebylex : method {
 
 =head2 zrevrangebylex
 
-Return a range of members in a sorted set, by lexicographical range, ordered from higher to lower strings..
+Return a range of members in a sorted set, by lexicographical range, ordered from higher to lower strings.
 
 =over 4
 
@@ -2875,6 +3191,8 @@ Return a range of members in a sorted set, by lexicographical range, ordered fro
 =item * [LIMIT offset count]
 
 =back
+
+L<https://redis.io/commands/zrevrangebylex>
 
 =cut
 
@@ -2901,6 +3219,8 @@ Return a range of members in a sorted set, by score.
 
 =back
 
+L<https://redis.io/commands/zrangebyscore>
+
 =cut
 
 sub zrangebyscore : method {
@@ -2920,6 +3240,8 @@ Determine the index of a member in a sorted set.
 
 =back
 
+L<https://redis.io/commands/zrank>
+
 =cut
 
 sub zrank : method {
@@ -2938,6 +3260,8 @@ Remove one or more members from a sorted set.
 =item * member [member ...]
 
 =back
+
+L<https://redis.io/commands/zrem>
 
 =cut
 
@@ -2960,6 +3284,8 @@ Remove all members in a sorted set between the given lexicographical range.
 
 =back
 
+L<https://redis.io/commands/zremrangebylex>
+
 =cut
 
 sub zremrangebylex : method {
@@ -2981,6 +3307,8 @@ Remove all members in a sorted set within the given indexes.
 
 =back
 
+L<https://redis.io/commands/zremrangebyrank>
+
 =cut
 
 sub zremrangebyrank : method {
@@ -3001,6 +3329,8 @@ Remove all members in a sorted set within the given scores.
 =item * max
 
 =back
+
+L<https://redis.io/commands/zremrangebyscore>
 
 =cut
 
@@ -3024,6 +3354,8 @@ Return a range of members in a sorted set, by index, with scores ordered from hi
 =item * [WITHSCORES]
 
 =back
+
+L<https://redis.io/commands/zrevrange>
 
 =cut
 
@@ -3050,6 +3382,8 @@ Return a range of members in a sorted set, by score, with scores ordered from hi
 
 =back
 
+L<https://redis.io/commands/zrevrangebyscore>
+
 =cut
 
 sub zrevrangebyscore : method {
@@ -3069,6 +3403,8 @@ Determine the index of a member in a sorted set, with scores ordered from high t
 
 =back
 
+L<https://redis.io/commands/zrevrank>
+
 =cut
 
 sub zrevrank : method {
@@ -3087,6 +3423,8 @@ Get the score associated with the given member in a sorted set.
 =item * member
 
 =back
+
+L<https://redis.io/commands/zscore>
 
 =cut
 
@@ -3113,6 +3451,8 @@ Add multiple sorted sets and store the resulting sorted set in a new key.
 
 =back
 
+L<https://redis.io/commands/zunionstore>
+
 =cut
 
 sub zunionstore : method {
@@ -3136,6 +3476,8 @@ Incrementally iterate sorted sets elements and associated scores.
 
 =back
 
+L<https://redis.io/commands/zscan>
+
 =cut
 
 sub zscan : method {
@@ -3157,6 +3499,8 @@ Append a value to a key.
 
 =back
 
+L<https://redis.io/commands/append>
+
 =cut
 
 sub append : method {
@@ -3175,6 +3519,8 @@ Count set bits in a string.
 =item * [start end]
 
 =back
+
+L<https://redis.io/commands/bitcount>
 
 =cut
 
@@ -3201,6 +3547,8 @@ Perform arbitrary bitfield integer operations on strings.
 
 =back
 
+L<https://redis.io/commands/bitfield>
+
 =cut
 
 sub bitfield : method {
@@ -3221,6 +3569,8 @@ Perform bitwise operations between strings.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/bitop>
 
 =cut
 
@@ -3245,6 +3595,8 @@ Find first bit set or clear in a string.
 
 =back
 
+L<https://redis.io/commands/bitpos>
+
 =cut
 
 sub bitpos : method {
@@ -3261,6 +3613,8 @@ Decrement the integer value of a key by one.
 =item * key
 
 =back
+
+L<https://redis.io/commands/decr>
 
 =cut
 
@@ -3281,6 +3635,8 @@ Decrement the integer value of a key by the given number.
 
 =back
 
+L<https://redis.io/commands/decrby>
+
 =cut
 
 sub decrby : method {
@@ -3297,6 +3653,8 @@ Get the value of a key.
 =item * key
 
 =back
+
+L<https://redis.io/commands/get>
 
 =cut
 
@@ -3316,6 +3674,8 @@ Returns the bit value at offset in the string value stored at key.
 =item * offset
 
 =back
+
+L<https://redis.io/commands/getbit>
 
 =cut
 
@@ -3338,6 +3698,8 @@ Get a substring of the string stored at a key.
 
 =back
 
+L<https://redis.io/commands/getrange>
+
 =cut
 
 sub getrange : method {
@@ -3357,6 +3719,8 @@ Set the string value of a key and return its old value.
 
 =back
 
+L<https://redis.io/commands/getset>
+
 =cut
 
 sub getset : method {
@@ -3373,6 +3737,8 @@ Increment the integer value of a key by one.
 =item * key
 
 =back
+
+L<https://redis.io/commands/incr>
 
 =cut
 
@@ -3393,6 +3759,8 @@ Increment the integer value of a key by the given amount.
 
 =back
 
+L<https://redis.io/commands/incrby>
+
 =cut
 
 sub incrby : method {
@@ -3412,6 +3780,8 @@ Increment the float value of a key by the given amount.
 
 =back
 
+L<https://redis.io/commands/incrbyfloat>
+
 =cut
 
 sub incrbyfloat : method {
@@ -3428,6 +3798,8 @@ Get the values of all the given keys.
 =item * key [key ...]
 
 =back
+
+L<https://redis.io/commands/mget>
 
 =cut
 
@@ -3446,6 +3818,8 @@ Set multiple keys to multiple values.
 
 =back
 
+L<https://redis.io/commands/mset>
+
 =cut
 
 sub mset : method {
@@ -3462,6 +3836,8 @@ Set multiple keys to multiple values, only if none of the keys exist.
 =item * key value [key value ...]
 
 =back
+
+L<https://redis.io/commands/msetnx>
 
 =cut
 
@@ -3483,6 +3859,8 @@ Set the value and expiration in milliseconds of a key.
 =item * value
 
 =back
+
+L<https://redis.io/commands/psetex>
 
 =cut
 
@@ -3509,6 +3887,8 @@ Set the string value of a key.
 
 =back
 
+L<https://redis.io/commands/set>
+
 =cut
 
 sub set : method {
@@ -3529,6 +3909,8 @@ Sets or clears the bit at offset in the string value stored at key.
 =item * value
 
 =back
+
+L<https://redis.io/commands/setbit>
 
 =cut
 
@@ -3551,6 +3933,8 @@ Set the value and expiration of a key.
 
 =back
 
+L<https://redis.io/commands/setex>
+
 =cut
 
 sub setex : method {
@@ -3569,6 +3953,8 @@ Set the value of a key, only if the key does not exist.
 =item * value
 
 =back
+
+L<https://redis.io/commands/setnx>
 
 =cut
 
@@ -3591,6 +3977,8 @@ Overwrite part of a string at key starting at the specified offset.
 
 =back
 
+L<https://redis.io/commands/setrange>
+
 =cut
 
 sub setrange : method {
@@ -3608,6 +3996,8 @@ Get the length of the value stored in a key.
 
 =back
 
+L<https://redis.io/commands/strlen>
+
 =cut
 
 sub strlen : method {
@@ -3621,6 +4011,8 @@ sub strlen : method {
 
 Discard all commands issued after MULTI.
 
+L<https://redis.io/commands/discard>
+
 =cut
 
 sub discard : method {
@@ -3631,6 +4023,8 @@ sub discard : method {
 =head2 exec
 
 Execute all commands issued after MULTI.
+
+L<https://redis.io/commands/exec>
 
 =cut
 
@@ -3643,6 +4037,8 @@ sub exec : method {
 
 Mark the start of a transaction block.
 
+L<https://redis.io/commands/multi>
+
 =cut
 
 sub multi : method {
@@ -3653,6 +4049,8 @@ sub multi : method {
 =head2 unwatch
 
 Forget about all watched keys.
+
+L<https://redis.io/commands/unwatch>
 
 =cut
 
@@ -3671,13 +4069,14 @@ Watch the given keys to determine execution of the MULTI/EXEC block.
 
 =back
 
+L<https://redis.io/commands/watch>
+
 =cut
 
 sub watch : method {
     my ($self, @args) = @_;
     $self->execute_command('WATCH' => @args)
 }
-
 
 1;
 
