@@ -63,6 +63,8 @@ package Net::Async::Redis::Commands;
 use strict;
 use warnings;
 
+# VERSION
+
 =head1 NAME
 
 Net::Async::Redis::Commands - mixin that defines the Redis commands available
@@ -94,6 +96,8 @@ for each available Redis command.
 =back
 
 [%   END -%]
+L<https://redis.io/commands/[% command.method.lower.replace('_', '-') %]>
+
 =cut
 
 sub [% command.method %] : method {
@@ -103,7 +107,6 @@ sub [% command.method %] : method {
 
 [%  END -%]
 [% END -%]
-
 1;
 
 __END__
