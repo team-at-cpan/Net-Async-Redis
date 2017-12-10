@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Dependencies:
+
+    - Explicit Log::Any dependency to ensure that context support is available
 
 1.001     2017-12-11 05:38:20+08:00 Asia/Kuala_Lumpur
     Dependencies:
