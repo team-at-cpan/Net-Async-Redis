@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.001     2017-12-11 05:38:20+08:00 Asia/Kuala_Lumpur
     Dependencies:
 
     - Added Test::HexString and Test::Deep to test deps list
