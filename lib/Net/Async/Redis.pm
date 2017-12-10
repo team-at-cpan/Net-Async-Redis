@@ -113,6 +113,33 @@ sub subscribe {
         })
 }
 
+=head1 METHODS - Transactions
+
+
+
+=cut
+
+=head2 multi
+
+Executes the given code in a Redis C<MULTI> transaction.
+
+This will cause each of the requests to be queued, then executed in a single atomic transaction.
+
+Example:
+
+ $redis->multi(sub {
+  my $tx = shift;
+  $tx->incr('some::key')->on_done(sub { print "Final value for incremented key was " . shift . "\n"; });
+  $tx->set('other::key => 'test data')
+ })->then(sub {
+  my ($success, $failure) = @_;
+  return Future->fail("Had $failure failures, expecting everything to succeed") if $failure;
+  print "$success succeeded\m";
+  return Future->done;
+ });
+
+=cut
+
 sub multi {
     use Scalar::Util qw(reftype);
     use namespace::clean qw(reftype);
