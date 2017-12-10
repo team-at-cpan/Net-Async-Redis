@@ -45,6 +45,7 @@ for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
         args    => [ map { s/\h+$//r } map { s/^\h+//r } grep { /\S/ } split /\n/, join '', map { $_->as_text } $cmd->parent->look_down(_tag => 'span', class => 'args') ],
         summary => join("\n", map { $_->as_text } $cmd->parent->look_down(_tag => 'span', class => 'summary')),
     };
+    $info->{summary} =~ s{\.$}{};
     $log->debugf("Adding command %s", $info);
 }
 
