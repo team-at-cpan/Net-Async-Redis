@@ -109,7 +109,6 @@ sub subscribe {
 	my ($self, @channels) = @_;
     $self->next::method(@channels)
         ->then(sub {
-                warn "self = $self";
             $self->{pubsub} = 1;
             my @subs = map {
                 $self->{subscription_channel}{$_} //= Net::Async::Redis::Subscription->new(
