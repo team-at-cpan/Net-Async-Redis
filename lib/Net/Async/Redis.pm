@@ -71,8 +71,14 @@ sub psubscribe {
 	return $self->execute_command(
 		PSUBSCRIBE => $pattern
 	)->then(sub {
-            $self->{pubsub} = 1;
-		Future->done
+        $self->{pubsub} = 1;
+        my @subs = map {
+            $self->{subscription_pattern_channel}{$_} //= Net::Async::Redis::Subscription->new(
+                redis => $self,
+                channel => $_
+            )
+        } @channels;
+        Future->done(@subs);
 	})
 }
 
