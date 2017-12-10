@@ -46,22 +46,18 @@ my (@channels) = @ARGV or die 'need at least one channel to listen on';
 Future->wait_any(
     $redis->connect
         ->then(sub {
-            Future->needs_all(
-                map {
-                    $redis->subscribe($_)
-                        ->then(sub {
-                            Future->needs_all(
-                                map $_->events
-                                    ->sprintf_methods('%s => %s', qw(channel payload))
-                                    ->say
-                                    ->completed
-                                    ->on_done(sub {
-                                        say $_ // '<undef>' for @_;
-                                    }), @_
-                            )
-                        })
-                } @channels
-            )
+            $redis->subscribe(@channels)
+                ->then(sub {
+                    Future->needs_all(
+                        map $_->events
+                            ->sprintf_methods('%s => %s', qw(channel payload))
+                            ->say
+                            ->completed
+                            ->on_done(sub {
+                                say $_ // '<undef>' for @_;
+                            }), @_
+                    )
+                })
         }),
     $loop->timeout_future(after => $timeout),
 )->get;
