@@ -55,6 +55,8 @@ B<NOTE>: For a full list of Redis methods, please see L<Net::Async::Redis::Comma
 =head1 METHODS - Subscriptions
 
 See L<https://redis.io/topics/pubsub> for more details on this topic.
+There's also more details on the internal implementation in Redis here:
+L<https://making.pusher.com/redis-pubsub-under-the-hood/>.
 
 =cut
 
