@@ -50,14 +50,15 @@ Future->wait_any(
                 map {
                     $redis->subscribe($_)
                         ->then(sub {
-                            my $sub = shift;
-                            $sub->events
-                                ->sprintf_methods('%s => %s', qw(channel payload))
-                                ->say
-                                ->completed
-                                ->on_done(sub {
-                                    say $_ // '<undef>' for @_;
-                                })
+                            Future->needs_all(
+                                map $_->events
+                                    ->sprintf_methods('%s => %s', qw(channel payload))
+                                    ->say
+                                    ->completed
+                                    ->on_done(sub {
+                                        say $_ // '<undef>' for @_;
+                                    }), @_
+                            )
                         })
                 } @channels
             )
