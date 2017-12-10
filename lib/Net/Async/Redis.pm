@@ -72,13 +72,12 @@ sub psubscribe {
 		PSUBSCRIBE => $pattern
 	)->then(sub {
         $self->{pubsub} = 1;
-        my @subs = map {
-            $self->{subscription_pattern_channel}{$_} //= Net::Async::Redis::Subscription->new(
+        Future->done(
+            $self->{subscription_pattern_channel}{$pattern} //= Net::Async::Redis::Subscription->new(
                 redis => $self,
-                channel => $_
+                channel => $pattern
             )
-        } @channels;
-        Future->done(@subs);
+        );
 	})
 }
 
@@ -263,8 +262,22 @@ sub on_message {
                     $log->errorf('Have message for unknown pattern channel [%s]', $channel);
                 }
             }
+        } elsif($type eq 'unsubscribe') {
+            if(my $sub = delete $self->{subscription_channel}{$channel}) {
+                $log->tracef('Removed subscription for [%s]', $channel);
+                delete $self->{pubsub} unless keys(%{$self->{subscription_channel}}) or keys(%{$self->{subscription_pattern_channel}});
+            } else {
+                $log->errorf('Have unsubscription for unknown channel [%s]', $channel);
+            }
+        } elsif($type eq 'punsubscribe') {
+            if(my $sub = delete $self->{subscription_pattern_channel}{$channel}) {
+                $log->tracef('Removed pattern subscription for [%s]', $channel);
+                delete $self->{pubsub} unless keys(%{$self->{subscription_channel}}) or keys(%{$self->{subscription_pattern_channel}});
+            } else {
+                $log->errorf('Have pattern unsubscription for unknown channel [%s]', $channel);
+            }
         } else {
-            $log->infof('have %s with channel %s payload %s', $type, $channel, $payload);
+            $log->errorf('have unknown pubsub message type %s with channel %s payload %s', $type, $channel, $payload);
         }
 		$self->bus->invoke_event(message => $data) if exists $self->{bus};
 	} else {
