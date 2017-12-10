@@ -71,7 +71,7 @@ sub AUTOLOAD {
     die "Unknown method $method" unless Net::Async::Redis::Commands->can($method);
     push @{$self->{queued_requests}}, my $f = $self->redis->$method(@args)->then(sub {
         my ($resp) = @_;
-        return $self->redis->loop->new_future if $resp eq 'QUEUED';
+        return $self->redis->future->set_label($method) if $resp eq 'QUEUED';
         Future->fail(@_)
     });
     $f

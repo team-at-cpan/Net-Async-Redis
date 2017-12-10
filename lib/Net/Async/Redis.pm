@@ -342,6 +342,11 @@ sub ryu {
     }
 }
 
+sub future {
+    my ($self) = @_;
+    return $self->loop->new_future(@_);
+}
+
 sub protocol {
 	my ($self) = @_;
 	$self->{protocol} ||= do {
