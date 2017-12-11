@@ -283,6 +283,8 @@ sub execute_command {
     ) if keys(%{$self->{subscription_channel}}) + keys(%{$self->{subscription_pattern_channel}});
 	my $f = $self->loop->new_future->set_label($self->command_label(@cmd));
 	push @{$self->{pending}}, [ join(' ', @cmd), $f ];
+    @cmd > 1 ? $self->debug_printf( "> $cmd[0] [%d args]", @cmd-1)
+	     : $self->debug_printf( "> $cmd[0]" );
     return $self->stream->write(
         $self->protocol->encode_from_client(@cmd)
     )->then(sub {
