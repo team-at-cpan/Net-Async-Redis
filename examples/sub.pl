@@ -20,6 +20,8 @@ use IO::Async::Loop;
 use Getopt::Long;
 use Pod::Usage;
 
+use Log::Any::Adapter qw(Stdout), log_level => 'trace';
+
 GetOptions(
     'p|port' => \my $port,
     'h|host' => \my $host,
