@@ -71,7 +71,7 @@ sub psubscribe {
 	return $self->execute_command(
 		PSUBSCRIBE => $pattern
 	)->then(sub {
-        $self->{pubsub} = 1;
+        $self->{pubsub} //= 0;
         Future->done(
             $self->{subscription_pattern_channel}{$pattern} //= Net::Async::Redis::Subscription->new(
                 redis => $self,
@@ -108,14 +108,17 @@ sub subscribe {
 	my ($self, @channels) = @_;
     $self->next::method(@channels)
         ->then(sub {
-            $self->{pubsub} = 1;
-            my @subs = map {
-                $self->{subscription_channel}{$_} //= Net::Async::Redis::Subscription->new(
-                    redis => $self,
-                    channel => $_
-                )
-            } @channels;
-            Future->done(@subs);
+            $log->tracef('Marking as pubsub mode');
+            $self->{pubsub} //= 0;
+            Future->wait_all(
+                map {
+                    $self->{pending_subscription_channel}{$_} //= $self->future('subscription[' . $_ . ']')
+                } @channels
+            )
+        })->then(sub {
+            Future->done(
+                @{$self->{subscription_channel}}{@channels}
+            )
         })
 }
 
@@ -228,66 +231,60 @@ sub connect {
 
 Called for each incoming message.
 
+Passes off the work to L</handle_pubsub_message> or L</handle_normal_message> depending
+on whether we're dealing with subscriptions at the moment.
+
 =cut
 
 sub on_message {
 	my ($self, $data) = @_;
-	if($self->{pubsub}) {
-        my ($type, $channel, $payload) = @$data;
-        if($type =~ /message$/) {
-            if($type eq 'message') {
-                if(my $sub = $self->{subscription_channel}{$channel}) {
-                    my $msg = Net::Async::Redis::Subscription::Message->new(
-                        type => $type,
-                        channel => $channel,
-                        payload => $payload,
-                        redis   => $self,
-                        subscription => $sub
-                    );
-                    $sub->events->emit($msg);
-                } else {
-                    $log->errorf('Have message for unknown channel [%s]', $channel);
-                }
-            } elsif($type eq 'pmessage') {
-                if(my $sub = $self->{subscription_pattern_channel}{$channel}) {
-                    my $msg = Net::Async::Redis::PubSub::Message->new(
-                        type => $type,
-                        channel => $channel,
-                        payload => $payload,
-                        redis   => $self,
-                        subscription => $sub
-                    );
-                    $sub->events->emit($msg);
-                } else {
-                    $log->errorf('Have message for unknown pattern channel [%s]', $channel);
-                }
-            }
-        } elsif($type eq 'unsubscribe') {
-            if(my $sub = delete $self->{subscription_channel}{$channel}) {
-                $log->tracef('Removed subscription for [%s]', $channel);
-                delete $self->{pubsub} unless keys(%{$self->{subscription_channel}}) or keys(%{$self->{subscription_pattern_channel}});
-            } else {
-                $log->errorf('Have unsubscription for unknown channel [%s]', $channel);
-            }
-        } elsif($type eq 'punsubscribe') {
-            if(my $sub = delete $self->{subscription_pattern_channel}{$channel}) {
-                $log->tracef('Removed pattern subscription for [%s]', $channel);
-                delete $self->{pubsub} unless keys(%{$self->{subscription_channel}}) or keys(%{$self->{subscription_pattern_channel}});
-            } else {
-                $log->errorf('Have pattern unsubscription for unknown channel [%s]', $channel);
-            }
-        } elsif($type eq 'subscribe') {
-            $log->errorf('Have subscription for unknown channel [%s]', $channel) unless exists $self->{subscription_channel}{$channel};
-        } elsif($type eq 'punsubscribe') {
-            $log->errorf('Have subscription for unknown pattern channel [%s]', $channel) unless exists $self->{subscription_pattern_channel}{$channel};
+    $log->tracef('Incoming message: %s', $data);
+    return $self->handle_pubsub_message(@$data) if exists $self->{pubsub};
+    return $self->handle_normal_message($data);
+}
+
+sub handle_normal_message {
+    my ($self, $data) = @_;
+    my $next = shift @{$self->{pending}} or die "No pending handler";
+    $next->[1]->done($data);
+}
+
+sub handle_pubsub_message {
+    my ($self, $type, $channel, $payload) = @_;
+    $type = lc $type;
+    my $k = (substr $type, 0, 1) eq 'p' ? 'subscription_pattern_channel' : 'subscription_channel';
+    if($type =~ /message$/) {
+        if(my $sub = $self->{$k}{$channel}) {
+            my $msg = Net::Async::Redis::Subscription::Message->new(
+                type => $type,
+                channel => $channel,
+                payload => $payload,
+                redis   => $self,
+                subscription => $sub
+            );
+            $sub->events->emit($msg);
         } else {
-            $log->errorf('have unknown pubsub message type %s with channel %s payload %s', $type, $channel, $payload);
+            $log->errorf('Have message for unknown channel [%s]', $channel);
         }
-		$self->bus->invoke_event(message => $data) if exists $self->{bus};
-	} else {
-		my $next = shift @{$self->{pending}} or die "No pending handler";
-		$next->[1]->done($data);
-	}
+    } elsif($type =~ /unsubscribe$/) {
+        --$self->{pubsub};
+        if(my $sub = delete $self->{$k}{$channel}) {
+            $log->tracef('Removed subscription for [%s]', $channel);
+        } else {
+            $log->errorf('Have unsubscription for unknown channel [%s]', $channel);
+        }
+    } elsif($type =~ /subscribe$/) {
+        $log->errorf('Have %s subscription for [%s]', (exists $self->{$k}{$channel} ? 'existing' : 'new'), $channel);
+        ++$self->{pubsub};
+        $self->{$k}{$channel} //= Net::Async::Redis::Subscription->new(
+            redis => $self,
+            channel => $channel
+        );
+        $self->{'pending_' . $k}{$channel}->done($payload);
+    } else {
+        $log->errorf('have unknown pubsub message type %s with channel %s payload %s', $type, $channel, $payload);
+    }
+    $self->bus->invoke_event(message => [ $type, $channel, $payload ]) if exists $self->{bus};
 }
 
 =head2 stream
@@ -339,19 +336,31 @@ sub command_label {
 	return $cmd[0];
 }
 
+our %ALLOWED_SUBSCRIPTION_COMMANDS = (
+    SUBSCRIBE    => 1,
+    PSUBSCRIBE   => 1,
+    UNSUBSCRIBE  => 1,
+    PUNSUBSCRIBE => 1,
+    PING         => 1,
+    QUIT         => 1,
+);
+
 sub execute_command {
 	my ($self, @cmd) = @_;
+    my $is_sub_command = exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
     return Future->fail(
         'Currently in pubsub mode, cannot send regular commands until unsubscribed',
         redis =>
             0 + (keys %{$self->{subscription_channel}}),
             0 + (keys %{$self->{subscription_pattern_channel}})
-    ) if keys(%{$self->{subscription_channel}}) + keys(%{$self->{subscription_pattern_channel}});
+    ) if exists $self->{pubsub} and not $is_sub_command;
 	my $f = $self->loop->new_future->set_label($self->command_label(@cmd));
 	push @{$self->{pending}}, [ join(' ', @cmd), $f ];
+    $log->tracef('Outgoing [%s]', join ' ', @cmd);
     return $self->stream->write(
         $self->protocol->encode_from_client(@cmd)
     )->then(sub {
+        $f->done if $is_sub_command;
         $f
     });
 }
@@ -393,9 +402,15 @@ Some other Redis implementations on CPAN:
 
 =item * L<Mojo::Redis2> - nonblocking, using the L<Mojolicious> framework, actively maintained
 
+=item * L<MojoX::Redis>
+
 =item * L<RedisDB>
 
 =item * L<Cache::Redis>
+
+=item * L<Redis::Fast>
+
+=item * L<Redis::Jet>
 
 =back
 
