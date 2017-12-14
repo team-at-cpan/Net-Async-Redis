@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Examples:
+
+    - `examples/job-hash-worker.pl` - reliable priority-queue worker with job
+    details in separate hash key
+    - `examples/job-hash-submit.pl` - submit requests for priority-queue workers
+
 
 1.002     2017-12-11 06:06:47+08:00 Asia/Kuala_Lumpur
     Dependencies:
