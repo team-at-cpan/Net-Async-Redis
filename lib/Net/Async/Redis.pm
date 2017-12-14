@@ -124,10 +124,6 @@ sub subscribe {
 
 =head1 METHODS - Transactions
 
-
-
-=cut
-
 =head2 multi
 
 Executes the given code in a Redis C<MULTI> transaction.
@@ -159,15 +155,42 @@ sub multi {
     );
     $self->next::method
         ->then(sub {
+            $self->{transaction} = $multi;
             $multi->exec($code)
         })
 }
+
+sub discard {
+    my ($self, @args) = @_;
+    $self->next::method
+        ->on_ready(sub {
+             delete $self->{transaction};
+        })
+}
+
+sub exec {
+    my ($self, @args) = @_;
+    $self->next::method
+        ->on_ready(sub {
+             delete $self->{transaction};
+        })
+}
+
+=head1 METHODS - Generic
+
+=head2 keys
+
+=cut
 
 sub keys : method {
 	my ($self, $match) = @_;
 	$match //= '*';
     return $self->next::method($match);
 }
+
+=head2 watch_keyspace
+
+=cut
 
 sub watch_keyspace {
 	my ($self, $pattern, $code) = @_;
@@ -347,6 +370,8 @@ our %ALLOWED_SUBSCRIPTION_COMMANDS = (
 
 sub execute_command {
 	my ($self, @cmd) = @_;
+
+    # First, the rules: pubsub or plain
     my $is_sub_command = exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
     return Future->fail(
         'Currently in pubsub mode, cannot send regular commands until unsubscribed',
@@ -354,6 +379,13 @@ sub execute_command {
             0 + (keys %{$self->{subscription_channel}}),
             0 + (keys %{$self->{subscription_pattern_channel}})
     ) if exists $self->{pubsub} and not $is_sub_command;
+
+    # One transaction at a time
+    return Future->fail(
+        'Cannot use MULTI inside an existing transaction',
+        redis => ()
+    ) if exists $self->{transaction} and $cmd[0] eq 'MULTI';
+
 	my $f = $self->loop->new_future->set_label($self->command_label(@cmd));
 	push @{$self->{pending}}, [ join(' ', @cmd), $f ];
     $log->tracef('Outgoing [%s]', join ' ', @cmd);
