@@ -3,6 +3,19 @@ package Net::Async::Redis::Server::Database;
 use strict;
 use warnings;
 
+# VERSION
+
+=head1 NAME
+
+Net::Async::Redis::Server::Database - implementation for database-related Redis commands
+
+=head1 DESCRIPTION
+
+See L<Net::Async::Redis::Commands> for the full list of commands.
+Not all of them will be implemented yet.
+
+=cut
+
 sub set {
     my ($self, $k, $v, @args) = @_;
     my %opt;
