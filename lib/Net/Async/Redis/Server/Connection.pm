@@ -1,4 +1,4 @@
-package Net::Async::Redis::Server;
+package Net::Async::Redis::Server::Connection;
 
 use strict;
 use warnings;
