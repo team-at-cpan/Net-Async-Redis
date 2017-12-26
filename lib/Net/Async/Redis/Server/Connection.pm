@@ -5,9 +5,15 @@ use warnings;
 
 use parent qw(IO::Async::Notifier);
 
+# VERSION
+
 =head1 NAME
 
 Net::Async::Redis::Server::Connection - represents a single connection to a server
+
+=head1 DESCRIPTION
+
+Best to wait until the 2.000 release for this one.
 
 =cut
 
