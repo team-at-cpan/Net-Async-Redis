@@ -187,10 +187,9 @@ sub multi {
 around [qw(discard exec)] => sub {
     my ($code, $self, @args) = @_;
     local $self->{_is_multi} = 1;
-    $self->$code
-        ->on_ready(sub {
-             (shift @{$self->{pending_multi}})->done;
-        })
+    my $f = $self->$code(@args);
+    (shift @{$self->{pending_multi}})->done;
+    $f
 };
 
 =head1 METHODS - Generic
