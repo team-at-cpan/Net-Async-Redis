@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.004     2017-12-29 20:10:42+08:00 Asia/Kuala_Lumpur
     No new features.
 
     Performance improvements:
