@@ -10,6 +10,7 @@ requires 'Log::Any', '>= 1.050';
 requires 'URI', 0;
 requires 'URI::redis', 0;
 requires 'Class::Method::Modifiers', 0;
+requires 'Math::Random::Secure', 0;
 
 on 'test' => sub {
     requires 'Test::More', '>= 0.98';
@@ -22,4 +23,3 @@ on 'develop' => sub {
     requires 'Template';
     requires 'HTML::TreeBuilder';
 };
-
