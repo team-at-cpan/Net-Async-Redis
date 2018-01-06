@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Dependencies:
+
+    - Class::Method::Modifiers, and make sure we have a recent version of Future.pm
 
 1.004     2017-12-29 20:10:42+08:00 Asia/Kuala_Lumpur
     No new features.
