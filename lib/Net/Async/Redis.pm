@@ -3,7 +3,7 @@ package Net::Async::Redis;
 use strict;
 use warnings;
 
-use parent qw(Net::Async::Redis::Commands IO::Async::Notifier);
+use parent qw(IO::Async::Notifier);
 
 our $VERSION = '1.005';
 
@@ -54,6 +54,7 @@ use List::Util qw(pairmap);
 use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
 use Net::Async::Redis::Subscription::Message;
+use Net::Async::Redis::Commands;
 
 =head1 METHODS
 

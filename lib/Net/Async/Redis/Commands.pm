@@ -18,6 +18,23 @@ for each available Redis command.
 
 =cut
 
+my %commands;
+
+sub register {
+    my ($cmd, $code) = @_;
+    die 'already registered ' . $cmd if exists $commands{$cmd};
+    $commands{$cmd} = $code;
+}
+
+sub import {
+    my ($class) = @_;
+    my ($pkg) = caller;
+    {
+        no strict 'refs'; 
+        *{$pkg . '::' . $_} ||= $commands{$_} for keys %commands;
+    }
+}
+
 =head1 METHODS - Cluster
 
 =head2 cluster_addslots
@@ -34,10 +51,10 @@ L<https://redis.io/commands/cluster-addslots>
 
 =cut
 
-sub cluster_addslots : method {
+register cluster_addslots => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER ADDSLOTS) => @args)
-}
+};
 
 =head2 cluster_count_failure_reports
 
@@ -53,10 +70,10 @@ L<https://redis.io/commands/cluster-count-failure-reports>
 
 =cut
 
-sub cluster_count_failure_reports : method {
+register cluster_count_failure_reports => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER COUNT-FAILURE-REPORTS) => @args)
-}
+};
 
 =head2 cluster_countkeysinslot
 
@@ -72,10 +89,10 @@ L<https://redis.io/commands/cluster-countkeysinslot>
 
 =cut
 
-sub cluster_countkeysinslot : method {
+register cluster_countkeysinslot => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER COUNTKEYSINSLOT) => @args)
-}
+};
 
 =head2 cluster_delslots
 
@@ -91,10 +108,10 @@ L<https://redis.io/commands/cluster-delslots>
 
 =cut
 
-sub cluster_delslots : method {
+register cluster_delslots => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER DELSLOTS) => @args)
-}
+};
 
 =head2 cluster_failover
 
@@ -110,10 +127,10 @@ L<https://redis.io/commands/cluster-failover>
 
 =cut
 
-sub cluster_failover : method {
+register cluster_failover => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER FAILOVER) => @args)
-}
+};
 
 =head2 cluster_forget
 
@@ -129,10 +146,10 @@ L<https://redis.io/commands/cluster-forget>
 
 =cut
 
-sub cluster_forget : method {
+register cluster_forget => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER FORGET) => @args)
-}
+};
 
 =head2 cluster_getkeysinslot
 
@@ -150,10 +167,10 @@ L<https://redis.io/commands/cluster-getkeysinslot>
 
 =cut
 
-sub cluster_getkeysinslot : method {
+register cluster_getkeysinslot => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER GETKEYSINSLOT) => @args)
-}
+};
 
 =head2 cluster_info
 
@@ -163,10 +180,10 @@ L<https://redis.io/commands/cluster-info>
 
 =cut
 
-sub cluster_info : method {
+register cluster_info => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER INFO) => @args)
-}
+};
 
 =head2 cluster_keyslot
 
@@ -182,10 +199,10 @@ L<https://redis.io/commands/cluster-keyslot>
 
 =cut
 
-sub cluster_keyslot : method {
+register cluster_keyslot => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER KEYSLOT) => @args)
-}
+};
 
 =head2 cluster_meet
 
@@ -203,10 +220,10 @@ L<https://redis.io/commands/cluster-meet>
 
 =cut
 
-sub cluster_meet : method {
+register cluster_meet => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER MEET) => @args)
-}
+};
 
 =head2 cluster_nodes
 
@@ -216,10 +233,10 @@ L<https://redis.io/commands/cluster-nodes>
 
 =cut
 
-sub cluster_nodes : method {
+register cluster_nodes => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER NODES) => @args)
-}
+};
 
 =head2 cluster_replicate
 
@@ -235,10 +252,10 @@ L<https://redis.io/commands/cluster-replicate>
 
 =cut
 
-sub cluster_replicate : method {
+register cluster_replicate => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER REPLICATE) => @args)
-}
+};
 
 =head2 cluster_reset
 
@@ -254,10 +271,10 @@ L<https://redis.io/commands/cluster-reset>
 
 =cut
 
-sub cluster_reset : method {
+register cluster_reset => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER RESET) => @args)
-}
+};
 
 =head2 cluster_saveconfig
 
@@ -267,10 +284,10 @@ L<https://redis.io/commands/cluster-saveconfig>
 
 =cut
 
-sub cluster_saveconfig : method {
+register cluster_saveconfig => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER SAVECONFIG) => @args)
-}
+};
 
 =head2 cluster_set_config_epoch
 
@@ -286,10 +303,10 @@ L<https://redis.io/commands/cluster-set-config-epoch>
 
 =cut
 
-sub cluster_set_config_epoch : method {
+register cluster_set_config_epoch => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER SET-CONFIG-EPOCH) => @args)
-}
+};
 
 =head2 cluster_setslot
 
@@ -309,10 +326,10 @@ L<https://redis.io/commands/cluster-setslot>
 
 =cut
 
-sub cluster_setslot : method {
+register cluster_setslot => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER SETSLOT) => @args)
-}
+};
 
 =head2 cluster_slaves
 
@@ -328,10 +345,10 @@ L<https://redis.io/commands/cluster-slaves>
 
 =cut
 
-sub cluster_slaves : method {
+register cluster_slaves => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER SLAVES) => @args)
-}
+};
 
 =head2 cluster_slots
 
@@ -341,10 +358,10 @@ L<https://redis.io/commands/cluster-slots>
 
 =cut
 
-sub cluster_slots : method {
+register cluster_slots => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER SLOTS) => @args)
-}
+};
 
 =head2 readonly
 
@@ -354,10 +371,10 @@ L<https://redis.io/commands/readonly>
 
 =cut
 
-sub readonly : method {
+register readonly => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(READONLY) => @args)
-}
+};
 
 =head2 readwrite
 
@@ -367,10 +384,10 @@ L<https://redis.io/commands/readwrite>
 
 =cut
 
-sub readwrite : method {
+register readwrite => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(READWRITE) => @args)
-}
+};
 
 =head1 METHODS - Connection
 
@@ -388,10 +405,10 @@ L<https://redis.io/commands/auth>
 
 =cut
 
-sub auth : method {
+register auth => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(AUTH) => @args)
-}
+};
 
 =head2 echo
 
@@ -407,10 +424,10 @@ L<https://redis.io/commands/echo>
 
 =cut
 
-sub echo : method {
+register echo => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ECHO) => @args)
-}
+};
 
 =head2 ping
 
@@ -426,10 +443,10 @@ L<https://redis.io/commands/ping>
 
 =cut
 
-sub ping : method {
+register ping => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PING) => @args)
-}
+};
 
 =head2 quit
 
@@ -439,10 +456,10 @@ L<https://redis.io/commands/quit>
 
 =cut
 
-sub quit : method {
+register quit => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(QUIT) => @args)
-}
+};
 
 =head2 select
 
@@ -458,10 +475,10 @@ L<https://redis.io/commands/select>
 
 =cut
 
-sub select : method {
+register select => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SELECT) => @args)
-}
+};
 
 =head2 swapdb
 
@@ -479,10 +496,10 @@ L<https://redis.io/commands/swapdb>
 
 =cut
 
-sub swapdb : method {
+register swapdb => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SWAPDB) => @args)
-}
+};
 
 =head1 METHODS - Generic
 
@@ -500,10 +517,10 @@ L<https://redis.io/commands/del>
 
 =cut
 
-sub del : method {
+register del => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DEL) => @args)
-}
+};
 
 =head2 dump
 
@@ -519,10 +536,10 @@ L<https://redis.io/commands/dump>
 
 =cut
 
-sub dump : method {
+register dump => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DUMP) => @args)
-}
+};
 
 =head2 exists
 
@@ -538,10 +555,10 @@ L<https://redis.io/commands/exists>
 
 =cut
 
-sub exists : method {
+register exists => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(EXISTS) => @args)
-}
+};
 
 =head2 expire
 
@@ -559,10 +576,10 @@ L<https://redis.io/commands/expire>
 
 =cut
 
-sub expire : method {
+register expire => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(EXPIRE) => @args)
-}
+};
 
 =head2 expireat
 
@@ -580,10 +597,10 @@ L<https://redis.io/commands/expireat>
 
 =cut
 
-sub expireat : method {
+register expireat => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(EXPIREAT) => @args)
-}
+};
 
 =head2 keys
 
@@ -599,10 +616,10 @@ L<https://redis.io/commands/keys>
 
 =cut
 
-sub keys : method {
+register keys => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(KEYS) => @args)
-}
+};
 
 =head2 migrate
 
@@ -632,10 +649,10 @@ L<https://redis.io/commands/migrate>
 
 =cut
 
-sub migrate : method {
+register migrate => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MIGRATE) => @args)
-}
+};
 
 =head2 move
 
@@ -653,10 +670,10 @@ L<https://redis.io/commands/move>
 
 =cut
 
-sub move : method {
+register move => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MOVE) => @args)
-}
+};
 
 =head2 object
 
@@ -674,10 +691,10 @@ L<https://redis.io/commands/object>
 
 =cut
 
-sub object : method {
+register object => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(OBJECT) => @args)
-}
+};
 
 =head2 persist
 
@@ -693,10 +710,10 @@ L<https://redis.io/commands/persist>
 
 =cut
 
-sub persist : method {
+register persist => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PERSIST) => @args)
-}
+};
 
 =head2 pexpire
 
@@ -714,10 +731,10 @@ L<https://redis.io/commands/pexpire>
 
 =cut
 
-sub pexpire : method {
+register pexpire => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PEXPIRE) => @args)
-}
+};
 
 =head2 pexpireat
 
@@ -735,10 +752,10 @@ L<https://redis.io/commands/pexpireat>
 
 =cut
 
-sub pexpireat : method {
+register pexpireat => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PEXPIREAT) => @args)
-}
+};
 
 =head2 pttl
 
@@ -754,10 +771,10 @@ L<https://redis.io/commands/pttl>
 
 =cut
 
-sub pttl : method {
+register pttl => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PTTL) => @args)
-}
+};
 
 =head2 randomkey
 
@@ -767,10 +784,10 @@ L<https://redis.io/commands/randomkey>
 
 =cut
 
-sub randomkey : method {
+register randomkey => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RANDOMKEY) => @args)
-}
+};
 
 =head2 rename
 
@@ -788,10 +805,10 @@ L<https://redis.io/commands/rename>
 
 =cut
 
-sub rename : method {
+register rename => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RENAME) => @args)
-}
+};
 
 =head2 renamenx
 
@@ -809,10 +826,10 @@ L<https://redis.io/commands/renamenx>
 
 =cut
 
-sub renamenx : method {
+register renamenx => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RENAMENX) => @args)
-}
+};
 
 =head2 restore
 
@@ -834,10 +851,10 @@ L<https://redis.io/commands/restore>
 
 =cut
 
-sub restore : method {
+register restore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RESTORE) => @args)
-}
+};
 
 =head2 sort
 
@@ -865,10 +882,10 @@ L<https://redis.io/commands/sort>
 
 =cut
 
-sub sort : method {
+register sort => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SORT) => @args)
-}
+};
 
 =head2 touch
 
@@ -884,10 +901,10 @@ L<https://redis.io/commands/touch>
 
 =cut
 
-sub touch : method {
+register touch => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(TOUCH) => @args)
-}
+};
 
 =head2 ttl
 
@@ -903,10 +920,10 @@ L<https://redis.io/commands/ttl>
 
 =cut
 
-sub ttl : method {
+register ttl => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(TTL) => @args)
-}
+};
 
 =head2 type
 
@@ -922,10 +939,10 @@ L<https://redis.io/commands/type>
 
 =cut
 
-sub type : method {
+register type => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(TYPE) => @args)
-}
+};
 
 =head2 unlink
 
@@ -941,10 +958,10 @@ L<https://redis.io/commands/unlink>
 
 =cut
 
-sub unlink : method {
+register unlink => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(UNLINK) => @args)
-}
+};
 
 =head2 wait
 
@@ -962,10 +979,10 @@ L<https://redis.io/commands/wait>
 
 =cut
 
-sub wait : method {
+register wait => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(WAIT) => @args)
-}
+};
 
 =head2 scan
 
@@ -985,10 +1002,10 @@ L<https://redis.io/commands/scan>
 
 =cut
 
-sub scan : method {
+register scan => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCAN) => @args)
-}
+};
 
 =head1 METHODS - Geo
 
@@ -1008,10 +1025,10 @@ L<https://redis.io/commands/geoadd>
 
 =cut
 
-sub geoadd : method {
+register geoadd => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GEOADD) => @args)
-}
+};
 
 =head2 geohash
 
@@ -1029,10 +1046,10 @@ L<https://redis.io/commands/geohash>
 
 =cut
 
-sub geohash : method {
+register geohash => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GEOHASH) => @args)
-}
+};
 
 =head2 geopos
 
@@ -1050,10 +1067,10 @@ L<https://redis.io/commands/geopos>
 
 =cut
 
-sub geopos : method {
+register geopos => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GEOPOS) => @args)
-}
+};
 
 =head2 geodist
 
@@ -1075,10 +1092,10 @@ L<https://redis.io/commands/geodist>
 
 =cut
 
-sub geodist : method {
+register geodist => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GEODIST) => @args)
-}
+};
 
 =head2 georadius
 
@@ -1116,10 +1133,10 @@ L<https://redis.io/commands/georadius>
 
 =cut
 
-sub georadius : method {
+register georadius => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GEORADIUS) => @args)
-}
+};
 
 =head2 georadiusbymember
 
@@ -1155,10 +1172,10 @@ L<https://redis.io/commands/georadiusbymember>
 
 =cut
 
-sub georadiusbymember : method {
+register georadiusbymember => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GEORADIUSBYMEMBER) => @args)
-}
+};
 
 =head1 METHODS - Hash
 
@@ -1178,10 +1195,10 @@ L<https://redis.io/commands/hdel>
 
 =cut
 
-sub hdel : method {
+register hdel => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HDEL) => @args)
-}
+};
 
 =head2 hexists
 
@@ -1199,10 +1216,10 @@ L<https://redis.io/commands/hexists>
 
 =cut
 
-sub hexists : method {
+register hexists => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HEXISTS) => @args)
-}
+};
 
 =head2 hget
 
@@ -1220,10 +1237,10 @@ L<https://redis.io/commands/hget>
 
 =cut
 
-sub hget : method {
+register hget => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HGET) => @args)
-}
+};
 
 =head2 hgetall
 
@@ -1239,10 +1256,10 @@ L<https://redis.io/commands/hgetall>
 
 =cut
 
-sub hgetall : method {
+register hgetall => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HGETALL) => @args)
-}
+};
 
 =head2 hincrby
 
@@ -1262,10 +1279,10 @@ L<https://redis.io/commands/hincrby>
 
 =cut
 
-sub hincrby : method {
+register hincrby => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HINCRBY) => @args)
-}
+};
 
 =head2 hincrbyfloat
 
@@ -1285,10 +1302,10 @@ L<https://redis.io/commands/hincrbyfloat>
 
 =cut
 
-sub hincrbyfloat : method {
+register hincrbyfloat => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HINCRBYFLOAT) => @args)
-}
+};
 
 =head2 hkeys
 
@@ -1304,10 +1321,10 @@ L<https://redis.io/commands/hkeys>
 
 =cut
 
-sub hkeys : method {
+register hkeys => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HKEYS) => @args)
-}
+};
 
 =head2 hlen
 
@@ -1323,10 +1340,10 @@ L<https://redis.io/commands/hlen>
 
 =cut
 
-sub hlen : method {
+register hlen => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HLEN) => @args)
-}
+};
 
 =head2 hmget
 
@@ -1344,10 +1361,10 @@ L<https://redis.io/commands/hmget>
 
 =cut
 
-sub hmget : method {
+register hmget => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HMGET) => @args)
-}
+};
 
 =head2 hmset
 
@@ -1365,10 +1382,10 @@ L<https://redis.io/commands/hmset>
 
 =cut
 
-sub hmset : method {
+register hmset => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HMSET) => @args)
-}
+};
 
 =head2 hset
 
@@ -1388,10 +1405,10 @@ L<https://redis.io/commands/hset>
 
 =cut
 
-sub hset : method {
+register hset => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HSET) => @args)
-}
+};
 
 =head2 hsetnx
 
@@ -1411,10 +1428,10 @@ L<https://redis.io/commands/hsetnx>
 
 =cut
 
-sub hsetnx : method {
+register hsetnx => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HSETNX) => @args)
-}
+};
 
 =head2 hstrlen
 
@@ -1432,10 +1449,10 @@ L<https://redis.io/commands/hstrlen>
 
 =cut
 
-sub hstrlen : method {
+register hstrlen => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HSTRLEN) => @args)
-}
+};
 
 =head2 hvals
 
@@ -1451,10 +1468,10 @@ L<https://redis.io/commands/hvals>
 
 =cut
 
-sub hvals : method {
+register hvals => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HVALS) => @args)
-}
+};
 
 =head2 hscan
 
@@ -1476,10 +1493,10 @@ L<https://redis.io/commands/hscan>
 
 =cut
 
-sub hscan : method {
+register hscan => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(HSCAN) => @args)
-}
+};
 
 =head1 METHODS - Hyperloglog
 
@@ -1499,10 +1516,10 @@ L<https://redis.io/commands/pfadd>
 
 =cut
 
-sub pfadd : method {
+register pfadd => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PFADD) => @args)
-}
+};
 
 =head2 pfcount
 
@@ -1518,10 +1535,10 @@ L<https://redis.io/commands/pfcount>
 
 =cut
 
-sub pfcount : method {
+register pfcount => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PFCOUNT) => @args)
-}
+};
 
 =head2 pfmerge
 
@@ -1539,10 +1556,10 @@ L<https://redis.io/commands/pfmerge>
 
 =cut
 
-sub pfmerge : method {
+register pfmerge => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PFMERGE) => @args)
-}
+};
 
 =head1 METHODS - List
 
@@ -1562,10 +1579,10 @@ L<https://redis.io/commands/blpop>
 
 =cut
 
-sub blpop : method {
+register blpop => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BLPOP) => @args)
-}
+};
 
 =head2 brpop
 
@@ -1583,10 +1600,10 @@ L<https://redis.io/commands/brpop>
 
 =cut
 
-sub brpop : method {
+register brpop => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BRPOP) => @args)
-}
+};
 
 =head2 brpoplpush
 
@@ -1606,10 +1623,10 @@ L<https://redis.io/commands/brpoplpush>
 
 =cut
 
-sub brpoplpush : method {
+register brpoplpush => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BRPOPLPUSH) => @args)
-}
+};
 
 =head2 lindex
 
@@ -1627,10 +1644,10 @@ L<https://redis.io/commands/lindex>
 
 =cut
 
-sub lindex : method {
+register lindex => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LINDEX) => @args)
-}
+};
 
 =head2 linsert
 
@@ -1652,10 +1669,10 @@ L<https://redis.io/commands/linsert>
 
 =cut
 
-sub linsert : method {
+register linsert => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LINSERT) => @args)
-}
+};
 
 =head2 llen
 
@@ -1671,10 +1688,10 @@ L<https://redis.io/commands/llen>
 
 =cut
 
-sub llen : method {
+register llen => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LLEN) => @args)
-}
+};
 
 =head2 lpop
 
@@ -1690,10 +1707,10 @@ L<https://redis.io/commands/lpop>
 
 =cut
 
-sub lpop : method {
+register lpop => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LPOP) => @args)
-}
+};
 
 =head2 lpush
 
@@ -1711,10 +1728,10 @@ L<https://redis.io/commands/lpush>
 
 =cut
 
-sub lpush : method {
+register lpush => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LPUSH) => @args)
-}
+};
 
 =head2 lpushx
 
@@ -1732,10 +1749,10 @@ L<https://redis.io/commands/lpushx>
 
 =cut
 
-sub lpushx : method {
+register lpushx => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LPUSHX) => @args)
-}
+};
 
 =head2 lrange
 
@@ -1755,10 +1772,10 @@ L<https://redis.io/commands/lrange>
 
 =cut
 
-sub lrange : method {
+register lrange => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LRANGE) => @args)
-}
+};
 
 =head2 lrem
 
@@ -1778,10 +1795,10 @@ L<https://redis.io/commands/lrem>
 
 =cut
 
-sub lrem : method {
+register lrem => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LREM) => @args)
-}
+};
 
 =head2 lset
 
@@ -1801,10 +1818,10 @@ L<https://redis.io/commands/lset>
 
 =cut
 
-sub lset : method {
+register lset => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LSET) => @args)
-}
+};
 
 =head2 ltrim
 
@@ -1824,10 +1841,10 @@ L<https://redis.io/commands/ltrim>
 
 =cut
 
-sub ltrim : method {
+register ltrim => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LTRIM) => @args)
-}
+};
 
 =head2 rpop
 
@@ -1843,10 +1860,10 @@ L<https://redis.io/commands/rpop>
 
 =cut
 
-sub rpop : method {
+register rpop => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RPOP) => @args)
-}
+};
 
 =head2 rpoplpush
 
@@ -1864,10 +1881,10 @@ L<https://redis.io/commands/rpoplpush>
 
 =cut
 
-sub rpoplpush : method {
+register rpoplpush => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RPOPLPUSH) => @args)
-}
+};
 
 =head2 rpush
 
@@ -1885,10 +1902,10 @@ L<https://redis.io/commands/rpush>
 
 =cut
 
-sub rpush : method {
+register rpush => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RPUSH) => @args)
-}
+};
 
 =head2 rpushx
 
@@ -1906,10 +1923,10 @@ L<https://redis.io/commands/rpushx>
 
 =cut
 
-sub rpushx : method {
+register rpushx => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(RPUSHX) => @args)
-}
+};
 
 =head1 METHODS - Pubsub
 
@@ -1927,10 +1944,10 @@ L<https://redis.io/commands/psubscribe>
 
 =cut
 
-sub psubscribe : method {
+register psubscribe => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PSUBSCRIBE) => @args)
-}
+};
 
 =head2 pubsub
 
@@ -1948,10 +1965,10 @@ L<https://redis.io/commands/pubsub>
 
 =cut
 
-sub pubsub : method {
+register pubsub => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PUBSUB) => @args)
-}
+};
 
 =head2 publish
 
@@ -1969,10 +1986,10 @@ L<https://redis.io/commands/publish>
 
 =cut
 
-sub publish : method {
+register publish => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PUBLISH) => @args)
-}
+};
 
 =head2 punsubscribe
 
@@ -1988,10 +2005,10 @@ L<https://redis.io/commands/punsubscribe>
 
 =cut
 
-sub punsubscribe : method {
+register punsubscribe => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PUNSUBSCRIBE) => @args)
-}
+};
 
 =head2 subscribe
 
@@ -2007,10 +2024,10 @@ L<https://redis.io/commands/subscribe>
 
 =cut
 
-sub subscribe : method {
+register subscribe => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SUBSCRIBE) => @args)
-}
+};
 
 =head2 unsubscribe
 
@@ -2026,10 +2043,10 @@ L<https://redis.io/commands/unsubscribe>
 
 =cut
 
-sub unsubscribe : method {
+register unsubscribe => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(UNSUBSCRIBE) => @args)
-}
+};
 
 =head1 METHODS - Scripting
 
@@ -2053,10 +2070,10 @@ L<https://redis.io/commands/eval>
 
 =cut
 
-sub eval : method {
+register eval => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(EVAL) => @args)
-}
+};
 
 =head2 evalsha
 
@@ -2078,10 +2095,10 @@ L<https://redis.io/commands/evalsha>
 
 =cut
 
-sub evalsha : method {
+register evalsha => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(EVALSHA) => @args)
-}
+};
 
 =head2 script_debug
 
@@ -2097,10 +2114,10 @@ L<https://redis.io/commands/script-debug>
 
 =cut
 
-sub script_debug : method {
+register script_debug => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCRIPT DEBUG) => @args)
-}
+};
 
 =head2 script_exists
 
@@ -2116,10 +2133,10 @@ L<https://redis.io/commands/script-exists>
 
 =cut
 
-sub script_exists : method {
+register script_exists => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCRIPT EXISTS) => @args)
-}
+};
 
 =head2 script_flush
 
@@ -2129,10 +2146,10 @@ L<https://redis.io/commands/script-flush>
 
 =cut
 
-sub script_flush : method {
+register script_flush => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCRIPT FLUSH) => @args)
-}
+};
 
 =head2 script_kill
 
@@ -2142,10 +2159,10 @@ L<https://redis.io/commands/script-kill>
 
 =cut
 
-sub script_kill : method {
+register script_kill => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCRIPT KILL) => @args)
-}
+};
 
 =head2 script_load
 
@@ -2161,10 +2178,10 @@ L<https://redis.io/commands/script-load>
 
 =cut
 
-sub script_load : method {
+register script_load => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCRIPT LOAD) => @args)
-}
+};
 
 =head1 METHODS - Server
 
@@ -2176,10 +2193,10 @@ L<https://redis.io/commands/bgrewriteaof>
 
 =cut
 
-sub bgrewriteaof : method {
+register bgrewriteaof => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BGREWRITEAOF) => @args)
-}
+};
 
 =head2 bgsave
 
@@ -2189,10 +2206,10 @@ L<https://redis.io/commands/bgsave>
 
 =cut
 
-sub bgsave : method {
+register bgsave => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BGSAVE) => @args)
-}
+};
 
 =head2 client_kill
 
@@ -2216,10 +2233,10 @@ L<https://redis.io/commands/client-kill>
 
 =cut
 
-sub client_kill : method {
+register client_kill => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLIENT KILL) => @args)
-}
+};
 
 =head2 client_list
 
@@ -2229,10 +2246,10 @@ L<https://redis.io/commands/client-list>
 
 =cut
 
-sub client_list : method {
+register client_list => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLIENT LIST) => @args)
-}
+};
 
 =head2 client_getname
 
@@ -2242,10 +2259,10 @@ L<https://redis.io/commands/client-getname>
 
 =cut
 
-sub client_getname : method {
+register client_getname => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLIENT GETNAME) => @args)
-}
+};
 
 =head2 client_pause
 
@@ -2261,10 +2278,10 @@ L<https://redis.io/commands/client-pause>
 
 =cut
 
-sub client_pause : method {
+register client_pause => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLIENT PAUSE) => @args)
-}
+};
 
 =head2 client_reply
 
@@ -2280,10 +2297,10 @@ L<https://redis.io/commands/client-reply>
 
 =cut
 
-sub client_reply : method {
+register client_reply => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLIENT REPLY) => @args)
-}
+};
 
 =head2 client_setname
 
@@ -2299,10 +2316,10 @@ L<https://redis.io/commands/client-setname>
 
 =cut
 
-sub client_setname : method {
+register client_setname => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLIENT SETNAME) => @args)
-}
+};
 
 =head2 command
 
@@ -2312,10 +2329,10 @@ L<https://redis.io/commands/command>
 
 =cut
 
-sub command : method {
+register command => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(COMMAND) => @args)
-}
+};
 
 =head2 command_count
 
@@ -2325,10 +2342,10 @@ L<https://redis.io/commands/command-count>
 
 =cut
 
-sub command_count : method {
+register command_count => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(COMMAND COUNT) => @args)
-}
+};
 
 =head2 command_getkeys
 
@@ -2338,10 +2355,10 @@ L<https://redis.io/commands/command-getkeys>
 
 =cut
 
-sub command_getkeys : method {
+register command_getkeys => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(COMMAND GETKEYS) => @args)
-}
+};
 
 =head2 command_info
 
@@ -2357,10 +2374,10 @@ L<https://redis.io/commands/command-info>
 
 =cut
 
-sub command_info : method {
+register command_info => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(COMMAND INFO) => @args)
-}
+};
 
 =head2 config_get
 
@@ -2376,10 +2393,10 @@ L<https://redis.io/commands/config-get>
 
 =cut
 
-sub config_get : method {
+register config_get => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CONFIG GET) => @args)
-}
+};
 
 =head2 config_rewrite
 
@@ -2389,10 +2406,10 @@ L<https://redis.io/commands/config-rewrite>
 
 =cut
 
-sub config_rewrite : method {
+register config_rewrite => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CONFIG REWRITE) => @args)
-}
+};
 
 =head2 config_set
 
@@ -2410,10 +2427,10 @@ L<https://redis.io/commands/config-set>
 
 =cut
 
-sub config_set : method {
+register config_set => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CONFIG SET) => @args)
-}
+};
 
 =head2 config_resetstat
 
@@ -2423,10 +2440,10 @@ L<https://redis.io/commands/config-resetstat>
 
 =cut
 
-sub config_resetstat : method {
+register config_resetstat => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(CONFIG RESETSTAT) => @args)
-}
+};
 
 =head2 dbsize
 
@@ -2436,10 +2453,10 @@ L<https://redis.io/commands/dbsize>
 
 =cut
 
-sub dbsize : method {
+register dbsize => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DBSIZE) => @args)
-}
+};
 
 =head2 debug_object
 
@@ -2455,10 +2472,10 @@ L<https://redis.io/commands/debug-object>
 
 =cut
 
-sub debug_object : method {
+register debug_object => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DEBUG OBJECT) => @args)
-}
+};
 
 =head2 debug_segfault
 
@@ -2468,10 +2485,10 @@ L<https://redis.io/commands/debug-segfault>
 
 =cut
 
-sub debug_segfault : method {
+register debug_segfault => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DEBUG SEGFAULT) => @args)
-}
+};
 
 =head2 flushall
 
@@ -2487,10 +2504,10 @@ L<https://redis.io/commands/flushall>
 
 =cut
 
-sub flushall : method {
+register flushall => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(FLUSHALL) => @args)
-}
+};
 
 =head2 flushdb
 
@@ -2506,10 +2523,10 @@ L<https://redis.io/commands/flushdb>
 
 =cut
 
-sub flushdb : method {
+register flushdb => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(FLUSHDB) => @args)
-}
+};
 
 =head2 info
 
@@ -2525,10 +2542,10 @@ L<https://redis.io/commands/info>
 
 =cut
 
-sub info : method {
+register info => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(INFO) => @args)
-}
+};
 
 =head2 lastsave
 
@@ -2538,10 +2555,10 @@ L<https://redis.io/commands/lastsave>
 
 =cut
 
-sub lastsave : method {
+register lastsave => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(LASTSAVE) => @args)
-}
+};
 
 =head2 monitor
 
@@ -2551,10 +2568,10 @@ L<https://redis.io/commands/monitor>
 
 =cut
 
-sub monitor : method {
+register monitor => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MONITOR) => @args)
-}
+};
 
 =head2 role
 
@@ -2564,10 +2581,10 @@ L<https://redis.io/commands/role>
 
 =cut
 
-sub role : method {
+register role => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ROLE) => @args)
-}
+};
 
 =head2 save
 
@@ -2577,10 +2594,10 @@ L<https://redis.io/commands/save>
 
 =cut
 
-sub save : method {
+register save => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SAVE) => @args)
-}
+};
 
 =head2 shutdown
 
@@ -2596,10 +2613,10 @@ L<https://redis.io/commands/shutdown>
 
 =cut
 
-sub shutdown : method {
+register shutdown => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SHUTDOWN) => @args)
-}
+};
 
 =head2 slaveof
 
@@ -2617,10 +2634,10 @@ L<https://redis.io/commands/slaveof>
 
 =cut
 
-sub slaveof : method {
+register slaveof => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SLAVEOF) => @args)
-}
+};
 
 =head2 slowlog
 
@@ -2638,10 +2655,10 @@ L<https://redis.io/commands/slowlog>
 
 =cut
 
-sub slowlog : method {
+register slowlog => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SLOWLOG) => @args)
-}
+};
 
 =head2 sync
 
@@ -2651,10 +2668,10 @@ L<https://redis.io/commands/sync>
 
 =cut
 
-sub sync : method {
+register sync => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SYNC) => @args)
-}
+};
 
 =head2 time
 
@@ -2664,10 +2681,10 @@ L<https://redis.io/commands/time>
 
 =cut
 
-sub time : method {
+register time => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(TIME) => @args)
-}
+};
 
 =head1 METHODS - Set
 
@@ -2687,10 +2704,10 @@ L<https://redis.io/commands/sadd>
 
 =cut
 
-sub sadd : method {
+register sadd => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SADD) => @args)
-}
+};
 
 =head2 scard
 
@@ -2706,10 +2723,10 @@ L<https://redis.io/commands/scard>
 
 =cut
 
-sub scard : method {
+register scard => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SCARD) => @args)
-}
+};
 
 =head2 sdiff
 
@@ -2725,10 +2742,10 @@ L<https://redis.io/commands/sdiff>
 
 =cut
 
-sub sdiff : method {
+register sdiff => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SDIFF) => @args)
-}
+};
 
 =head2 sdiffstore
 
@@ -2746,10 +2763,10 @@ L<https://redis.io/commands/sdiffstore>
 
 =cut
 
-sub sdiffstore : method {
+register sdiffstore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SDIFFSTORE) => @args)
-}
+};
 
 =head2 sinter
 
@@ -2765,10 +2782,10 @@ L<https://redis.io/commands/sinter>
 
 =cut
 
-sub sinter : method {
+register sinter => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SINTER) => @args)
-}
+};
 
 =head2 sinterstore
 
@@ -2786,10 +2803,10 @@ L<https://redis.io/commands/sinterstore>
 
 =cut
 
-sub sinterstore : method {
+register sinterstore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SINTERSTORE) => @args)
-}
+};
 
 =head2 sismember
 
@@ -2807,10 +2824,10 @@ L<https://redis.io/commands/sismember>
 
 =cut
 
-sub sismember : method {
+register sismember => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SISMEMBER) => @args)
-}
+};
 
 =head2 smembers
 
@@ -2826,10 +2843,10 @@ L<https://redis.io/commands/smembers>
 
 =cut
 
-sub smembers : method {
+register smembers => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SMEMBERS) => @args)
-}
+};
 
 =head2 smove
 
@@ -2849,10 +2866,10 @@ L<https://redis.io/commands/smove>
 
 =cut
 
-sub smove : method {
+register smove => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SMOVE) => @args)
-}
+};
 
 =head2 spop
 
@@ -2870,10 +2887,10 @@ L<https://redis.io/commands/spop>
 
 =cut
 
-sub spop : method {
+register spop => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SPOP) => @args)
-}
+};
 
 =head2 srandmember
 
@@ -2891,10 +2908,10 @@ L<https://redis.io/commands/srandmember>
 
 =cut
 
-sub srandmember : method {
+register srandmember => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SRANDMEMBER) => @args)
-}
+};
 
 =head2 srem
 
@@ -2912,10 +2929,10 @@ L<https://redis.io/commands/srem>
 
 =cut
 
-sub srem : method {
+register srem => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SREM) => @args)
-}
+};
 
 =head2 sunion
 
@@ -2931,10 +2948,10 @@ L<https://redis.io/commands/sunion>
 
 =cut
 
-sub sunion : method {
+register sunion => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SUNION) => @args)
-}
+};
 
 =head2 sunionstore
 
@@ -2952,10 +2969,10 @@ L<https://redis.io/commands/sunionstore>
 
 =cut
 
-sub sunionstore : method {
+register sunionstore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SUNIONSTORE) => @args)
-}
+};
 
 =head2 sscan
 
@@ -2977,10 +2994,10 @@ L<https://redis.io/commands/sscan>
 
 =cut
 
-sub sscan : method {
+register sscan => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SSCAN) => @args)
-}
+};
 
 =head1 METHODS - Sorted_set
 
@@ -3006,10 +3023,10 @@ L<https://redis.io/commands/zadd>
 
 =cut
 
-sub zadd : method {
+register zadd => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZADD) => @args)
-}
+};
 
 =head2 zcard
 
@@ -3025,10 +3042,10 @@ L<https://redis.io/commands/zcard>
 
 =cut
 
-sub zcard : method {
+register zcard => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZCARD) => @args)
-}
+};
 
 =head2 zcount
 
@@ -3048,10 +3065,10 @@ L<https://redis.io/commands/zcount>
 
 =cut
 
-sub zcount : method {
+register zcount => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZCOUNT) => @args)
-}
+};
 
 =head2 zincrby
 
@@ -3071,10 +3088,10 @@ L<https://redis.io/commands/zincrby>
 
 =cut
 
-sub zincrby : method {
+register zincrby => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZINCRBY) => @args)
-}
+};
 
 =head2 zinterstore
 
@@ -3098,10 +3115,10 @@ L<https://redis.io/commands/zinterstore>
 
 =cut
 
-sub zinterstore : method {
+register zinterstore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZINTERSTORE) => @args)
-}
+};
 
 =head2 zlexcount
 
@@ -3121,10 +3138,10 @@ L<https://redis.io/commands/zlexcount>
 
 =cut
 
-sub zlexcount : method {
+register zlexcount => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZLEXCOUNT) => @args)
-}
+};
 
 =head2 zrange
 
@@ -3146,10 +3163,10 @@ L<https://redis.io/commands/zrange>
 
 =cut
 
-sub zrange : method {
+register zrange => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZRANGE) => @args)
-}
+};
 
 =head2 zrangebylex
 
@@ -3171,10 +3188,10 @@ L<https://redis.io/commands/zrangebylex>
 
 =cut
 
-sub zrangebylex : method {
+register zrangebylex => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZRANGEBYLEX) => @args)
-}
+};
 
 =head2 zrevrangebylex
 
@@ -3196,10 +3213,10 @@ L<https://redis.io/commands/zrevrangebylex>
 
 =cut
 
-sub zrevrangebylex : method {
+register zrevrangebylex => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREVRANGEBYLEX) => @args)
-}
+};
 
 =head2 zrangebyscore
 
@@ -3223,10 +3240,10 @@ L<https://redis.io/commands/zrangebyscore>
 
 =cut
 
-sub zrangebyscore : method {
+register zrangebyscore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZRANGEBYSCORE) => @args)
-}
+};
 
 =head2 zrank
 
@@ -3244,10 +3261,10 @@ L<https://redis.io/commands/zrank>
 
 =cut
 
-sub zrank : method {
+register zrank => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZRANK) => @args)
-}
+};
 
 =head2 zrem
 
@@ -3265,10 +3282,10 @@ L<https://redis.io/commands/zrem>
 
 =cut
 
-sub zrem : method {
+register zrem => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREM) => @args)
-}
+};
 
 =head2 zremrangebylex
 
@@ -3288,10 +3305,10 @@ L<https://redis.io/commands/zremrangebylex>
 
 =cut
 
-sub zremrangebylex : method {
+register zremrangebylex => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREMRANGEBYLEX) => @args)
-}
+};
 
 =head2 zremrangebyrank
 
@@ -3311,10 +3328,10 @@ L<https://redis.io/commands/zremrangebyrank>
 
 =cut
 
-sub zremrangebyrank : method {
+register zremrangebyrank => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREMRANGEBYRANK) => @args)
-}
+};
 
 =head2 zremrangebyscore
 
@@ -3334,10 +3351,10 @@ L<https://redis.io/commands/zremrangebyscore>
 
 =cut
 
-sub zremrangebyscore : method {
+register zremrangebyscore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREMRANGEBYSCORE) => @args)
-}
+};
 
 =head2 zrevrange
 
@@ -3359,10 +3376,10 @@ L<https://redis.io/commands/zrevrange>
 
 =cut
 
-sub zrevrange : method {
+register zrevrange => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREVRANGE) => @args)
-}
+};
 
 =head2 zrevrangebyscore
 
@@ -3386,10 +3403,10 @@ L<https://redis.io/commands/zrevrangebyscore>
 
 =cut
 
-sub zrevrangebyscore : method {
+register zrevrangebyscore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREVRANGEBYSCORE) => @args)
-}
+};
 
 =head2 zrevrank
 
@@ -3407,10 +3424,10 @@ L<https://redis.io/commands/zrevrank>
 
 =cut
 
-sub zrevrank : method {
+register zrevrank => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZREVRANK) => @args)
-}
+};
 
 =head2 zscore
 
@@ -3428,10 +3445,10 @@ L<https://redis.io/commands/zscore>
 
 =cut
 
-sub zscore : method {
+register zscore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZSCORE) => @args)
-}
+};
 
 =head2 zunionstore
 
@@ -3455,10 +3472,10 @@ L<https://redis.io/commands/zunionstore>
 
 =cut
 
-sub zunionstore : method {
+register zunionstore => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZUNIONSTORE) => @args)
-}
+};
 
 =head2 zscan
 
@@ -3480,10 +3497,10 @@ L<https://redis.io/commands/zscan>
 
 =cut
 
-sub zscan : method {
+register zscan => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZSCAN) => @args)
-}
+};
 
 =head1 METHODS - String
 
@@ -3503,10 +3520,10 @@ L<https://redis.io/commands/append>
 
 =cut
 
-sub append : method {
+register append => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(APPEND) => @args)
-}
+};
 
 =head2 bitcount
 
@@ -3524,10 +3541,10 @@ L<https://redis.io/commands/bitcount>
 
 =cut
 
-sub bitcount : method {
+register bitcount => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BITCOUNT) => @args)
-}
+};
 
 =head2 bitfield
 
@@ -3551,10 +3568,10 @@ L<https://redis.io/commands/bitfield>
 
 =cut
 
-sub bitfield : method {
+register bitfield => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BITFIELD) => @args)
-}
+};
 
 =head2 bitop
 
@@ -3574,10 +3591,10 @@ L<https://redis.io/commands/bitop>
 
 =cut
 
-sub bitop : method {
+register bitop => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BITOP) => @args)
-}
+};
 
 =head2 bitpos
 
@@ -3599,10 +3616,10 @@ L<https://redis.io/commands/bitpos>
 
 =cut
 
-sub bitpos : method {
+register bitpos => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(BITPOS) => @args)
-}
+};
 
 =head2 decr
 
@@ -3618,10 +3635,10 @@ L<https://redis.io/commands/decr>
 
 =cut
 
-sub decr : method {
+register decr => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DECR) => @args)
-}
+};
 
 =head2 decrby
 
@@ -3639,10 +3656,10 @@ L<https://redis.io/commands/decrby>
 
 =cut
 
-sub decrby : method {
+register decrby => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DECRBY) => @args)
-}
+};
 
 =head2 get
 
@@ -3658,10 +3675,10 @@ L<https://redis.io/commands/get>
 
 =cut
 
-sub get : method {
+register get => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GET) => @args)
-}
+};
 
 =head2 getbit
 
@@ -3679,10 +3696,10 @@ L<https://redis.io/commands/getbit>
 
 =cut
 
-sub getbit : method {
+register getbit => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GETBIT) => @args)
-}
+};
 
 =head2 getrange
 
@@ -3702,10 +3719,10 @@ L<https://redis.io/commands/getrange>
 
 =cut
 
-sub getrange : method {
+register getrange => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GETRANGE) => @args)
-}
+};
 
 =head2 getset
 
@@ -3723,10 +3740,10 @@ L<https://redis.io/commands/getset>
 
 =cut
 
-sub getset : method {
+register getset => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(GETSET) => @args)
-}
+};
 
 =head2 incr
 
@@ -3742,10 +3759,10 @@ L<https://redis.io/commands/incr>
 
 =cut
 
-sub incr : method {
+register incr => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(INCR) => @args)
-}
+};
 
 =head2 incrby
 
@@ -3763,10 +3780,10 @@ L<https://redis.io/commands/incrby>
 
 =cut
 
-sub incrby : method {
+register incrby => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(INCRBY) => @args)
-}
+};
 
 =head2 incrbyfloat
 
@@ -3784,10 +3801,10 @@ L<https://redis.io/commands/incrbyfloat>
 
 =cut
 
-sub incrbyfloat : method {
+register incrbyfloat => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(INCRBYFLOAT) => @args)
-}
+};
 
 =head2 mget
 
@@ -3803,10 +3820,10 @@ L<https://redis.io/commands/mget>
 
 =cut
 
-sub mget : method {
+register mget => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MGET) => @args)
-}
+};
 
 =head2 mset
 
@@ -3822,10 +3839,10 @@ L<https://redis.io/commands/mset>
 
 =cut
 
-sub mset : method {
+register mset => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MSET) => @args)
-}
+};
 
 =head2 msetnx
 
@@ -3841,10 +3858,10 @@ L<https://redis.io/commands/msetnx>
 
 =cut
 
-sub msetnx : method {
+register msetnx => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MSETNX) => @args)
-}
+};
 
 =head2 psetex
 
@@ -3864,10 +3881,10 @@ L<https://redis.io/commands/psetex>
 
 =cut
 
-sub psetex : method {
+register psetex => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(PSETEX) => @args)
-}
+};
 
 =head2 set
 
@@ -3891,10 +3908,10 @@ L<https://redis.io/commands/set>
 
 =cut
 
-sub set : method {
+register set => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SET) => @args)
-}
+};
 
 =head2 setbit
 
@@ -3914,10 +3931,10 @@ L<https://redis.io/commands/setbit>
 
 =cut
 
-sub setbit : method {
+register setbit => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SETBIT) => @args)
-}
+};
 
 =head2 setex
 
@@ -3937,10 +3954,10 @@ L<https://redis.io/commands/setex>
 
 =cut
 
-sub setex : method {
+register setex => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SETEX) => @args)
-}
+};
 
 =head2 setnx
 
@@ -3958,10 +3975,10 @@ L<https://redis.io/commands/setnx>
 
 =cut
 
-sub setnx : method {
+register setnx => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SETNX) => @args)
-}
+};
 
 =head2 setrange
 
@@ -3981,10 +3998,10 @@ L<https://redis.io/commands/setrange>
 
 =cut
 
-sub setrange : method {
+register setrange => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(SETRANGE) => @args)
-}
+};
 
 =head2 strlen
 
@@ -4000,10 +4017,10 @@ L<https://redis.io/commands/strlen>
 
 =cut
 
-sub strlen : method {
+register strlen => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(STRLEN) => @args)
-}
+};
 
 =head1 METHODS - Transactions
 
@@ -4015,10 +4032,10 @@ L<https://redis.io/commands/discard>
 
 =cut
 
-sub discard : method {
+register discard => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(DISCARD) => @args)
-}
+};
 
 =head2 exec
 
@@ -4028,10 +4045,10 @@ L<https://redis.io/commands/exec>
 
 =cut
 
-sub exec : method {
+register exec => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(EXEC) => @args)
-}
+};
 
 =head2 multi
 
@@ -4041,10 +4058,10 @@ L<https://redis.io/commands/multi>
 
 =cut
 
-sub multi : method {
+register multi => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(MULTI) => @args)
-}
+};
 
 =head2 unwatch
 
@@ -4054,10 +4071,10 @@ L<https://redis.io/commands/unwatch>
 
 =cut
 
-sub unwatch : method {
+register unwatch => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(UNWATCH) => @args)
-}
+};
 
 =head2 watch
 
@@ -4073,10 +4090,10 @@ L<https://redis.io/commands/watch>
 
 =cut
 
-sub watch : method {
+register watch => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(WATCH) => @args)
-}
+};
 
 1;
 

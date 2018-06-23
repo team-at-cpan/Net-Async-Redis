@@ -78,6 +78,23 @@ for each available Redis command.
 
 =cut
 
+my %commands;
+
+sub register {
+    my ($cmd, $code) = @_;
+    die 'already registered ' . $cmd if exists $commands{$cmd};
+    $commands{$cmd} = $code;
+}
+
+sub import {
+    my ($class) = @_;
+    my ($pkg) = caller;
+    {
+        no strict 'refs'; 
+        *{$pkg . '::' . $_} ||= $commands{$_} for keys %commands;
+    }
+}
+
 [% FOR group IN commands.keys.sort -%]
 =head1 METHODS - [% group.ucfirst %]
 
@@ -100,10 +117,10 @@ L<https://redis.io/commands/[% command.method.lower.replace('_', '-') %]>
 
 =cut
 
-sub [% command.method %] : method {
+register [% command.method %] => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw([% command.command %]) => @args)
-}
+};
 
 [%  END -%]
 [% END -%]
@@ -120,4 +137,4 @@ Tom Molesworth <TEAM@cpan.org>
 Copyright Tom Molesworth 2015-2018. Licensed under the same terms as Perl itself.
 
 }, { commands => \%commands_by_group }) or die $tt->error;
-    
+
