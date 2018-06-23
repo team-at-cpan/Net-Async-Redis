@@ -26,15 +26,6 @@ sub register {
     $commands{$cmd} = $code;
 }
 
-sub import {
-    my ($class) = @_;
-    my ($pkg) = caller;
-    {
-        no strict 'refs'; 
-        *{$pkg . '::' . $_} ||= $commands{$_} for keys %commands;
-    }
-}
-
 =head1 METHODS - Cluster
 
 =head2 cluster_addslots
@@ -4094,6 +4085,18 @@ register watch => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(WATCH) => @args)
 };
+
+sub import {
+    my ($class) = @_;
+    my ($pkg) = caller;
+    {
+        no strict 'refs'; 
+        for my $k (keys %commands) {
+            next if $pkg->can($k);
+            *{$pkg . '::' . $k} = $commands{$k};
+        }
+    }
+}
 
 1;
 

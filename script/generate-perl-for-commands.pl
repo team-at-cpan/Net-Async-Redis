@@ -86,15 +86,6 @@ sub register {
     $commands{$cmd} = $code;
 }
 
-sub import {
-    my ($class) = @_;
-    my ($pkg) = caller;
-    {
-        no strict 'refs'; 
-        *{$pkg . '::' . $_} ||= $commands{$_} for keys %commands;
-    }
-}
-
 [% FOR group IN commands.keys.sort -%]
 =head1 METHODS - [% group.ucfirst %]
 
@@ -124,6 +115,18 @@ register [% command.method %] => sub {
 
 [%  END -%]
 [% END -%]
+sub import {
+    my ($class) = @_;
+    my ($pkg) = caller;
+    {
+        no strict 'refs'; 
+        for my $k (keys %commands) {
+            next if $pkg->can($k);
+            *{$pkg . '::' . $k} = $commands{$k};
+        }
+    }
+}
+
 1;
 
 __END__
