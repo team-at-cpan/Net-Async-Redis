@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Warnings;
 
 require_ok 'Net::Async::Redis::Commands';
 subtest 'import successful' => sub {
