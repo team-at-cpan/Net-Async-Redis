@@ -21,6 +21,7 @@ use Math::Random::Secure ();
 sub set : method {
     my ($self, $k, $v, @args) = @_;
     my %opt;
+    my %seen;
     while(@args) {
         my $cmd = shift @args;
         if($cmd eq 'EX') {
@@ -28,17 +29,17 @@ sub set : method {
         } elsif($cmd eq 'PX') {
             $opt{ttl} = shift @args;
         } elsif($cmd eq 'NX') {
-            die 'Cannot set NX and XX' if exists $opt{xx};
+            die 'syntax error' if exists $opt{xx};
             $opt{nx} = 1;
         } elsif($cmd eq 'XX') {
-            die 'Cannot set NX and XX' if exists $opt{nx};
+            die 'syntax error' if exists $opt{nx};
             $opt{xx} = 1;
         } else {
-            die 'Invalid input: ' . $cmd
+            die 'syntax error ' . $cmd
         }
     }
-    return Future->done(undef) if not exists $self->{keys}{$k} and $opt{xx};
-    return Future->done(undef) if exists $self->{keys}{$k} and $opt{nx};
+    return Future->done('OK') if not exists $self->{keys}{$k} and $opt{xx};
+    return Future->done('OK') if exists $self->{keys}{$k} and $opt{nx};
     $self->{keys}{$k} = $v;
     if(exists $opt{ttl}) {
         $self->{expiry}{$k} = $opt{ttl} + $self->time;
@@ -46,8 +47,21 @@ sub set : method {
     return Future->done('OK');
 }
 
+sub expiry_check {
+    my ($self, @keys) = @_;
+    my $time = $self->time;
+    for my $k (@keys) {
+        next unless exists $self->{expiry}{$k};
+        next if $self->{expiry}{$k} >= $time;
+        delete $self->{expiry}{$k};
+        delete $self->{keys}{$k};
+    }
+    return;
+}
+
 sub get : method {
     my ($self, $k) = @_;
+    $self->expiry_check($k);
     return Future->done($self->{keys}{$k});
 }
 
@@ -63,7 +77,8 @@ sub echo : method {
 
 sub ping : method {
     my ($self, $string) = @_;
-    return Future->done(PONG => $string);
+    return Future->done('PONG') unless defined $string;
+    return Future->done($string);
 }
 
 sub quit : method {
@@ -74,12 +89,16 @@ sub quit : method {
 
 sub del : method {
     my ($self, @keys) = @_;
-    return Future->done(delete @{$self->{keys}}{@keys});
+    $self->expiry_check(@keys);
+    my $count = grep defined, delete @{$self->{keys}}{@keys};
+    delete @{$self->{expiry}}{@keys};
+    return Future->done($count);
 }
 
 sub exists : method {
     my ($self, @keys) = @_;
-    return Future->done(map { exists $self->{keys}{$_} ? 1 : 0 } @keys);
+    $self->expiry_check(@keys);
+    return Future->done(0 + grep defined, @{$self->{keys}}{@keys});
 }
 
 sub expire : method {
@@ -94,18 +113,23 @@ sub expireat : method {
 
 sub pexpire : method {
     my ($self, $k, $ttl) = @_;
-    $self->{expiry}{$k} = $ttl + $self->time if exists $self->{keys}{$k};
-    return Future->done('OK');
+    $self->expiry_check($k);
+    return Future->done(0) unless exists $self->{keys}{$k};
+    $self->{expiry}{$k} = $ttl + $self->time;
+    return Future->done(1);
 }
 
 sub pexpireat : method {
     my ($self, $k, $time) = @_;
-    $self->{expiry}{$k} = $time if exists $self->{keys}{$k};
-    return Future->done('OK');
+    $self->expiry_check($k);
+    return Future->done(0) unless exists $self->{keys}{$k};
+    $self->{expiry}{$k} = $time;
+    return Future->done(1);
 }
 
 sub keys : method {
     my ($self, $pattern) = @_;
+    $self->expiry_check(keys %{$self->{keys}});
     $pattern = '*' unless defined($pattern) and length($pattern);
     $pattern = qr/^\Q$pattern\E$/;
     $pattern =~ s{\\\*}{.*}g;
@@ -114,8 +138,11 @@ sub keys : method {
 
 sub persist : method {
     my ($self, $k) = @_;
+    $self->expiry_check(keys %{$self->{keys}});
+    return Future->done(0) unless exists $self->{keys}{$k};
+    return Future->done(0) unless exists $self->{expiry}{$k};
     delete $self->{expiry}{$k};
-    return Future->done('OK');
+    return Future->done(1);
 }
 
 sub randomkey : method {
