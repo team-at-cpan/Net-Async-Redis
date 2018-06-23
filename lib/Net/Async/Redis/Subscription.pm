@@ -42,6 +42,27 @@ sub events {
     };
 }
 
+sub type { shift->{type} }
+
+=head2 unsubscribe
+
+Drops this subscription. Will be called automatically
+when this goes out of scope.
+
+=cut
+
+sub unsubscribe {
+    my ($self) = @_;
+    my $method = $self->type eq 'pattern' ? 'punsubscribe' : 'unsubscribe';
+    $self->redis->$method($self->channel)
+        # Keep ourselves alive until we receive
+        # confirmation of unsubscription.
+        ->on_ready(sub { delete $self->{subscribed} })
+        ->retain;
+}
+
+sub subscribed { shift->{subscribed} }
+
 =head2 redis
 
 Accessor for the L<Net::Async::Redis> instance.
@@ -60,8 +81,12 @@ sub channel { shift->{channel} }
 
 sub DESTROY {
     my ($self) = @_;
-    return if ${^GLOBAL_PHASE} eq 'DESTRUCT' or not my $ev = $self->{events};
-    $ev->completion->done unless $ev->completion->is_ready;
+    return if ${^GLOBAL_PHASE} eq 'DESTRUCT';
+    $self->unsubscribe
+        ->on_ready(sub {
+            my $ev = delete $self->{events} or return;
+            $ev->completion->done unless $ev->completion->is_ready;
+        })->retain
 }
 
 1;
