@@ -482,18 +482,36 @@ sub protocol {
     };
 }
 
-sub host { shift->{host} }
-sub port { shift->{port} }
+sub host { shift->uri->host }
+
+sub port { shift->uri->port }
+
 sub auth { shift->{auth} }
+
+sub database { shift->{database} }
+
 sub uri { shift->{uri} //= URI->new('redis://localhost') }
 
 sub configure {
     my ($self, %args) = @_;
     $self->{pending_multi} //= [];
-    for (qw(host port auth uri pipeline_depth)) {
+    my $uri = $self->uri;
+
+    # We combine any previous URI information with the new args and store the result URI->new($self->{uri}) 
+    $uri = delete $args{uri} if exists $args{uri};
+    $uri = URI->new($uri) unless ref $uri;
+    $uri->host(delete $args{host}) if exists $args{host};
+    $uri->port(delete $args{port}) if exists $args{port};
+    $self->{uri} = $uri;
+
+    # There's also some metadata that we'll pull from the URI, but allow %args to override
+    $self->{auth} = $uri->password if defined $uri->password;
+    $self->{database} = $uri->database if defined $uri->database;
+
+    for (qw(auth database pipeline_depth)) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
-    $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
+
     $self->next::method(%args)
 }
 
