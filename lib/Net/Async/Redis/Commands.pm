@@ -3078,6 +3078,48 @@ register sscan => sub {
 
 =head1 METHODS - Sorted_set
 
+=head2 bzpopmin
+
+Remove and return the member with the lowest score from one or more sorted sets, or block until one is available.
+
+=over 4
+
+=item * key [key ...]
+
+=item * timeout
+
+=back
+
+L<https://redis.io/commands/bzpopmin>
+
+=cut
+
+register bzpopmin => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(BZPOPMIN) => @args)
+};
+
+=head2 bzpopmax
+
+Remove and return the member with the highest score from one or more sorted sets, or block until one is available.
+
+=over 4
+
+=item * key [key ...]
+
+=item * timeout
+
+=back
+
+L<https://redis.io/commands/bzpopmax>
+
+=cut
+
+register bzpopmax => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(BZPOPMAX) => @args)
+};
+
 =head2 zadd
 
 Add one or more members to a sorted set, or update its score if it already exists.
@@ -3218,6 +3260,48 @@ L<https://redis.io/commands/zlexcount>
 register zlexcount => sub {
     my ($self, @args) = @_;
     $self->execute_command(qw(ZLEXCOUNT) => @args)
+};
+
+=head2 zpopmax
+
+Remove and return members with the highest scores in a sorted set.
+
+=over 4
+
+=item * key
+
+=item * [count]
+
+=back
+
+L<https://redis.io/commands/zpopmax>
+
+=cut
+
+register zpopmax => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ZPOPMAX) => @args)
+};
+
+=head2 zpopmin
+
+Remove and return members with the lowest scores in a sorted set.
+
+=over 4
+
+=item * key
+
+=item * [count]
+
+=back
+
+L<https://redis.io/commands/zpopmin>
+
+=cut
+
+register zpopmin => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ZPOPMIN) => @args)
 };
 
 =head2 zrange
