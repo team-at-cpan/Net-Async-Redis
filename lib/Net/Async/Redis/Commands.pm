@@ -2551,6 +2551,92 @@ register lastsave => sub {
     $self->execute_command(qw(LASTSAVE) => @args)
 };
 
+=head2 memory_doctor
+
+Outputs memory problems report.
+
+L<https://redis.io/commands/memory-doctor>
+
+=cut
+
+register memory_doctor => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MEMORY DOCTOR) => @args)
+};
+
+=head2 memory_help
+
+Show helpful text about the different subcommands.
+
+L<https://redis.io/commands/memory-help>
+
+=cut
+
+register memory_help => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MEMORY HELP) => @args)
+};
+
+=head2 memory_malloc_stats
+
+Show allocator internal stats.
+
+L<https://redis.io/commands/memory-malloc-stats>
+
+=cut
+
+register memory_malloc_stats => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MEMORY MALLOC-STATS) => @args)
+};
+
+=head2 memory_purge
+
+Ask the allocator to release memory.
+
+L<https://redis.io/commands/memory-purge>
+
+=cut
+
+register memory_purge => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MEMORY PURGE) => @args)
+};
+
+=head2 memory_stats
+
+Show memory usage details.
+
+L<https://redis.io/commands/memory-stats>
+
+=cut
+
+register memory_stats => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MEMORY STATS) => @args)
+};
+
+=head2 memory_usage
+
+Estimate the memory usage of a key.
+
+=over 4
+
+=item * key
+
+=item * [SAMPLES count]
+
+=back
+
+L<https://redis.io/commands/memory-usage>
+
+=cut
+
+register memory_usage => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MEMORY USAGE) => @args)
+};
+
 =head2 monitor
 
 Listen for all requests received by the server in real time.
