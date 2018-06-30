@@ -3663,6 +3663,181 @@ register zscan => sub {
     $self->execute_command(qw(ZSCAN) => @args)
 };
 
+=head1 METHODS - Stream
+
+=head2 xadd
+
+Appends a new entry to a stream.
+
+=over 4
+
+=item * key
+
+=item * ID
+
+=item * field string [field string ...]
+
+=back
+
+L<https://redis.io/commands/xadd>
+
+=cut
+
+register xadd => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XADD) => @args)
+};
+
+=head2 xrange
+
+Return a range of elements in a stream, with IDs matching the specified IDs interval.
+
+=over 4
+
+=item * key
+
+=item * start
+
+=item * end
+
+=item * [COUNT count]
+
+=back
+
+L<https://redis.io/commands/xrange>
+
+=cut
+
+register xrange => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XRANGE) => @args)
+};
+
+=head2 xrevrange
+
+Return a range of elements in a stream, with IDs matching the specified IDs interval, in reverse order (from greater to smaller IDs) compared to XRANGE.
+
+=over 4
+
+=item * key
+
+=item * end
+
+=item * start
+
+=item * [COUNT count]
+
+=back
+
+L<https://redis.io/commands/xrevrange>
+
+=cut
+
+register xrevrange => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XREVRANGE) => @args)
+};
+
+=head2 xlen
+
+Return the number of entires in a stream.
+
+=over 4
+
+=item * key
+
+=back
+
+L<https://redis.io/commands/xlen>
+
+=cut
+
+register xlen => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XLEN) => @args)
+};
+
+=head2 xread
+
+Return never seen elements in multiple streams, with IDs greater than the ones reported by the caller for each stream. Can block.
+
+=over 4
+
+=item * [COUNT count]
+
+=item * [BLOCK milliseconds]
+
+=item * STREAMS
+
+=item * key [key ...]
+
+=item * ID [ID ...]
+
+=back
+
+L<https://redis.io/commands/xread>
+
+=cut
+
+register xread => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XREAD) => @args)
+};
+
+=head2 xreadgroup
+
+Return new entries from a stream using a consumer group, or access the history of the pending entries for a given consumer. Can block.
+
+=over 4
+
+=item * GROUP group consumer
+
+=item * [COUNT count]
+
+=item * [BLOCK milliseconds]
+
+=item * STREAMS
+
+=item * key [key ...]
+
+=item * ID [ID ...]
+
+=back
+
+L<https://redis.io/commands/xreadgroup>
+
+=cut
+
+register xreadgroup => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XREADGROUP) => @args)
+};
+
+=head2 xpending
+
+Return information and entries from a stream consumer group pending entries list, that are messages fetched but never acknowledged.
+
+=over 4
+
+=item * key
+
+=item * group
+
+=item * [start end count]
+
+=item * [consumer]
+
+=back
+
+L<https://redis.io/commands/xpending>
+
+=cut
+
+register xpending => sub {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(XPENDING) => @args)
+};
+
 =head1 METHODS - String
 
 =head2 append
