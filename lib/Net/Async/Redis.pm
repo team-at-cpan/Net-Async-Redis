@@ -569,7 +569,7 @@ sub configure {
     $self->{auth} = $uri->password if defined $uri->password;
     $self->{database} = $uri->database if defined $uri->database;
 
-    for (qw(auth database pipeline_depth)) {
+    for (qw(auth database pipeline_depth client_name)) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
 
