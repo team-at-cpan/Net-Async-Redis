@@ -431,7 +431,8 @@ sub stream { shift->{stream} }
 Number of requests awaiting responses before we start queuing.
 This defaults to an arbitrary value of 100 requests.
 
-Note that this does not apply when in L<transaction|METHODS - Transactions> (C<MULTI>) mode.
+Note that this does not apply when in L<transaction|METHODS - Transactions> (C<MULTI>) mode,
+since those commands only complete once the transaction is executed or discarded.
 
 See L<https://redis.io/topics/pipelining> for more details on this concept.
 
