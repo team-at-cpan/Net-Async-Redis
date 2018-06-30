@@ -4232,9 +4232,7 @@ Set the string value of a key.
 
 =item * value
 
-=item * [EX seconds]
-
-=item * [PX milliseconds]
+=item * [expiration EX seconds|PX milliseconds]
 
 =item * [NX|XX]
 
