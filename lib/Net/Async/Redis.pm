@@ -37,6 +37,66 @@ Net::Async::Redis - talk to Redis servers via L<IO::Async>
 
 See L<Net::Async::Redis::Commands> for the full list of commands.
 
+This is intended to be a near-complete low-level module for asynchronous Redis
+support.
+
+=head2 Supported features
+
+Current features include:
+
+=over 4
+
+=item * all commands as of 5.0 beta (June 2018)
+
+=item * L<pub/sub support|https://redis.io/topics/pubsub>
+
+=item * L<pipelining|https://redis.io/topics/pipelining>
+
+=item * L<transactions|https://redis.io/topics/transactions>
+
+=item * L<streams|https://redis.io/topics/streams-intro> and consumer groups
+
+=back
+
+=head2 Connecting
+
+As with any other L<IO::Async::Notifier>-based module, you'll need to
+add this to an L<IO::Async::Loop>:
+
+    my $loop = IO::Async::Loop->new;
+    $loop->add(
+        my $redis = Net::Async::Redis->new
+    );
+
+then connect to the server:
+
+    $redis->connect
+        ->then(sub {
+            # You could achieve a similar result by passing client_name in
+            # constructor or ->connect parameters
+            $redis->client_setname("example client")
+        })->get;
+
+=head2 Requests and responses
+
+Requests are implemented as methods on the L<Net::Async::Redis> object.
+These typically return a L<Future> which will resolve once ready:
+
+    my $future = $redis->incr("xyz")
+        ->on_done(sub {
+            print "result of increment was " . shift . "\n"
+        });
+
+For synchronous code, call C<< ->get >> on that L<Future>:
+
+    print "Database has " . $redis->dbsize->get . " total keys\n";
+
+=head2 Error handling
+
+Since L<Future> is used for deferred results, failure is indicated
+by a failing Future with L<failure category|Future/FAILURE-CATEGORIES>
+of C<redis>.
+
 =cut
 
 use mro;
