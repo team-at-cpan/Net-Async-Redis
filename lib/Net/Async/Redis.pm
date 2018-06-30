@@ -400,7 +400,7 @@ sub bus {
 sub notify_close {
     my ($self) = @_;
     $self->configure(on_read => sub { 0 });
-    $_->[1]->fail('Server connection is no longer active', redis => 'disconnected') for @{$self->{pending}};
+    $_->[1]->fail('Server connection is no longer active', redis => 'disconnected') for splice @{$self->{pending}};
     $self->maybe_invoke_event(disconnect => );
 }
 
