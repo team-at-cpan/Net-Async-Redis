@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - server implementation, currently supports only a subset of commands and
+    is mostly intended to provide a way to unit-test codepaths in Redis client
+    code.
+    - updated to June 2018 commands (redis 5.0 including memory debug, consumer
+    groups and bzpop)
 
 1.005     2018-01-06 18:18:22+08:00 Asia/Kuala_Lumpur
     No new features.
