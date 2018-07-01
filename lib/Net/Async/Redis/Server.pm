@@ -17,18 +17,47 @@ Best to wait until the 2.000 release for this one.
 
 =cut
 
+use mro qw(c3);
+no indirect;
+
+use URI::redis;
 use Net::Async::Redis::Server::Connection;
 
 sub _add_to_loop {
     my ($self, $loop) = @_;
     $self->add_child(
-        my $listener = IO::Async::Listener->new(
-            on_stream => sub {
-                my ($server, $stream) = @_;
-
-            }
+        $self->{listener} = IO::Async::Listener->new(
+            on_stream => $self->curry::weak::on_stream
         )
     );
+    $self->{uri} = $self->{listener}->listen(
+        service => $self->port,
+        socktype => 'stream',
+        host => $self->host,
+    )->transform(done => sub {
+        URI->new('redis://' . $self->host . ':' . shift->read_handle->sockport);
+    });
+    Scalar::Util::weaken($self->{listener});
+}
+
+sub host { shift->{host} //= '0.0.0.0' }
+sub port { shift->{port} //= 0 }
+
+sub listener { shift->{listener} }
+
+sub on_stream {
+    my ($self, $server, $stream) = @_;
+    ...
+}
+
+sub uri { shift->{uri} // die 'must add ' . __PACKAGE__ . ' to a loop before calling any methods' }
+
+sub configure {
+    my ($self, %args) = @_;
+    for (qw(auth host port)) {
+        $self->{$_} = delete $args{$_} if exists $args{$_};
+    }
+    $self->next::method(%args);
 }
 
 1;
