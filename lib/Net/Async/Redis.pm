@@ -532,7 +532,6 @@ sub execute_command {
         $self->stream->write(
             $self->protocol->encode_from_client(@cmd)
         )->then(sub {
-            $f->done if $is_sub_command;
             $f
         })
     };
