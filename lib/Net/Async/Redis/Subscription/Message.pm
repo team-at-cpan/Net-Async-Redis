@@ -66,7 +66,7 @@ sub payload { shift->{payload} }
 
 sub DESTROY {
     my ($self) = @_;
-    return if ${^GLOBAL_PHASE} eq 'DESTRUCT' or not my $ev = $self->{events};
+    return if ${^GLOBAL_PHASE} eq 'DESTRUCT' or not my $ev = delete $self->{events};
     $ev->completion->done unless $ev->completion->is_ready;
 }
 

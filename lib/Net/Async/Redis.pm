@@ -138,9 +138,15 @@ Subscribes to a pattern.
 
 =cut
 
-sub psubscribe {
-    my ($self, $pattern) = @_;
-    return $self->next::method($pattern)
+around psubscribe => sub {
+    my ($code, $self, $pattern) = @_;
+
+    # 
+    return Future->done(
+        $self->{subscription_pattern_channel}{$pattern}
+    ) if $self->{subscription_pattern_channel}{$pattern};
+
+    return $self->$code($pattern)
         ->then(sub {
             $self->{pubsub} //= 0;
             $self->{pending_subscription_pattern_channel}{$pattern} //= $self->future('pattern_subscription[' . $pattern . ']');
@@ -153,7 +159,7 @@ sub psubscribe {
                 )
             );
         })
-}
+};
 
 =head2 subscribe
 
@@ -178,9 +184,9 @@ Example:
 
 =cut
 
-sub subscribe {
-    my ($self, @channels) = @_;
-    $self->next::method(@channels)
+around subscribe => sub {
+    my ($code, $self, @channels) = @_;
+    $self->$code(@channels)
         ->then(sub {
             $log->tracef('Marking as pubsub mode');
             $self->{pubsub} //= 0;
@@ -194,7 +200,7 @@ sub subscribe {
                 @{$self->{subscription_channel}}{@channels}
             )
         })
-}
+};
 
 =head1 METHODS - Transactions
 
@@ -219,21 +225,20 @@ Example:
 
 =cut
 
-sub multi {
+around multi => sub {
     use Scalar::Util qw(reftype);
     use namespace::clean qw(reftype);
-    my ($self, $code) = @_;
+    my ($orig, $self, $code) = @_;
     die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
     my $multi = Net::Async::Redis::Multi->new(
         redis => $self,
     );
     my $task = sub {
         local $self->{_is_multi} = 1;
-        Net::Async::Redis::Commands::multi(
-            $self
-        )->then(sub {
-            $multi->exec($code)
-        })
+        $self->$orig
+            ->then(sub {
+                $multi->exec($code)
+            })
     };
     my @pending = @{$self->{pending_multi}};
 
@@ -245,7 +250,7 @@ sub multi {
     return Future->wait_all(
         @pending
     )->then($task);
-}
+};
 
 around [qw(discard exec)] => sub {
     my ($code, $self, @args) = @_;
@@ -261,11 +266,11 @@ around [qw(discard exec)] => sub {
 
 =cut
 
-sub keys : method {
-    my ($self, $match) = @_;
+around keys => sub : method {
+    my ($code, $self, $match) = @_;
     $match //= '*';
-    return $self->next::method($match);
-}
+    return $self->$code($match);
+};
 
 =head2 watch_keyspace
 
@@ -305,11 +310,7 @@ sub connect : method {
     my ($self, %args) = @_;
     $self->configure(%args) if %args;
     my $uri = $self->uri->clone;
-    for (qw(host port)) {
-        $uri->$_($self->$_) if defined $self->$_;
-    }
-    my $auth = $self->auth;
-    $auth //= ($uri->userinfo =~ s{^[^:]*:}{}r) if defined $uri->userinfo;
+    my $auth = $uri->password;
     $self->{connection} //= $self->loop->connect(
         service => $uri->port // 6379,
         host    => $uri->host,
@@ -337,6 +338,38 @@ sub connect : method {
 }
 
 sub connected { shift->connect }
+
+=head2 pipeline_depth
+
+Number of requests awaiting responses before we start queuing.
+This defaults to an arbitrary value of 100 requests.
+
+Note that this does not apply when in L<transaction|METHODS - Transactions> (C<MULTI>) mode,
+since those commands only complete once the transaction is executed or discarded.
+
+See L<https://redis.io/topics/pipelining> for more details on this concept.
+
+=cut
+
+sub pipeline_depth { shift->{pipeline_depth} //= 100 }
+
+=head1 METHODS - Deprecated
+
+This are still supported, but no longer recommended.
+
+=cut
+
+sub bus {
+    shift->{bus} //= do {
+        require Mixin::Event::Dispatch::Bus;
+        Mixin::Event::Dispatch::Bus->VERSION(2.000);
+        Mixin::Event::Dispatch::Bus->new
+    }
+}
+
+=head1 METHODS - Internal
+
+=cut
 
 =head2 on_message
 
@@ -427,38 +460,6 @@ Represents the L<IO::Async::Stream> instance for the active Redis connection.
 
 sub stream { shift->{stream} }
 
-=head2 pipeline_depth
-
-Number of requests awaiting responses before we start queuing.
-This defaults to an arbitrary value of 100 requests.
-
-Note that this does not apply when in L<transaction|METHODS - Transactions> (C<MULTI>) mode,
-since those commands only complete once the transaction is executed or discarded.
-
-See L<https://redis.io/topics/pipelining> for more details on this concept.
-
-=cut
-
-sub pipeline_depth { shift->{pipeline_depth} //= 100 }
-
-=head1 METHODS - Deprecated
-
-This are still supported, but no longer recommended.
-
-=cut
-
-sub bus {
-    shift->{bus} //= do {
-        require Mixin::Event::Dispatch::Bus;
-        Mixin::Event::Dispatch::Bus->VERSION(2.000);
-        Mixin::Event::Dispatch::Bus->new
-    }
-}
-
-=head1 METHODS - Internal
-
-=cut
-
 sub notify_close {
     my ($self) = @_;
     $self->configure(on_read => sub { 0 });
@@ -548,8 +549,6 @@ sub host { shift->uri->host }
 
 sub port { shift->uri->port }
 
-sub auth { shift->{auth} }
-
 sub database { shift->{database} }
 
 sub uri { shift->{uri} //= URI->new('redis://localhost') }
@@ -567,7 +566,6 @@ sub configure {
     $self->{uri} = $uri;
 
     # There's also some metadata that we'll pull from the URI, but allow %args to override
-    $self->{auth} = $uri->password if defined $uri->password;
     $self->{database} = $uri->database if defined $uri->database;
 
     for (qw(auth database pipeline_depth client_name)) {
@@ -587,7 +585,7 @@ Some other Redis implementations on CPAN:
 
 =over 4
 
-=item * L<Mojo::Redis2> - nonblocking, using the L<Mojolicious> framework, actively maintained
+=item * L<Mojo::Redis2> - nonblocking, using the L<Mojolicious> framework, semi-actively maintained
 
 =item * L<MojoX::Redis>
 

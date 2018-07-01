@@ -78,12 +78,12 @@ for each available Redis command.
 
 =cut
 
-my %commands;
+our %COMMANDS;
 
 sub register {
     my ($cmd, $code) = @_;
-    die 'already registered ' . $cmd if exists $commands{$cmd};
-    $commands{$cmd} = $code;
+    die 'already registered ' . $cmd if exists $COMMANDS{$cmd};
+    $COMMANDS{$cmd} = $code;
 }
 
 [% FOR group IN commands.keys.sort -%]
@@ -120,9 +120,9 @@ sub import {
     my ($pkg) = caller;
     {
         no strict 'refs'; 
-        for my $k (keys %commands) {
+        for my $k (keys %COMMANDS) {
             next if $pkg->can($k);
-            *{$pkg . '::' . $k} = $commands{$k};
+            *{$pkg . '::' . $k} = $COMMANDS{$k};
         }
     }
 }
