@@ -307,15 +307,33 @@ sub local_endpoint { shift->{local_endpoint} }
 =cut
 
 sub connect : method {
+    use Scalar::Util qw(blessed);
+    use namespace::clean qw(blessed);
     my ($self, %args) = @_;
-    $self->configure(%args) if %args;
-    my $uri = $self->uri->clone;
-    my $auth = $uri->password;
-    $self->{connection} //= $self->loop->connect(
-        service => $uri->port // 6379,
-        host    => $uri->host,
-        socktype => 'stream',
+    # There's occasional situations where we may want deferred
+    # values here - one example being Net::Async::Redis::Server->uri
+    # which only resolves after the listener is ready.
+    Future->needs_all(
+        map {
+            my $k = $_;
+            $args{$_}->transform(done => sub {
+                return $k => shift
+            })
+        } grep {
+            blessed($args{$_}) && $args{$_}->isa('Future')
+        } keys %args
     )->then(sub {
+        my %extra = @_;
+        @args{keys %extra} = values %extra;
+        $self->configure(%args) if %args;
+        my $uri = $self->uri->clone;
+        my $auth = $uri->password;
+        $self->{connection} //= $self->loop->connect(
+            service => $uri->port // 6379,
+            host    => $uri->host,
+            socktype => 'stream',
+        )
+    })->then(sub {
         my ($sock) = @_;
         $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
         $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
