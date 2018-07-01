@@ -337,26 +337,26 @@ sub connect : method {
             service => $uri->port // 6379,
             host    => $uri->host,
             socktype => 'stream',
-        )
-    })->then(sub {
-        my ($sock) = @_;
-        $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
-        $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
-        my $proto = $self->protocol;
-        my $stream = IO::Async::Stream->new(
-            handle    => $sock,
-            on_closed => $self->curry::weak::notify_close,
-            on_read   => sub {
-                $proto->parse($_[1]);
-                0
-            }
-        );
-        $self->add_child($stream);
-        Scalar::Util::weaken(
-            $self->{stream} = $stream
-        );
-        return $self->auth($auth) if defined $auth;
-        return Future->done;
+        )->then(sub {
+            my ($sock) = @_;
+            $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
+            $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
+            my $proto = $self->protocol;
+            my $stream = IO::Async::Stream->new(
+                handle    => $sock,
+                on_closed => $self->curry::weak::notify_close,
+                on_read   => sub {
+                    $proto->parse($_[1]);
+                    0
+                }
+            );
+            $self->add_child($stream);
+            Scalar::Util::weaken(
+                $self->{stream} = $stream
+            );
+            return $self->auth($auth) if defined $auth;
+            return Future->done;
+        })
     })
 }
 
