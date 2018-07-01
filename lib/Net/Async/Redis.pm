@@ -485,7 +485,11 @@ sub stream { shift->{stream} }
 
 sub notify_close {
     my ($self) = @_;
-    $self->configure(on_read => sub { 0 });
+    $log->tracef('Disconnect received from remote');
+    if(my $stream = delete $self->{stream}) {
+        $stream->configure(on_read => sub { 0 });
+        $stream->close_when_empty;
+    }
     $_->[1]->fail('Server connection is no longer active', redis => 'disconnected') for splice @{$self->{pending}};
     $self->maybe_invoke_event(disconnect => );
 }

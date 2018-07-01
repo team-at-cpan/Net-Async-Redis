@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Fatal;
 
 use Net::Async::Redis;
 use Net::Async::Redis::Server;
@@ -19,8 +20,15 @@ $loop->add(
 $loop->add(
     my $client = Net::Async::Redis->new
 );
-$client->connect(uri => $server->uri)->get;
+is(exception {
+    $client->connect(
+        # uri => $server->uri
+    )->get;
+}, undef, 'connection is successful');
+
+ok($client->ping->get, 'can ping');
+ok($client->set(xyz => 123)->get, 'can set a value');
+is($client->get(xyz => )->get, 123, 'can get that same value');
 
 done_testing;
-
 
