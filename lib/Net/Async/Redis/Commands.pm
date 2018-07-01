@@ -607,7 +607,7 @@ L<https://redis.io/commands/keys>
 
 =cut
 
-register keys => sub {
+register keys => sub : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(KEYS) => @args)
 };
