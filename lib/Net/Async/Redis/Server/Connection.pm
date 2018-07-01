@@ -33,6 +33,17 @@ sub AUTOLOAD {
     return $self->request->reply(ERR => 'Unknown command ' . $cmd);
 }
 
+sub request { }
+
+sub stream { shift->{stream} }
+
+sub configure {
+    my ($self, %args) = @_;
+    for (qw(server stream)) {
+        Scalar::Util::weaken($self->{$_} = delete $args{$_}) if exists $args{$_};
+    }
+    $self->next::method(%args);
+}
 1;
 
 

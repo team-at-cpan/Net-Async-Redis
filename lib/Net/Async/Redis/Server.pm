@@ -18,10 +18,13 @@ Best to wait until the 2.000 release for this one.
 =cut
 
 use mro qw(c3);
+
 no indirect;
 
 use URI::redis;
 use Net::Async::Redis::Server::Connection;
+
+use Log::Any qw($log);
 
 sub _add_to_loop {
     my ($self, $loop) = @_;
@@ -47,7 +50,14 @@ sub listener { shift->{listener} }
 
 sub on_stream {
     my ($self, $server, $stream) = @_;
-    ...
+    my $handle = $stream->read_handle;
+    $log->warnf('Incoming connection from %s', join(':', map $handle->$_, qw(sockhost sockport)));
+    $self->add_child(
+        my $conn = Net::Async::Redis::Server::Connection->new(
+            server => $self,
+            stream => $stream,
+        )
+    );
 }
 
 sub uri { shift->{uri} // die 'must add ' . __PACKAGE__ . ' to a loop before calling any methods' }
