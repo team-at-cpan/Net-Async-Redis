@@ -5,7 +5,7 @@ use warnings;
 
 use parent qw(IO::Async::Notifier);
 
-our $VERSION = '1.005';
+our $VERSION = '2.000';
 
 =head1 NAME
 
@@ -37,8 +37,8 @@ Net::Async::Redis - talk to Redis servers via L<IO::Async>
 
 See L<Net::Async::Redis::Commands> for the full list of commands.
 
-This is intended to be a near-complete low-level module for asynchronous Redis
-support.
+This is intended to be a near-complete low-level client module for asynchronous Redis
+support. See L<Net::Async::Redis::Server> for a (limited) Perl server implementation.
 
 =head2 Supported features
 
@@ -114,6 +114,7 @@ use List::Util qw(pairmap);
 use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
 use Net::Async::Redis::Subscription::Message;
+
 use Net::Async::Redis::Commands;
 
 =head1 METHODS

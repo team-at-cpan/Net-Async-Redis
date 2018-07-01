@@ -77,8 +77,7 @@ sub echo : method {
 
 sub ping : method {
     my ($self, $string) = @_;
-    return Future->done('PONG') unless defined $string;
-    return Future->done($string);
+    return Future->done($string // 'PONG');
 }
 
 sub quit : method {

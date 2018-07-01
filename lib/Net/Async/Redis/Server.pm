@@ -17,6 +17,8 @@ Best to wait until the 2.000 release for this one.
 
 =cut
 
+use Net::Async::Redis::Server::Connection;
+
 sub _add_to_loop {
     my ($self, $loop) = @_;
     $self->add_child(
