@@ -3,6 +3,8 @@ package Net::Async::Redis;
 use strict;
 use warnings;
 
+no indirect;
+
 use parent qw(IO::Async::Notifier);
 
 our $VERSION = '2.000';
@@ -115,7 +117,10 @@ use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
 use Net::Async::Redis::Subscription::Message;
 
-use Net::Async::Redis::Commands;
+UNITCHECK {
+    require Net::Async::Redis::Commands;
+    Net::Async::Redis::Commands->import;
+}
 
 =head1 METHODS
 
