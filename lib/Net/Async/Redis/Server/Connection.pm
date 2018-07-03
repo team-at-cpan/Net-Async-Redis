@@ -13,7 +13,7 @@ Net::Async::Redis::Server::Connection - represents a single connection to a serv
 
 =head1 DESCRIPTION
 
-Best to wait until the 2.000 release for this one.
+Used internally by L<Net::Async::Redis::Server>.
 
 =cut
 
