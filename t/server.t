@@ -22,13 +22,18 @@ $loop->add(
 );
 is(exception {
     $client->connect(
-        # uri => $server->uri
+        uri => $server->uri
     )->get;
 }, undef, 'connection is successful');
 
 ok($client->ping->get, 'can ping');
 ok($client->set(xyz => 123)->get, 'can set a value');
 is($client->get(xyz => )->get, 123, 'can get that same value');
+is($client->get(xyz => )->get, 123, 'still the same value on a subsequent request');
+ok($client->set(xyz => 345, PX => 75)->get, 'can set a new value');
+is($client->get(xyz => )->get, 345, 'read the new value');
+$loop->delay_future(after => 0.080)->get;
+is($client->get(xyz => )->get, undef, 'value expires when it should');
 
 done_testing;
 
