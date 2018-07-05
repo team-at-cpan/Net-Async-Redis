@@ -673,17 +673,25 @@ Some other Redis implementations on CPAN:
 
 =over 4
 
-=item * L<Mojo::Redis2> - nonblocking, using the L<Mojolicious> framework, semi-actively maintained
+=item * L<Mojo::Redis2> - nonblocking, using the L<Mojolicious> framework, semi-actively maintained,
+implemented to address some design issues with L<Mojo::Redis> (main points appear to be connection
+and error handling)
 
-=item * L<MojoX::Redis>
+=item * L<MojoX::Redis> - changelog mentions that this was obsoleted by L<Mojo::Redis>, although there
+have been new versions released since then
 
-=item * L<RedisDB>
+=item * L<Mojo::Redis> - looks like development has restarted on this (June 2018)
 
-=item * L<Cache::Redis>
+=item * L<Redis> - synchronous (blocking) implementation, handles pub/sub and autoreconnect
 
-=item * L<Redis::Fast>
+=item * L<RedisDB> - another synchronous (blocking) implementation, handles pub/sub and autoreconnect
 
-=item * L<Redis::Jet>
+=item * L<Cache::Redis> - wrapper around L<RedisDB>
+
+=item * L<Redis::Fast> - wraps C<hiredis>, faster than L<Redis>
+
+=item * L<Redis::Jet> - also XS-based, docs mention C<very early development stage> but appears to support
+pipelining and can handle newer commands via C<< ->command >>.
 
 =back
 
