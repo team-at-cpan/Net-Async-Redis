@@ -3,12 +3,13 @@ use warnings;
 
 use Test::More;
 use Test::Fatal;
+use Test::Deep;
 
 use Net::Async::Redis;
 use Net::Async::Redis::Server;
 use IO::Async::Loop;
 
-use Log::Any::Adapter qw(TAP), log_level => 'trace';
+use Log::Any::Adapter qw(TAP);
 
 my $loop = IO::Async::Loop->new;
 $loop->add(

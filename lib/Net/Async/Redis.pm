@@ -193,6 +193,12 @@ around subscribe => sub {
     my ($code, $self, @channels) = @_;
     $self->$code(@channels)
         ->then(sub {
+            local $log->{context}{redis} = {
+                remote   => $self->endpoint,
+                local    => $self->local_endpoint,
+                name     => $self->client_name,
+                database => $self->database,
+            } if $log->is_debug;
             $log->tracef('Marking as pubsub mode');
             $self->{pubsub} //= 0;
             Future->wait_all(
@@ -235,6 +241,12 @@ around multi => sub {
     use namespace::clean qw(reftype);
     my ($orig, $self, $code) = @_;
     die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
+    local $log->{context}{redis} = {
+        remote   => $self->endpoint,
+        local    => $self->local_endpoint,
+        name     => $self->client_name,
+        database => $self->database,
+    } if $log->is_debug;
     my $multi = Net::Async::Redis::Multi->new(
         redis => $self,
     );
@@ -405,7 +417,12 @@ item, depending on whether we're dealing with subscriptions at the moment.
 
 sub on_message {
     my ($self, $data) = @_;
-    local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+    local $log->{context}{redis} = {
+        remote   => $self->endpoint,
+        local    => $self->local_endpoint,
+        name     => $self->client_name,
+        database => $self->database,
+    } if $log->is_debug;
     $log->tracef('Incoming message: %s', $data);
     return $self->handle_pubsub_message(@$data) if exists $self->{pubsub};
 
@@ -428,6 +445,12 @@ sub handle_pubsub_message {
             );
             $sub->events->emit($msg);
         } else {
+            local $log->{context}{redis} = {
+                remote   => $self->endpoint,
+                local    => $self->local_endpoint,
+                name     => $self->client_name,
+                database => $self->database,
+            };
             $log->warnf('Have message for unknown channel [%s]', $channel);
         }
         $self->bus->invoke_event(message => [ $type, $channel, $payload ]) if exists $self->{bus};
@@ -446,6 +469,12 @@ sub handle_pubsub_message {
             );
             $sub->events->emit($msg);
         } else {
+            local $log->{context}{redis} = {
+                remote   => $self->endpoint,
+                local    => $self->local_endpoint,
+                name     => $self->client_name,
+                database => $self->database,
+            };
             $log->warnf('Have message for unknown channel [%s]', $channel);
         }
         $self->bus->invoke_event(message => [ $type, $channel, $payload ]) if exists $self->{bus};
@@ -459,6 +488,12 @@ sub handle_pubsub_message {
         if(my $sub = delete $self->{$k}{$channel}) {
             $log->tracef('Removed subscription for [%s]', $channel);
         } else {
+            local $log->{context}{redis} = {
+                remote   => $self->endpoint,
+                local    => $self->local_endpoint,
+                name     => $self->client_name,
+                database => $self->database,
+            };
             $log->warnf('Have unsubscription for unknown channel [%s]', $channel);
         }
     } elsif($type =~ /subscribe$/) {
@@ -471,6 +506,12 @@ sub handle_pubsub_message {
         );
         $self->{'pending_' . $k}{$channel}->done;
     } else {
+        local $log->{context}{redis} = {
+            remote   => $self->endpoint,
+            local    => $self->local_endpoint,
+            name     => $self->client_name,
+            database => $self->database,
+        };
         $log->warnf('have unknown pubsub message type %s with content %s', $type, \@details);
     }
 }
@@ -485,6 +526,12 @@ sub stream { shift->{stream} }
 
 sub notify_close {
     my ($self) = @_;
+    local $log->{context}{redis} = {
+        remote   => $self->endpoint,
+        local    => $self->local_endpoint,
+        name     => $self->client_name,
+        database => $self->database,
+    } if $log->is_debug;
     $log->tracef('Disconnect received from remote');
     if(my $stream = delete $self->{stream}) {
         $stream->configure(on_read => sub { 0 });
@@ -511,6 +558,13 @@ our %ALLOWED_SUBSCRIPTION_COMMANDS = (
 
 sub execute_command {
     my ($self, @cmd) = @_;
+    local $log->{context}{redis} = {
+        remote   => $self->endpoint,
+        local    => $self->local_endpoint,
+        name     => $self->client_name,
+        database => $self->database,
+        command  => $cmd[0],
+    } if $log->is_debug;
 
     # First, the rules: pubsub or plain
     my $is_sub_command = exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
@@ -524,11 +578,17 @@ sub execute_command {
     my $f = $self->loop->new_future->set_label($self->command_label(@cmd));
     $log->debugf("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
     my $code = sub {
-        local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+        local $log->{context}{redis} = {
+            remote   => $self->endpoint,
+            local    => $self->local_endpoint,
+            name     => $self->client_name,
+            database => $self->database,
+            command  => $cmd[0],
+        } if $log->is_debug;
         my $cmd = join ' ', @cmd;
         $log->tracef('Outgoing [%s]', $cmd);
         push @{$self->{pending}}, [ $cmd, $f ];
-        $log->infof("Pipeline depth now %d", 0 + @{$self->{pending}});
+        $log->tracef("Pipeline depth now %d", 0 + @{$self->{pending}});
         $self->stream->write(
             $self->protocol->encode_from_client(@cmd)
         )->then(sub {
@@ -576,6 +636,8 @@ sub host { shift->uri->host }
 sub port { shift->uri->port }
 
 sub database { shift->{database} }
+
+sub client_name { shift->{client_name} }
 
 sub uri { shift->{uri} //= URI->new('redis://localhost') }
 
