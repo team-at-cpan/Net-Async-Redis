@@ -18,6 +18,8 @@ Not all of them will be implemented yet.
 
 use Math::Random::Secure ();
 
+sub new { bless { @_[1 .. $#_] }, $_[0] }
+
 sub set : method {
     my ($self, $k, $v, @args) = @_;
     my %opt;
@@ -46,6 +48,8 @@ sub set : method {
     }
     return Future->done('OK');
 }
+
+sub time : method { 1000 * Time::HiRes::time }
 
 sub expiry_check {
     my ($self, @keys) = @_;
@@ -130,9 +134,11 @@ sub keys : method {
     my ($self, $pattern) = @_;
     $self->expiry_check(keys %{$self->{keys}});
     $pattern = '*' unless defined($pattern) and length($pattern);
-    $pattern = qr/^\Q$pattern\E$/;
-    $pattern =~ s{\\\*}{.*}g;
-    return Future->done(grep { $_ =~ $pattern } sort keys %{$self->{keys}});
+
+    $pattern =~ s{\?}{.}g;
+    $pattern =~ s{\*}{.*}g;
+    $pattern = qr/^$pattern$/;
+    return Future->done([ grep { /$pattern/ } sort keys %{$self->{keys}} ]);
 }
 
 sub persist : method {
@@ -152,13 +158,32 @@ sub randomkey : method {
 sub lpush : method {
     my ($self, $k, @values) = @_;
     unshift @{$self->{keys}{$k}}, @values;
-    return Future->done('OK');
+    return Future->done(0 + @{$self->{keys}{$k}});
+}
+
+sub llen : method {
+    my ($self, $k) = @_;
+    return Future->done(0 + @{$self->{keys}{$k}});
+}
+
+sub lpop : method {
+    my ($self, $k) = @_;
+    return Future->done(
+        shift @{$self->{keys}{$k}}
+    );
+}
+
+sub rpop : method {
+    my ($self, $k) = @_;
+    return Future->done(
+        pop @{$self->{keys}{$k}}
+    );
 }
 
 sub rpush : method {
     my ($self, $k, @values) = @_;
     push @{$self->{keys}{$k}}, @values;
-    return Future->done('OK');
+    return Future->done(0 + @{$self->{keys}{$k}});
 }
 
 sub brpoplpush : method {

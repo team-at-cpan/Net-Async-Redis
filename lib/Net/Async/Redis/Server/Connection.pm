@@ -20,6 +20,7 @@ Used internally by L<Net::Async::Redis::Server>.
 use strict;
 use warnings;
 
+use Net::Async::Redis::Server::Database;
 use Net::Async::Redis::Commands;
 
 use Log::Any qw($log);
@@ -64,6 +65,25 @@ sub on_read {
 sub on_message {
     my ($self, $msg) = @_;
     $log->infof('Had message %s', $msg);
+    my ($command, @data) = @$msg;
+    my $db = $self->db;
+    my $code = $db->can(lc $command);
+    $log->tracef('Database method: %s', $code);
+    (
+        $code 
+        ? $code->($db, @data)
+        : Future->done(qq{ERR unknown command '$command'})
+    )->then(sub {
+        my $data = shift;
+        $self->stream->write(
+            $self->protocol->encode($data)
+        )
+    })->retain;
+}
+
+sub db {
+    my ($self) = @_;
+    $self->{db} //= Net::Async::Redis::Server::Database->new
 }
 
 sub configure {
