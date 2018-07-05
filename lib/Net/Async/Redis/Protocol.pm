@@ -97,21 +97,21 @@ sub decode {
             undef $len;
             last ITEM unless length;
         }
-        if(s{^\+([^\x0D]*)$CRLF}{}) {
+        if(s{^\+([^\x0D]*)\x0D\x0A}{}) {
             $self->item("$1");
-        } elsif(s{^:([^\x0D]*)$CRLF}{}) {
+        } elsif(s{^:([^\x0D]*)\x0D\x0A}{}) {
             my $int = $1;
             die 'invalid integer value ' . $int unless looks_like_number($int) && int($int) eq $int;
             $self->item(0 + $int);
-        } elsif(s{^\$-1$CRLF}{}) {
+        } elsif(s{^\$-1\x0D\x0A}{}) {
             $self->item(undef);
-        } elsif(s{^\$([0-9]+)$CRLF}{}) {
+        } elsif(s{^\$([0-9]+)\x0D\x0A}{}) {
             $len = $1;
             die 'invalid numeric value for length ' . $len unless 0+$len eq $len;
             $self->{parsing_bulk} = $len;
-        } elsif(s{^\*-1$CRLF}{}) {
+        } elsif(s{^\*-1\x0D\x0A}{}) {
             $self->item_array(undef);
-        } elsif(s{^\*([0-9]+)$CRLF}{}) {
+        } elsif(s{^\*([0-9]+)\x0D\x0A}{}) {
             my $pending = $1;
             die 'invalid numeric value for array ' . $pending unless 0+$pending eq $pending;
             if($pending) {
@@ -119,7 +119,7 @@ sub decode {
             } else {
                 $self->item([]);
             }
-        } elsif(s{^-([^\x0D]*)$CRLF}{}) {
+        } elsif(s{^-([^\x0D]*)\x0D\x0A}{}) {
             $self->item_error($1);
         } else {
             last ITEM;
