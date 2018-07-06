@@ -44,13 +44,10 @@ wait_for { @messages > 0 };
 {
 	ok(my $msg = shift @messages, "Got a message");
 
-	is($msg->redis,        $subscriber, '$msg->redis');
-	is($msg->subscription, $s,          '$msg->subscription');
-
-	# TODO(leonerd): Surely this should be 'testprefix::123' ?
-	is($msg->channel,      'testprefix::*', '$msg->channel');
-
-	is($msg->type,         'pmessage',  '$msg->type');
+	is($msg->redis,        $subscriber,       '$msg->redis');
+	is($msg->subscription, $s,                '$msg->subscription');
+	is($msg->channel,      'testprefix::123', '$msg->channel');
+	is($msg->type,         'pmessage',        '$msg->type');
 
 	is($msg->payload,      'the message', '$msg->payload');
 }
