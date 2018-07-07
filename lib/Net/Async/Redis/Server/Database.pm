@@ -193,5 +193,39 @@ sub brpoplpush : method {
     return Future->done($v);
 }
 
+=head1 METHODS - Top-level commands
+
+These are commands that consist of two or more words.
+
+=cut
+
+sub client {
+    my ($self, $next, @details) = @_;
+    return Future->done(qq{ERR unknown command 'CLIENT $next'})
+        unless my $code = $self->can('client_' . $next);
+    $self->$code(@details);
+}
+
+sub debug {
+    my ($self, $next, @details) = @_;
+    return Future->done(qq{ERR unknown command 'DEBUG $next'})
+        unless my $code = $self->can('debug_' . $next);
+    $self->$code(@details);
+}
+
+sub cluster {
+    my ($self, $next, @details) = @_;
+    return Future->done(qq{ERR unknown command 'CLUSTER $next'})
+        unless my $code = $self->can('cluster_' . $next);
+    $self->$code(@details);
+}
+
+sub memory {
+    my ($self, $next, @details) = @_;
+    return Future->done(qq{ERR unknown command 'MEMORY $next'})
+        unless my $code = $self->can('memory_' . $next);
+    $self->$code(@details);
+}
+
 1;
 
