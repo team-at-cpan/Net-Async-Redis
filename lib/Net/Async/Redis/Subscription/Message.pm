@@ -46,7 +46,7 @@ Accessor for the channel name.
 
 =cut
 
-sub channel { shift->subscription->channel }
+sub channel { shift->{channel} }
 
 =head2 type
 

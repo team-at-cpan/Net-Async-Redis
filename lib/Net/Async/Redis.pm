@@ -458,7 +458,7 @@ sub handle_pubsub_message {
     }
     if($type eq 'pmessage') {
         my ($pattern, $channel, $payload) = @details;
-        if(my $sub = $self->{subscription_pattern_channel}{$channel}) {
+        if(my $sub = $self->{subscription_pattern_channel}{$pattern}) {
             my $msg = Net::Async::Redis::Subscription::Message->new(
                 type         => $type,
                 pattern      => $pattern,
@@ -481,7 +481,7 @@ sub handle_pubsub_message {
         return;
     }
 
-    my ($channel) = @details;
+    my ($channel, $payload) = @details;
     my $k = (substr $type, 0, 1) eq 'p' ? 'subscription_pattern_channel' : 'subscription_channel';
     if($type =~ /unsubscribe$/) {
         --$self->{pubsub};

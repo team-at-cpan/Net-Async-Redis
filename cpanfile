@@ -23,4 +23,3 @@ on 'develop' => sub {
     requires 'Template';
     requires 'HTML::TreeBuilder';
 };
-
