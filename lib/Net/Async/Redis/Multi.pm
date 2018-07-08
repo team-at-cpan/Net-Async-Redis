@@ -68,7 +68,7 @@ sub redis { shift->{redis} }
 
 sub AUTOLOAD {
     my ($method) = our $AUTOLOAD =~ m{::([^:]+)$};
-    die "Unknown method $method" unless Net::Async::Redis::Commands->can($method);
+    die "Unknown method $method" unless exists $Net::Async::Redis::Commands::COMMANDS{$method};
     my $code = sub {
         my ($self, @args) = @_;
         local $self->redis->{_is_multi} = 1;
