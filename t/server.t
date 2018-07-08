@@ -23,12 +23,13 @@ $loop->add(
 );
 is(exception {
     $client->connect(
-        # uri => $server->uri
+        uri => $server->uri
     )->get;
 }, undef, 'connection is successful');
 
 subtest 'basic ping' => sub {
     ok($client->ping->get, 'can ping');
+    done_testing;
 };
 
 subtest 'get/set/expiry' => sub {
@@ -44,6 +45,7 @@ subtest 'get/set/expiry' => sub {
     is($client->get(xyz => )->get, undef, 'value expires when it should');
     is($client->del(xyz => )->get, 0, 'can delete without error when key does not exist');
     cmp_deeply($client->keys('xyz*')->get, [], 'key is no longer listed');
+    done_testing;
 };
 
 subtest 'list handling' => sub {
@@ -51,6 +53,12 @@ subtest 'list handling' => sub {
     is($client->llen(some_list => )->get, 1, 'length is correct');
     is($client->rpop(some_list => )->get, 'xxx', 'can pop that element');
     is($client->del(some_list => )->get, 0, 'delete the key');
+    done_testing;
+};
+
+subtest 'client commands' => sub {
+    note explain $client->client_list->get;
+    done_testing;
 };
 
 done_testing;

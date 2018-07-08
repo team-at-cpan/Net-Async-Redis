@@ -17,25 +17,38 @@ Not all of them will be implemented yet.
 =cut
 
 use Math::Random::Secure ();
+use Scalar::Util ();
+use Log::Any qw($log);
 
-sub new { bless { @_[1 .. $#_] }, $_[0] }
+sub new {
+    my ($class, %args) = @_;
+    Scalar::Util::weaken($args{server});
+    bless \%args, $class
+}
 
 sub set : method {
     my ($self, $k, $v, @args) = @_;
     my %opt;
     my %seen;
+    OPTIONS:
     while(@args) {
         my $cmd = shift @args;
         if($cmd eq 'EX') {
+            die 'cannot provide EX/PX multiple times' if exists $opt{ttl};
             $opt{ttl} = 1000 * shift @args;
+            next OPTIONS;
         } elsif($cmd eq 'PX') {
+            die 'cannot provide EX/PX multiple times' if exists $opt{ttl};
             $opt{ttl} = shift @args;
+            next OPTIONS;
         } elsif($cmd eq 'NX') {
-            die 'syntax error' if exists $opt{xx};
+            die 'cannot provide NX/XX multiple times' if exists $opt{xx} or exists $opt{nx};
             $opt{nx} = 1;
+            next OPTIONS;
         } elsif($cmd eq 'XX') {
-            die 'syntax error' if exists $opt{nx};
+            die 'cannot provide NX/XX multiple times' if exists $opt{xx} or exists $opt{nx};
             $opt{xx} = 1;
+            next OPTIONS;
         } else {
             die 'syntax error ' . $cmd
         }
@@ -49,7 +62,9 @@ sub set : method {
     return Future->done('OK');
 }
 
-sub time : method { 1000 * Time::HiRes::time }
+sub server { shift->{server} }
+
+sub time : method { shift->server->time }
 
 sub expiry_check {
     my ($self, @keys) = @_;
@@ -168,16 +183,24 @@ sub llen : method {
 
 sub lpop : method {
     my ($self, $k) = @_;
-    return Future->done(
-        shift @{$self->{keys}{$k}}
-    );
+    $self->expiry_check($k);
+    my $v = shift @{$self->{keys}{$k}};
+    unless(@{$self->{keys}{$k}}) {
+        delete $self->{keys}{$k};
+        delete $self->{expiry}{$k};
+    }
+    return Future->done($v);
 }
 
 sub rpop : method {
     my ($self, $k) = @_;
-    return Future->done(
-        pop @{$self->{keys}{$k}}
-    );
+    $self->expiry_check($k);
+    my $v = pop @{$self->{keys}{$k}};
+    unless(@{$self->{keys}{$k}}) {
+        delete $self->{keys}{$k};
+        delete $self->{expiry}{$k};
+    }
+    return Future->done($v);
 }
 
 sub rpush : method {
@@ -193,6 +216,21 @@ sub brpoplpush : method {
     return Future->done($v);
 }
 
+sub client_list {
+    my ($self) = @_;
+    # id=110 addr=172.17.0.1:47974 fd=8 name= age=1 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=32768 obl=0 oll=0 omem=0 events=r cmd=client
+    my @keys = qw(
+        id addr fd name age idle flags db sub psub multi
+        qbuf qbuf-free obl oll omem events cmd
+    );
+    my @clients;
+    for my $client ($self->{server}->clients) {
+        my $info = $client->info;
+        push @clients, join ' ', map { $_ . '=' . ($info->{$_} // '') } @keys;
+    }
+    return Future->done(\@clients);
+}
+
 =head1 METHODS - Top-level commands
 
 These are commands that consist of two or more words.
@@ -201,6 +239,7 @@ These are commands that consist of two or more words.
 
 sub client {
     my ($self, $next, @details) = @_;
+    $next = lc $next;
     return Future->done(qq{ERR unknown command 'CLIENT $next'})
         unless my $code = $self->can('client_' . $next);
     $self->$code(@details);
@@ -208,6 +247,7 @@ sub client {
 
 sub debug {
     my ($self, $next, @details) = @_;
+    $next = lc $next;
     return Future->done(qq{ERR unknown command 'DEBUG $next'})
         unless my $code = $self->can('debug_' . $next);
     $self->$code(@details);
@@ -215,6 +255,7 @@ sub debug {
 
 sub cluster {
     my ($self, $next, @details) = @_;
+    $next = lc $next;
     return Future->done(qq{ERR unknown command 'CLUSTER $next'})
         unless my $code = $self->can('cluster_' . $next);
     $self->$code(@details);
@@ -222,6 +263,7 @@ sub cluster {
 
 sub memory {
     my ($self, $next, @details) = @_;
+    $next = lc $next;
     return Future->done(qq{ERR unknown command 'MEMORY $next'})
         unless my $code = $self->can('memory_' . $next);
     $self->$code(@details);

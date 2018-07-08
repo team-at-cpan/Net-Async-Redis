@@ -21,20 +21,54 @@ use strict;
 use warnings;
 
 use Net::Async::Redis::Server::Database;
-use Net::Async::Redis::Commands;
+require Net::Async::Redis::Commands;
 
 use Log::Any qw($log);
 
-sub AUTOLOAD {
-    my ($self, @args) = @_;
-    my ($method) = our $AUTOLOAD =~ /::([^:]+)$/;
-    my $cmd = uc $method;
-    if(Net::Async::Redis::Commands->can($method)) {
-        $cmd =~ tr/_/ /;
-        return $self->request->reply(ERR => 'Unimplemented command ' . $cmd);
+sub info {
+    my ($self) = @_;
+    my $h = $self->stream->read_handle;
+    return {
+        id          => $self->id,
+        addr        => join(':', $h->sockhost, $h->sockport),
+        fd          => $h->fileno,
+        name        => $self->name,
+        age         => int($self->age / 1000),
+        idle        => int($self->idle_time / 1000),
+        flags       => 'N',
+        db          => $self->database_index,
+        sub         => $self->subscription_count,
+        psub        => $self->psubscription_count,
+        multi       => $self->multi_count,
+        qbuf        => 0,
+        'qbuf-free' => 32768,
+        obl         => 0,
+        oll         => 0,
+        omem        => 0,
+        events      => 'rw',
+        cmd         => $self->last_command,
     }
-    return $self->request->reply(ERR => 'Unknown command ' . $cmd);
 }
+
+sub age {
+    my ($self) = @_;
+    $self->server->time - $self->created_at
+}
+
+sub idle_time {
+    my ($self) = @_;
+    $self->server->time - $self->last_command_at
+}
+
+sub created_at { shift->{created_at} }
+sub last_command_at { shift->{last_command_at} }
+sub id { shift->{id} }
+sub name { shift->{name} }
+sub database_index { shift->{database_index} //= 0 }
+sub subscription_count { shift->{subscription_count} }
+sub psubscription_count { shift->{psubscription_count} }
+sub multi_count { shift->{multi_count} }
+sub last_command { shift->{last_command} // '' }
 
 sub request { }
 
@@ -43,6 +77,7 @@ sub stream { shift->{stream} }
 sub on_close {
     my ($self) = @_;
     $log->infof('Closing server connection');
+    $self->server->client_disconnect($self);
 }
 
 sub protocol {
@@ -57,17 +92,19 @@ sub protocol {
 
 sub on_read {
     my ($self, $stream, $buffref, $eof) = @_;
-    $log->infof('Read %d bytes of data, EOF = %d', length($$buffref), $eof ? 1 : 0);
+    $log->tracef('Read %d bytes of data, EOF = %d', length($$buffref), $eof ? 1 : 0);
     $self->protocol->decode($buffref);
     0
 }
 
 sub on_message {
     my ($self, $msg) = @_;
-    $log->infof('Had message %s', $msg);
+    $log->debugf('Had message %s', $msg);
     my ($command, @data) = @$msg;
     my $db = $self->db;
     my $code = $db->can(lc $command);
+    $self->{last_command} = $command;
+    $self->{last_command_at} = $self->server->time;
     $log->tracef('Database method: %s', $code);
     (
         $code 
@@ -78,13 +115,24 @@ sub on_message {
         $self->stream->write(
             $self->protocol->encode($data)
         )
+    }, sub {
+        my $err = shift;
+        $self->stream->write(
+            $self->protocol->encode(
+                qq{ERR failed to process '$command' - $err}
+            )
+        );
     })->retain;
 }
 
 sub db {
     my ($self) = @_;
-    $self->{db} //= Net::Async::Redis::Server::Database->new
+    $self->{db} //= Net::Async::Redis::Server::Database->new(
+        server => $self->server
+    )
 }
+
+sub server { shift->{server} }
 
 sub configure {
     my ($self, %args) = @_;
@@ -100,7 +148,7 @@ sub configure {
     for (qw(server)) {
         Scalar::Util::weaken($self->{$_} = delete $args{$_}) if exists $args{$_};
     }
-    for (qw(protocol)) {
+    for (qw(protocol id created_at)) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
     $self->next::method(%args);

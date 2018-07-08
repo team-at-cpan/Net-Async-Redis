@@ -52,13 +52,34 @@ sub on_stream {
     my ($self, $server, $stream) = @_;
     my $handle = $stream->read_handle;
     $log->warnf('Incoming connection from %s', join(':', map $handle->$_, qw(sockhost sockport)));
+    my $id = $self->next_id;
     $self->add_child(
         my $conn = Net::Async::Redis::Server::Connection->new(
-            server => $self,
-            stream => $stream,
+            server     => $self,
+            stream     => $stream,
+            id         => $id,
+            created_at => $self->time,
         )
     );
+    Scalar::Util::weaken($self->{clients}{$id} = $conn);
 }
+
+sub time : method { 1000 * Time::HiRes::time }
+
+sub client_disconnect {
+    my ($self, $client) = @_;
+    my $id = $client->id;
+    $log->tracef('Removing client connection %d', $id);
+    delete $self->{clients}{$id};
+    $self->remove_child($client);
+}
+
+sub clients {
+    my ($self) = @_;
+    return @{$self->{clients}}{sort { $a <=> $b } keys %{$self->{clients}}};
+}
+
+sub next_id { ++shift->{last_id} }
 
 sub uri { shift->{uri} // die 'must add ' . __PACKAGE__ . ' to a loop before calling any methods' }
 
