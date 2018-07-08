@@ -39,7 +39,7 @@ sub info {
         db          => $self->database_index,
         sub         => $self->subscription_count,
         psub        => $self->psubscription_count,
-        multi       => $self->multi_count,
+        multi       => $self->multi_count // -1,
         qbuf        => 0,
         'qbuf-free' => 32768,
         obl         => 0,
