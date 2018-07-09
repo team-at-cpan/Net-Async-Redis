@@ -11,7 +11,7 @@ use Log::Any::Adapter qw(Stdout), log_level => 'info';
 
 use Future::Utils qw(fmap0);
 
-$SIG{PIPE} = 'ignore';
+$SIG{PIPE} = 'IGNORE';
 my $loop = IO::Async::Loop::Epoll->new;
 
 my %conn;
