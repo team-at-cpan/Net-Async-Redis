@@ -3,9 +3,15 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
     No new features.
 
+    Bug fixes:
+
+    - PSUBSCRIBE wasn't working (reported by Bill Marriott and leonerd, fix+tests by leonerd,
+    I did little more than hit the merge button - thanks!)
+
     Dependencies:
 
     - Class::Method::Modifiers, and make sure we have a recent version of Future.pm
+    - Math::Random::Secure was missing (thanks MANWAR!)
 
 1.004     2017-12-29 20:10:42+08:00 Asia/Kuala_Lumpur
     No new features.
