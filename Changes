@@ -1,8 +1,6 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-
-1.005     2018-01-06 18:18:22+08:00 Asia/Kuala_Lumpur
     No new features.
 
     Bug fixes:
@@ -12,8 +10,14 @@ Revision history for {{$dist->name}}
 
     Dependencies:
 
+    - Math::Random::Secure dep was missing (thanks MANWAR!)
+
+1.005     2018-01-06 18:18:22+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Dependencies:
+
     - Class::Method::Modifiers, and make sure we have a recent version of Future.pm
-    - Math::Random::Secure was missing (thanks MANWAR!)
 
 1.004     2017-12-29 20:10:42+08:00 Asia/Kuala_Lumpur
     No new features.
