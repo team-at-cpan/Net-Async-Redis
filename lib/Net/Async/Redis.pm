@@ -118,6 +118,8 @@ use Net::Async::Redis::Subscription;
 use Net::Async::Redis::Subscription::Message;
 
 UNITCHECK {
+    # Apply after all other code is compiled for this module: we may want
+    # to provide our own implementation in some cases.
     require Net::Async::Redis::Commands;
     Net::Async::Redis::Commands->import;
 }
@@ -219,7 +221,13 @@ around subscribe => sub {
 
 Executes the given code in a Redis C<MULTI> transaction.
 
-This will cause each of the requests to be queued, then executed in a single atomic transaction.
+This will cause each of the requests to be queued on the server, then applied in a single
+atomic transaction.
+
+Note that the commands will resolve only after the transaction is committed: for example,
+when the L</set> command is issued, Redis will return C<QUEUED> but the L<Future> representing
+the response will only be marked as done once the C<EXEC> command is applied and we have the
+result back.
 
 Example:
 
