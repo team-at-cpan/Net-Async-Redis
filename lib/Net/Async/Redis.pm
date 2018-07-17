@@ -41,6 +41,8 @@ See L<Net::Async::Redis::Commands> for the full list of commands.
 
 This is intended to be a near-complete low-level client module for asynchronous Redis
 support. See L<Net::Async::Redis::Server> for a (limited) Perl server implementation.
+It is an unofficial Perl port and not endorsed by the Redis server maintainers in any
+way.
 
 =head2 Supported features
 
@@ -48,15 +50,15 @@ Current features include:
 
 =over 4
 
-=item * all commands as of 5.0 beta (June 2018)
+=item * all commands as of 5.0 RC (July 2018)
 
-=item * L<pub/sub support|https://redis.io/topics/pubsub>
+=item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</Subscriptions>
 
-=item * L<pipelining|https://redis.io/topics/pipelining>
+=item * L<pipelining|https://redis.io/topics/pipelining>, see L</Pipelining>
 
-=item * L<transactions|https://redis.io/topics/transactions>
+=item * L<transactions|https://redis.io/topics/transactions>, see L</Transactions>
 
-=item * L<streams|https://redis.io/topics/streams-intro> and consumer groups
+=item * L<streams|https://redis.io/topics/streams-intro> and consumer groups, see L</Streams>
 
 =back
 
@@ -79,6 +81,21 @@ then connect to the server:
             $redis->client_setname("example client")
         })->get;
 
+=head2 Key-value handling
+
+One of the most common Redis scenarios is as a key/value store. The L</get> and L</set>
+methods are typically used here:
+
+ $redis->set(some_key => 'some value')
+  ->then(sub {
+   $redis->get('some_key')
+  })->on_done(sub {
+   my ($value) = @_;
+   print "Read back value [$value]\n";
+  })->retain;
+
+See the next section for more information on what these methods are actually returning.
+
 =head2 Requests and responses
 
 Requests are implemented as methods on the L<Net::Async::Redis> object.
@@ -93,11 +110,28 @@ For synchronous code, call C<< ->get >> on that L<Future>:
 
     print "Database has " . $redis->dbsize->get . " total keys\n";
 
+This means you can end up with C<< ->get >> being called on the result of C<< ->get >>,
+note that these are two very different methods:
+
+ $redis
+  ->get('some key') # this is being called on $redis, and is issuing a GET request
+  ->get # this is called on the returned Future, and blocks until the value is ready
+
+Typical async code would not be expected to use the L<Future/get> method extensively;
+often only calling it in one place at the top level in the code.
+
 =head2 Error handling
 
 Since L<Future> is used for deferred results, failure is indicated
 by a failing Future with L<failure category|Future/FAILURE-CATEGORIES>
 of C<redis>.
+
+The L<Future/catch> feature may be useful for handling these:
+
+ $redis->lpush(key => $value)
+     ->catch(
+         redis => sub { warn "probably an incorrect type, cannot push value"; Future->done }
+     )->get;
 
 =cut
 
@@ -127,7 +161,8 @@ UNITCHECK {
 =head1 METHODS
 
 B<NOTE>: For a full list of the Redis methods supported by this module,
-please see L<Net::Async::Redis::Commands>.
+please see L<Net::Async::Redis::Commands> or the official Redis documentation
+in L<https://redis.io/commands>.
 
 =cut
 
@@ -142,6 +177,23 @@ L<https://making.pusher.com/redis-pubsub-under-the-hood/>.
 =head2 psubscribe
 
 Subscribes to a pattern.
+
+Example:
+
+ # Subscribe to 'info::*' channels, i.e. any message
+ # that starts with the C<info::> prefix, and prints them
+ # with a timestamp.
+ $redis_connection->psubscribe('info::*')
+    ->then(sub {
+        my $sub = shift;
+        $sub->map('payload')
+            ->each(sub {
+             print localtime . ' ' . $_ . "\n";
+            })->retain
+    })->get;
+ # this will block until the subscribe is confirmed. Note that you can't publish on
+ # a connection that's handling subscriptions due to Redis protocol restrictions.
+ $other_redis_connection->publish('info::example', 'a message here')->get;
 
 =cut
 
@@ -327,7 +379,16 @@ sub endpoint { shift->{endpoint} }
 
 sub local_endpoint { shift->{local_endpoint} }
 
+=head1 METHODS - Connection
+
 =head2 connect
+
+Attempts to connect to a server.
+
+Will use the L</configure>d parameters if available, but as a convenience
+can be passed additional parameters which will then be applied as if you
+had called L</configure> with those beforehand. This also means that they
+will be preserved for subsequent L</connect> calls.
 
 =cut
 
@@ -361,6 +422,7 @@ sub connect : method {
             my ($sock) = @_;
             $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
             $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
+
             my $proto = $self->protocol;
             my $stream = IO::Async::Stream->new(
                 handle    => $sock,
@@ -380,7 +442,16 @@ sub connect : method {
     })
 }
 
-sub connected { shift->connect }
+=head2 connected
+
+Returns the connection L<Future>, and will attempt to initiate a connection
+if one is not already in progress.
+
+See L</connect>.
+
+=cut
+
+sub connected { my ($self) = @_; $self->{connected} //= $self->connect }
 
 =head2 pipeline_depth
 

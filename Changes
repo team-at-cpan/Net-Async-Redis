@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    BREAKING CHANGES:
+
+    - the event bus API is no longer supported - if you have any code using this,
+    please see the subscription documentation for alternatives.
+
     New features:
 
     - server implementation, currently supports only a subset of commands and
@@ -8,6 +13,7 @@ Revision history for {{$dist->name}}
     code.
     - updated to June 2018 commands (redis 5.0 including memory debug, consumer
     groups and bzpop)
+
 
 1.006     2018-07-12 22:39:10+08:00 Asia/Kuala_Lumpur
     No new features.
