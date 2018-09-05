@@ -18,14 +18,18 @@ $loop->add(
         port => 0
     )
 );
-$loop->add(
-    my $client = Net::Async::Redis->new
-);
-is(exception {
-    $client->connect(
-        uri => $server->uri
-    )->get;
-}, undef, 'connection is successful');
+my $client_connect = sub {
+    $loop->add(
+        my $client = Net::Async::Redis->new
+    );
+    is(exception {
+        $client->connect(
+            uri => $server->uri
+        )->get;
+    }, undef, 'connection is successful');
+    $client
+};
+my $client = $client_connect->();
 
 subtest 'basic ping' => sub {
     ok($client->ping->get, 'can ping');
@@ -52,12 +56,39 @@ subtest 'list handling' => sub {
     is($client->lpush(some_list => 'xxx')->get, 1, 'can push a value');
     is($client->llen(some_list => )->get, 1, 'length is correct');
     is($client->rpop(some_list => )->get, 'xxx', 'can pop that element');
+
+    is($client->brpop(some_list => 1)->get, undef, 'blocking pop after timeout expires');
+
+    is($client->del(some_list => )->get, 0, 'delete the key');
+
+    is($client->rpush(some_list => 'yyy')->get, 1, 'can push a value on the right');
+    is($client->llen(some_list => )->get, 1, 'length is correct');
+    is($client->lpop(some_list => )->get,'yyy', 'can shift off that element');
+    is($client->del(some_list => )->get, 0, 'delete the key');
+    done_testing;
+};
+
+subtest 'pubsub' => sub {
+    my $sub_conn = $client_connect->();
+
+    $sub_conn->subscribe(
+    );
+    is($client->lpush(some_list => 'xxx')->get, 1, 'can push a value');
+    is($client->llen(some_list => )->get, 1, 'length is correct');
+    is($client->rpop(some_list => )->get, 'xxx', 'can pop that element');
+    is($client->del(some_list => )->get, 0, 'delete the key');
+
+    is($client->rpush(some_list => 'yyy')->get, 1, 'can push a value on the right');
+    is($client->llen(some_list => )->get, 1, 'length is correct');
+    is($client->lpop(some_list => )->get,'yyy', 'can shift off that element');
     is($client->del(some_list => )->get, 0, 'delete the key');
     done_testing;
 };
 
 subtest 'client commands' => sub {
-    note explain $client->client_list->get;
+    my $items = $client->client_list->get;
+    isa_ok($items, 'ARRAY');
+    ok(@$items, 'have at least one item in the client list');
     done_testing;
 };
 

@@ -203,6 +203,19 @@ sub rpop : method {
     return Future->done($v);
 }
 
+sub brpop : method {
+    my ($self, @keys) = @_;
+    $self->expiry_check(@keys);
+    my $timeout = pop @keys;
+
+    my $v = pop @{$self->{keys}{$k}};
+    unless(@{$self->{keys}{$k}}) {
+        delete $self->{keys}{$k};
+        delete $self->{expiry}{$k};
+    }
+    return Future->done($v);
+}
+
 sub rpush : method {
     my ($self, $k, @values) = @_;
     push @{$self->{keys}{$k}}, @values;
