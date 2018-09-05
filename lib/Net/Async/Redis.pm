@@ -245,7 +245,7 @@ sub connect : method {
     for (qw(host port)) {
         $uri->$_($self->$_) if defined $self->$_;
     }
-    my $auth = $self->auth;
+    my $auth = $self->{auth};
     $auth //= ($uri->userinfo =~ s{^[^:]*:}{}r) if defined $uri->userinfo;
     $self->{connection} //= $self->loop->connect(
         service => $uri->port // 6379,
@@ -481,7 +481,6 @@ sub protocol {
 
 sub host { shift->{host} }
 sub port { shift->{port} }
-sub auth { shift->{auth} }
 sub uri { shift->{uri} //= URI->new('redis://localhost') }
 
 sub configure {
