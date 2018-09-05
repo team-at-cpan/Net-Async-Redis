@@ -435,7 +435,7 @@ sub execute_command {
         my $cmd = join ' ', @cmd;
         $log->tracef('Outgoing [%s]', $cmd);
         push @{$self->{pending}}, [ $cmd, $f ];
-        $log->infof("Pipeline depth now %d", 0 + @{$self->{pending}});
+        $log->tracef("Pipeline depth now %d", 0 + @{$self->{pending}});
         $self->stream->write(
             $self->protocol->encode_from_client(@cmd)
         )->then(sub {
