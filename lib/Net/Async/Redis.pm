@@ -270,7 +270,7 @@ sub connect : method {
         );
         return $self->auth($auth) if defined $auth;
         return Future->done;
-    })->catch(sub { delete $self->{connection} });
+    })->on_fail(sub { delete $self->{connection} });
 }
 
 sub connected { shift->connect }
