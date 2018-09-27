@@ -5,7 +5,7 @@ use warnings;
 
 use parent qw(Net::Async::Redis::Commands IO::Async::Notifier);
 
-our $VERSION = '1.007';
+our $VERSION = '1.008';
 
 =head1 NAME
 
@@ -535,9 +535,11 @@ Some other Redis implementations on CPAN:
 
 =head1 AUTHOR
 
-Tom Molesworth <TEAM@cpan.org>
+Tom Molesworth <TEAM@cpan.org>, with patches and input from
+C<< BINARY@cpan.org >>, C<< PEVANS@cpan.org >> and C<< @eyadof >>.
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2015-2017. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth and others 2015-2018.
+Licensed under the same terms as Perl itself.
 

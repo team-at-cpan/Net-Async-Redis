@@ -12,6 +12,8 @@ Revision history for {{$dist->name}}
     - Subscriptions were not cancelled when the connection being interrupted,
     now they are cancelled properly
 
+    (thanks to Eyad Arnabeh for reporting and fixing)
+
 1.007     2018-09-05 10:11:44+08:00 Asia/Kuala_Lumpur
     No new features.
 
