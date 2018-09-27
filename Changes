@@ -2,6 +2,16 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+1.008     2018-09-27 10:12:413+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bug fixes:
+
+    - The connection was cached even if connection failed/interrupted so reconnecting
+    attempts were failing as well, now the connection object will get deleted on failure
+    - Subscriptions were not cancelled when the connection being interrupted,
+    now they are cancelled properly
+
 1.007     2018-09-05 10:11:44+08:00 Asia/Kuala_Lumpur
     No new features.
 

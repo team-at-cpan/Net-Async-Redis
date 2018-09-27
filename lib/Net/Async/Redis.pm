@@ -270,7 +270,7 @@ sub connect : method {
         );
         return $self->auth($auth) if defined $auth;
         return Future->done;
-    })
+    })->catch(sub { delete $self->{connection} });
 }
 
 sub connected { shift->connect }
@@ -349,7 +349,7 @@ sub handle_pubsub_message {
             redis => $self,
             channel => $channel
         );
-        $self->{'pending_' . $k}{$channel}->done($payload);
+        $self->{'pending_' . $k}{$channel}->done($payload) unless $self->{'pending_' . $k}{$channel}->is_done;
     } else {
         $log->warnf('have unknown pubsub message type %s with channel %s payload %s', $type, $channel, $payload);
     }
@@ -396,8 +396,24 @@ sub bus {
 
 sub notify_close {
     my ($self) = @_;
-    $self->configure(on_read => sub { 0 });
-    $_->[1]->fail('Server connection is no longer active', redis => 'disconnected') for @{$self->{pending}};
+    # If we think we have an existing connection, it needs removing:
+    # there's no guarantee that it's in a usable state.
+    if(my $stream = delete $self->{stream}) {
+        $stream->close_now;
+    }
+
+    # Also clear our connection future so that the next request is triggered appropriately
+    delete $self->{connection};
+    # Clear out anything in the pending queue - we normally wouldn't expect anything to
+    # have ready status here, but no sense failing on a failure.
+    !$_->[1]->is_ready && $_->[1]->fail('Server connection is no longer active', redis => 'disconnected') for splice @{$self->{pending}};
+
+    # Subscriptions also need clearing up
+    $_->cancel for values %{$self->{subscription_channel}};
+    $self->{subscription_channel} = {};
+    $_->cancel for values %{$self->{subscription_pattern_channel}};
+    $self->{subscription_pattern_channel} = {};
+
     $self->maybe_invoke_event(disconnect => );
 }
 
