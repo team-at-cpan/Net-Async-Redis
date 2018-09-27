@@ -1,4 +1,5 @@
 requires 'parent', 0;
+requires 'mro', 0;
 requires 'curry', 0;
 requires 'Future', '>= 0.38';
 requires 'Syntax::Keyword::Try', '>= 0.09';
