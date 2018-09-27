@@ -2,7 +2,7 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
-1.008     2018-09-27 10:12:413+08:00 Asia/Kuala_Lumpur
+1.008     2018-09-27 11:28:37+08:00 Asia/Kuala_Lumpur
     No new features.
 
     Bug fixes:
