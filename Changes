@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Updated to latest Redis 5.0 commands from last RC prior to 5.0 release.
 
 1.008     2018-09-27 11:28:37+08:00 Asia/Kuala_Lumpur
     No new features.
