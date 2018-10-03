@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.009     2018-10-03 19:26:59+08:00 Asia/Kuala_Lumpur
     Updated to latest Redis 5.0 commands from last RC prior to 5.0 release.
 
 1.008     2018-09-27 11:28:37+08:00 Asia/Kuala_Lumpur
