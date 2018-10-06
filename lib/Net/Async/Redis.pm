@@ -294,6 +294,15 @@ sub on_message {
     $next->[1]->done($data);
 }
 
+sub on_error_message {
+    my ($self, $data) = @_;
+    local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+    $log->tracef('Incoming error message: %s', $data);
+
+    my $next = shift @{$self->{pending}} or die "No pending handler";
+    $next->[1]->fail($data);
+}
+
 sub handle_pubsub_message {
     my ($self, $type, @details) = @_;
     $type = lc $type;
@@ -490,7 +499,8 @@ sub protocol {
     $self->{protocol} ||= do {
         require Net::Async::Redis::Protocol;
         Net::Async::Redis::Protocol->new(
-            handler => $self->curry::weak::on_message
+            handler => $self->curry::weak::on_message,
+            error   => $self->curry::weak::on_error_message,
         )
     };
 }
