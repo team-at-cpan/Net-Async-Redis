@@ -454,7 +454,7 @@ sub execute_command {
     ) if exists $self->{pubsub} and not $is_sub_command;
 
     my $f = $self->loop->new_future->set_label($self->command_label(@cmd));
-    $log->debugf("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
+    $log->tracef("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
     my $code = sub {
         local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
         my $cmd = join ' ', @cmd;
