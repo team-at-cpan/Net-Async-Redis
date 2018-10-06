@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.010     2018-10-06 15:26:00+08:00 Asia/Kuala_Lumpur
     New commands:
 
     - CLIENT ID
