@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Examples:
+
+    - Improved documentation for consumer-groups.pl example
+    (tested against 5.0 release)
 
 1.011     2018-10-06 20:50:12+08:00 Asia/Kuala_Lumpur
     No new features.
