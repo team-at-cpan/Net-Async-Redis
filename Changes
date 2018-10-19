@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+1.012     2018-10-19 11:03:35+08:00 Asia/Kuala_Lumpur
     No new features.
 
     Examples:
