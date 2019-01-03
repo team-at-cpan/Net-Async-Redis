@@ -106,7 +106,7 @@ Example:
     ->then(sub {
         my $sub = shift;
         $sub->events
-	    ->map('payload')
+            ->map('payload')
             ->take(5)
             ->say
             ->completed
