@@ -105,10 +105,11 @@ Example:
  $redis->subscribe('notifications')
     ->then(sub {
         my $sub = shift;
-        $sub->map('payload')
+        $sub->events
+	    ->map('payload')
             ->take(5)
             ->say
-            ->completion
+            ->completed
     })->then(sub {
         $redis->unsubscribe('notifications')
     })->get
