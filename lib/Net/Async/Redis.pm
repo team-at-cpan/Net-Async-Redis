@@ -258,6 +258,8 @@ sub connect : method {
         my $proto = $self->protocol;
         my $stream = IO::Async::Stream->new(
             handle    => $sock,
+            read_len  => $self->stream_read_len,
+            write_len => $self->stream_write_len,
             on_closed => $self->curry::weak::notify_close,
             on_read   => sub {
                 $proto->parse($_[1]);
@@ -509,10 +511,33 @@ sub host { shift->{host} }
 sub port { shift->{port} }
 sub uri { shift->{uri} //= URI->new('redis://localhost') }
 
+=head2 stream_read_len
+
+Defines the buffer size when reading from a Redis connection.
+
+Defaults to 1MB, reduce this if you're dealing with a lot of connections and
+want to minimise memory usage. Alternatively, if you're reading large amounts
+of data and spend too much time in needless C<epoll_wait> calls, try a larger
+value.
+
+=cut
+
+sub stream_read_len { shift->{stream_read_len} //= 1048576 }
+
+=head2 stream_write_len
+
+The buffer size when writing to Redis connections, in bytes.
+
+See L</stream_read_len>.
+
+=cut
+
+sub stream_write_len { shift->{stream_read_len} //= 1048576 }
+
 sub configure {
     my ($self, %args) = @_;
     $self->{pending_multi} //= [];
-    for (qw(host port auth uri pipeline_depth)) {
+    for (qw(host port auth uri pipeline_depth stream_read_len stream_write_len)) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
     $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
