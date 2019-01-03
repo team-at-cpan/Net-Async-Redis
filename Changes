@@ -7,6 +7,11 @@ Revision history for {{$dist->name}}
     in the common case where there are only a few active Redis connections
     - support configurable buffer sizes via `stream_read_len` / `stream_write_len`
 
+    Bugs fixed:
+
+    - the example for `->subscription` was wrong, thanks to Michael Mueller for catching
+    and patching!
+
 1.013     2018-12-10 02:03:19+08:00 Asia/Kuala_Lumpur
     New features:
 
