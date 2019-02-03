@@ -53,9 +53,9 @@ Future->wait_all(
                         $count == 1
                         ? $redis->expire($key => 5)
                         : Future->done
-                    }, sub { $log->errorf("Error! %s", @_) })
-                }, sub { warn "here? @_" })
-            } foreach => [1..10000], concurrent => 10)
+                    })
+                })
+            } foreach => [1..100000], concurrent => 10)->on_fail(sub { warn "failed for $key - @_" })
         } keys %conn
     )
 })->get;
