@@ -471,7 +471,7 @@ sub execute_command {
         )->then(sub {
             $f->done if $is_sub_command;
             $f
-        })
+        })->retain
     };
     return $code->() if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
     return (
@@ -481,7 +481,8 @@ sub execute_command {
             $self->connected,
             @{$self->{pending_multi}}
         )
-    )->then($code);
+    )->then($code)
+     ->retain;
 }
 
 sub ryu {
