@@ -261,6 +261,8 @@ sub connect : method {
             handle    => $sock,
             read_len  => $self->stream_read_len,
             write_len => $self->stream_write_len,
+            read_high_watermark => 8 * $self->stream_read_len,
+            read_low_watermark  => 2 * $self->stream_read_len,
             on_closed => $self->curry::weak::notify_close,
             on_read   => sub {
                 $proto->parse($_[1]);
