@@ -6,7 +6,7 @@ use warnings;
 
 use parent qw(Net::Async::Redis::Commands IO::Async::Notifier);
 
-our $VERSION = '1.014';
+our $VERSION = '2.000';
 
 =head1 NAME
 

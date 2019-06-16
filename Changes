@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - now requires Future::AsyncAwait
 
 1.014     2019-02-04 02:05:21+08:00 Asia/Kuala_Lumpur
     New features:
