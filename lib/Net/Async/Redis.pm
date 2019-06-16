@@ -42,6 +42,7 @@ See L<Net::Async::Redis::Commands> for the full list of commands.
 
 use mro;
 use Class::Method::Modifiers;
+use Syntax::Keyword::Try;
 use curry::weak;
 use IO::Async::Stream;
 use Ryu::Async;
@@ -51,6 +52,7 @@ use URI::redis;
 use Log::Any qw($log);
 
 use List::Util qw(pairmap);
+use Scalar::Util qw(reftype);
 
 use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
@@ -75,6 +77,8 @@ L<https://making.pusher.com/redis-pubsub-under-the-hood/>.
 
 Subscribes to a pattern.
 
+Returns a L<Future> which resolves to a L<Net::Async::Redis::Subscription> instance.
+
 =cut
 
 sub psubscribe {
@@ -97,7 +101,7 @@ sub psubscribe {
 
 Subscribes to one or more channels.
 
-Resolves to a L<Net::Async::Redis::Subscription> instance.
+Returns a L<Future> which resolves to a L<Net::Async::Redis::Subscription> instance.
 
 Example:
 
@@ -159,8 +163,6 @@ Example:
 =cut
 
 sub multi {
-    use Scalar::Util qw(reftype);
-    use namespace::clean qw(reftype);
     my ($self, $code) = @_;
     die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
     my $multi = Net::Async::Redis::Multi->new(
@@ -168,9 +170,7 @@ sub multi {
     );
     my $task = sub {
         local $self->{_is_multi} = 1;
-        Net::Async::Redis::Commands::multi(
-            $self
-        )->then(sub {
+        $self->Net::Async::Redis::Commands::multi()->then(sub {
             $multi->exec($code)
         })
     };
@@ -409,6 +409,12 @@ sub bus {
 
 =cut
 
+=head2 notify_close
+
+Called when the socket is closed.
+
+=cut
+
 sub notify_close {
     my ($self) = @_;
     # If we think we have an existing connection, it needs removing:
@@ -431,6 +437,12 @@ sub notify_close {
 
     $self->maybe_invoke_event(disconnect => );
 }
+
+=head2 command_label
+
+Generate a label for the given command list.
+
+=cut
 
 sub command_label {
     my ($self, @cmd) = @_;
@@ -472,7 +484,7 @@ sub execute_command {
         )->then(sub {
             $f->done if $is_sub_command;
             $f
-        })->retain
+        })
     };
     return $code->() if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
     return (
@@ -580,6 +592,6 @@ C<< BINARY@cpan.org >>, C<< PEVANS@cpan.org >> and C<< @eyadof >>.
 
 =head1 LICENSE
 
-Copyright Tom Molesworth and others 2015-2018.
+Copyright Tom Molesworth and others 2015-2019.
 Licensed under the same terms as Perl itself.
 
