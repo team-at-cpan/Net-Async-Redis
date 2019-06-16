@@ -175,9 +175,10 @@ async sub multi {
     await Future->wait_all(
         @pending
     ) if @pending;
-    $self->{_is_multi} = 1;
-    await $self->Net::Async::Redis::Commands::multi();
-    $self->{_is_multi} = 0;
+    await do {
+        local $self->{_is_multi} = 1;
+        Net::Async::Redis::Commands::multi($self);
+    };
     return await $multi->exec($code)
 }
 
@@ -218,12 +219,12 @@ no longer be available for any other activity.
 async sub watch_keyspace {
     my ($self, $pattern, $code) = @_;
     $pattern //= '*';
-    my $sub = '__keyspace@*__:' . $pattern;
+    my $sub_name = '__keyspace@*__:' . $pattern;
     $self->{have_notify} ||= await $self->config_set(
         'notify-keyspace-events', 'Kg$xe'
     );
-    my $events = await $self->psubscribe($sub);
-    $events
+    my $sub = await $self->psubscribe($sub_name);
+    $sub->events
         ->each(sub {
             my $data = $_;
             return unless $data eq $sub;
