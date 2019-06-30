@@ -63,7 +63,7 @@ use URI::redis;
 use Log::Any qw($log);
 
 use List::Util qw(pairmap);
-use Scalar::Util qw(reftype);
+use Scalar::Util qw(reftype blessed);
 
 use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
@@ -219,6 +219,8 @@ event.
 Note that this will switch the connection into pubsub mode, so it will
 no longer be available for any other activity.
 
+Resolves to a L<Ryu::Source> instance.
+
 =cut
 
 async sub watch_keyspace {
@@ -229,14 +231,16 @@ async sub watch_keyspace {
         'notify-keyspace-events', 'Kg$xe'
     );
     my $sub = await $self->psubscribe($sub_name);
-    $sub->events
-        ->each(sub {
-            my $data = $_;
-            return unless $data eq $sub;
-            my ($k, $op) = map $_->{data}, @{$data->{data}}[2, 3];
-            $k =~ s/^[^:]+://;
-            $code->($op => $k);
-        })
+    my $ev = $sub->events;
+    $ev->each(sub {
+        my $message = $_;
+        $log->tracef('Keyspace notification for channel %s, type %s, payload %s', map $message->$_, qw(channel type payload));
+        my $k = $message->channel;
+        $k =~ s/^[^:]+://;
+        my $f = $code->($message->payload, $k);
+        $f->retain if blessed($f) and $f->isa('Future');
+    }) if $code;
+    return $ev;
 }
 
 =head2 endpoint
