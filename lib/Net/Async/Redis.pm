@@ -6,7 +6,7 @@ use warnings;
 
 use parent qw(Net::Async::Redis::Commands IO::Async::Notifier);
 
-our $VERSION = '2.000';
+our $VERSION = '2.001';
 
 =head1 NAME
 
@@ -516,12 +516,14 @@ sub execute_command {
         $log->tracef('Outgoing [%s]', $cmd);
         push @{$self->{pending}}, [ $cmd, $f ];
         $log->tracef("Pipeline depth now %d", 0 + @{$self->{pending}});
-        $self->stream->write(
-            $self->protocol->encode_from_client(@cmd)
-        )->then(sub {
-            $f->done if $is_sub_command;
-            $f
-        })
+        my $data = $self->protocol->encode_from_client(@cmd);
+        if($is_sub_command) {
+            return $self->stream->write($data)->on_ready($f);
+        } else {
+            # Void-context write allows IaStream to combine multiple writes on the same connection.
+            $self->stream->write($data);
+            return $f
+        }
     };
     return $code->() if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
     return (

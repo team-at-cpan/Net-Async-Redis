@@ -1,6 +1,14 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - improved performance when issuing many Redis commands at once
+    - ->watch_keyspace now provides a Ryu::Source instance
+
+    New examples:
+
+    - moving-window sum
 
 2.000     2019-06-16 22:44:26+08:00 Asia/Kuala_Lumpur
     New features:
