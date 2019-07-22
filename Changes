@@ -5,6 +5,8 @@ Revision history for {{$dist->name}}
 
     - improved performance when issuing many Redis commands at once
     - ->watch_keyspace now provides a Ryu::Source instance
+    - latest command parameters from redis.io (ABSTTL etc. for `restore`
+    and TYPE for `scan`)
 
     New examples:
 
