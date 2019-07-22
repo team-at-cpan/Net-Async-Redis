@@ -56,7 +56,7 @@ my %WriteMakefileArgs = (
     "Variable::Disposition" => "0.004",
     "utf8" => 0
   },
-  "VERSION" => "2.000",
+  "VERSION" => "2.001",
   "test" => {
     "TESTS" => "t/*.t"
   }
