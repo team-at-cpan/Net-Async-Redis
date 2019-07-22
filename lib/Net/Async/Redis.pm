@@ -172,7 +172,7 @@ async sub multi {
     );
     my @pending = @{$self->{pending_multi}};
 
-    $log->tracef('Have %d pending MULTI transactions', 
+    $log->tracef('Have %d pending MULTI transactions',
         0 + @pending
     );
     push @{$self->{pending_multi}}, $self->loop->new_future->set_label($self->command_label('multi'));
