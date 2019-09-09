@@ -622,6 +622,8 @@ Some other Redis implementations on CPAN:
 
 =item * L<Redis::Jet>
 
+=item * L<Redis>
+
 =back
 
 =head1 AUTHOR
