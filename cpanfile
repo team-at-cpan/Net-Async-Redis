@@ -12,7 +12,8 @@ requires 'URI::redis', 0;
 requires 'Class::Method::Modifiers', 0;
 requires 'Math::Random::Secure', 0;
 
-requires 'OpenTracing', '>= 0.003';
+requires 'Digest::CRC', '>= 0.22';
+requires 'List::BinarySearch::XS', '>= 0.09';
 
 on 'test' => sub {
     requires 'Test::More', '>= 0.98';
