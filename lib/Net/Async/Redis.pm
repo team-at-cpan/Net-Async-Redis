@@ -4,7 +4,10 @@ package Net::Async::Redis;
 use strict;
 use warnings;
 
-use parent qw(Net::Async::Redis::Commands IO::Async::Notifier);
+use parent qw(
+    Net::Async::Redis::Commands
+    IO::Async::Notifier
+);
 
 our $VERSION = '2.001';
 
