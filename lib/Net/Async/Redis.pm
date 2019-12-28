@@ -192,7 +192,7 @@ around [qw(discard exec)] => sub {
     local $self->{_is_multi} = 1;
     my $f = $self->$code(@args);
     (shift @{$self->{pending_multi}})->done;
-    $f
+    $f->retain
 };
 
 =head1 METHODS - Generic
@@ -525,7 +525,7 @@ sub execute_command {
             return $f
         }
     };
-    return $code->() if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
+    return $code->()->retain if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
     return (
         $self->{_is_multi}
         ? $self->connected
@@ -593,7 +593,7 @@ sub stream_write_len { shift->{stream_read_len} //= 1048576 }
 sub configure {
     my ($self, %args) = @_;
     $self->{pending_multi} //= [];
-    for (qw(host port auth uri pipeline_depth stream_read_len stream_write_len)) {
+    for (qw(host port auth uri pipeline_depth stream_read_len stream_write_len on_disconnect)) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
     $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
