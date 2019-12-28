@@ -520,13 +520,9 @@ sub execute_command {
         push @{$self->{pending}}, [ $cmd, $f ];
         $log->tracef("Pipeline depth now %d", 0 + @{$self->{pending}});
         my $data = $self->protocol->encode_from_client(@cmd);
-        if($is_sub_command) {
-            return $self->stream->write($data)->on_ready($f);
-        } else {
-            # Void-context write allows IaStream to combine multiple writes on the same connection.
-            $self->stream->write($data);
-            return $f
-        }
+        # Void-context write allows IaStream to combine multiple writes on the same connection.
+        $self->stream->write($data);
+        return $f
     };
     return $code->()->retain if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
     return (

@@ -86,7 +86,7 @@ sub AUTOLOAD {
         return await $f;
     };
     { no strict 'refs'; *$method = $code }
-    $code->(@_);
+    $code->(@_)->retain;
 }
 
 sub DESTROY {
