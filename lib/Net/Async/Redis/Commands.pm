@@ -39,6 +39,19 @@ sub cluster_addslots : method {
     $self->execute_command(qw(CLUSTER ADDSLOTS) => @args)
 }
 
+=head2 cluster_bumpepoch
+
+Advance the cluster config epoch.
+
+L<https://redis.io/commands/cluster-bumpepoch>
+
+=cut
+
+sub cluster_bumpepoch : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLUSTER BUMPEPOCH) => @args)
+}
+
 =head2 cluster_count_failure_reports
 
 Return the number of failure reports active for a given node.
@@ -113,6 +126,19 @@ L<https://redis.io/commands/cluster-failover>
 sub cluster_failover : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER FAILOVER) => @args)
+}
+
+=head2 cluster_flushslots
+
+Delete a node's own slots information.
+
+L<https://redis.io/commands/cluster-flushslots>
+
+=cut
+
+sub cluster_flushslots : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLUSTER FLUSHSLOTS) => @args)
 }
 
 =head2 cluster_forget
@@ -206,6 +232,19 @@ L<https://redis.io/commands/cluster-meet>
 sub cluster_meet : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(CLUSTER MEET) => @args)
+}
+
+=head2 cluster_myid
+
+Return the node id.
+
+L<https://redis.io/commands/cluster-myid>
+
+=cut
+
+sub cluster_myid : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLUSTER MYID) => @args)
 }
 
 =head2 cluster_nodes
@@ -488,9 +527,9 @@ Swaps two Redis databases.
 
 =over 4
 
-=item * index
+=item * index1
 
-=item * index
+=item * index2
 
 =back
 
@@ -642,6 +681,8 @@ Atomically transfer a key from a Redis instance to another one.
 =item * [COPY]
 
 =item * [REPLACE]
+
+=item * [AUTH password]
 
 =item * [KEYS key [key ...]]
 
@@ -1094,7 +1135,7 @@ Returns the distance between two members of a geospatial index.
 
 =item * member2
 
-=item * [unit]
+=item * [m|km|ft|mi]
 
 =back
 
@@ -1405,9 +1446,7 @@ Set the string value of a hash field.
 
 =item * key
 
-=item * field
-
-=item * value
+=item * field value [field value ...]
 
 =back
 
@@ -1617,7 +1656,7 @@ sub brpop : method {
 
 =head2 brpoplpush
 
-Pop a value from a list, push it to another list and return it; or block until one is available.
+Pop an element from a list, push it to another list and return it; or block until one is available.
 
 =over 4
 
@@ -1671,7 +1710,7 @@ Insert an element before or after another element in a list.
 
 =item * pivot
 
-=item * value
+=item * element
 
 =back
 
@@ -1724,13 +1763,13 @@ sub lpop : method {
 
 =head2 lpush
 
-Prepend one or multiple values to a list.
+Prepend one or multiple elements to a list.
 
 =over 4
 
 =item * key
 
-=item * value [value ...]
+=item * element [element ...]
 
 =back
 
@@ -1745,13 +1784,13 @@ sub lpush : method {
 
 =head2 lpushx
 
-Prepend a value to a list, only if the list exists.
+Prepend an element to a list, only if the list exists.
 
 =over 4
 
 =item * key
 
-=item * value
+=item * element [element ...]
 
 =back
 
@@ -1797,7 +1836,7 @@ Remove elements from a list.
 
 =item * count
 
-=item * value
+=item * element
 
 =back
 
@@ -1820,7 +1859,7 @@ Set the value of an element in a list by its index.
 
 =item * index
 
-=item * value
+=item * element
 
 =back
 
@@ -1898,13 +1937,13 @@ sub rpoplpush : method {
 
 =head2 rpush
 
-Append one or multiple values to a list.
+Append one or multiple elements to a list.
 
 =over 4
 
 =item * key
 
-=item * value [value ...]
+=item * element [element ...]
 
 =back
 
@@ -1919,13 +1958,13 @@ sub rpush : method {
 
 =head2 rpushx
 
-Append a value to a list, only if the list exists.
+Append an element to a list, only if the list exists.
 
 =over 4
 
 =item * key
 
-=item * value
+=item * element [element ...]
 
 =back
 
@@ -2597,6 +2636,25 @@ sub info : method {
     $self->execute_command(qw(INFO) => @args)
 }
 
+=head2 lolwut
+
+Display some computer art and the Redis version.
+
+=over 4
+
+=item * [VERSION version]
+
+=back
+
+L<https://redis.io/commands/lolwut>
+
+=cut
+
+sub lolwut : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LOLWUT) => @args)
+}
+
 =head2 lastsave
 
 Get the UNIX time stamp of the last successful save to disk.
@@ -2694,6 +2752,59 @@ L<https://redis.io/commands/memory-usage>
 sub memory_usage : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(MEMORY USAGE) => @args)
+}
+
+=head2 module_list
+
+List all modules loaded by the server.
+
+L<https://redis.io/commands/module-list>
+
+=cut
+
+sub module_list : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MODULE LIST) => @args)
+}
+
+=head2 module_load
+
+Load a module.
+
+=over 4
+
+=item * path
+
+=item * [ arg [arg ...]]
+
+=back
+
+L<https://redis.io/commands/module-load>
+
+=cut
+
+sub module_load : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MODULE LOAD) => @args)
+}
+
+=head2 module_unload
+
+Unload a module.
+
+=over 4
+
+=item * name
+
+=back
+
+L<https://redis.io/commands/module-unload>
+
+=cut
+
+sub module_unload : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(MODULE UNLOAD) => @args)
 }
 
 =head2 monitor
@@ -2830,6 +2941,27 @@ sub sync : method {
     $self->execute_command(qw(SYNC) => @args)
 }
 
+=head2 psync
+
+Internal command used for replication.
+
+=over 4
+
+=item * replicationid
+
+=item * offset
+
+=back
+
+L<https://redis.io/commands/psync>
+
+=cut
+
+sub psync : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(PSYNC) => @args)
+}
+
 =head2 time
 
 Return the current server time.
@@ -2841,6 +2973,102 @@ L<https://redis.io/commands/time>
 sub time : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(TIME) => @args)
+}
+
+=head2 latency_doctor
+
+Return a human readable latency analysis report.
+
+L<https://redis.io/commands/latency-doctor>
+
+=cut
+
+sub latency_doctor : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LATENCY DOCTOR) => @args)
+}
+
+=head2 latency_graph
+
+Return a latency graph for the event.
+
+=over 4
+
+=item * event
+
+=back
+
+L<https://redis.io/commands/latency-graph>
+
+=cut
+
+sub latency_graph : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LATENCY GRAPH) => @args)
+}
+
+=head2 latency_history
+
+Return timestamp-latency samples for the event.
+
+=over 4
+
+=item * event
+
+=back
+
+L<https://redis.io/commands/latency-history>
+
+=cut
+
+sub latency_history : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LATENCY HISTORY) => @args)
+}
+
+=head2 latency_latest
+
+Return the latest latency samples for all events.
+
+L<https://redis.io/commands/latency-latest>
+
+=cut
+
+sub latency_latest : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LATENCY LATEST) => @args)
+}
+
+=head2 latency_reset
+
+Reset latency data for one or more events.
+
+=over 4
+
+=item * [event]
+
+=back
+
+L<https://redis.io/commands/latency-reset>
+
+=cut
+
+sub latency_reset : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LATENCY RESET) => @args)
+}
+
+=head2 latency_help
+
+Show helpful text about the different subcommands.
+
+L<https://redis.io/commands/latency-help>
+
+=cut
+
+sub latency_help : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(LATENCY HELP) => @args)
 }
 
 =head1 METHODS - Set
@@ -3780,7 +4008,7 @@ Appends a new entry to a stream.
 
 =item * ID
 
-=item * field string [field string ...]
+=item * field value [field value ...]
 
 =back
 
@@ -3922,7 +4150,7 @@ Return never seen elements in multiple streams, with IDs greater than the ones r
 
 =item * key [key ...]
 
-=item * ID [ID ...]
+=item * id [id ...]
 
 =back
 
@@ -4470,7 +4698,7 @@ Set the string value of a key.
 
 =item * value
 
-=item * [expiration EX seconds|PX milliseconds]
+=item * [EX seconds|PX milliseconds]
 
 =item * [NX|XX]
 
