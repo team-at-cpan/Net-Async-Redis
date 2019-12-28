@@ -1,10 +1,10 @@
 requires 'parent', 0;
 requires 'curry', 0;
-requires 'Future', '>= 0.40';
-requires 'Future::AsyncAwait', '>= 0.27';
-requires 'Syntax::Keyword::Try', '>= 0.08';
+requires 'Future', '>= 0.42';
+requires 'Future::AsyncAwait', '>= 0.34';
+requires 'Syntax::Keyword::Try', '>= 0.11';
 requires 'IO::Async', 0;
-requires 'Ryu::Async', '>= 0.006';
+requires 'Ryu::Async', '>= 0.016';
 requires 'List::Util', '>= 1.29';
 requires 'Log::Any', '>= 1.050';
 requires 'URI', 0;
