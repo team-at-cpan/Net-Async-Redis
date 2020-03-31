@@ -499,6 +499,14 @@ our %ALLOWED_SUBSCRIPTION_COMMANDS = (
     QUIT         => 1,
 );
 
+our %SUBSCRIPTION_COMMANDS = (
+    SUBSCRIBE    => 1,
+    PSUBSCRIBE   => 1,
+    UNSUBSCRIBE  => 1,
+    PUNSUBSCRIBE => 1,
+);
+
+
 sub execute_command {
     my ($self, @cmd) = @_;
 
