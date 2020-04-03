@@ -28,7 +28,7 @@ my $loop = IO::Async::Loop->new;
 
     await $cluster->bootstrap(
         host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
-        port => 6379 
+        port => 6379,
     );
     my @nodes = $cluster->node_list;
     is($cluster->node_for_slot(1), $nodes[0]);
