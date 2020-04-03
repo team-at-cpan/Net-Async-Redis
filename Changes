@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.002_001 2020-04-03 22:02:06+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     New features:
 
     - Redis cluster support, https://redis.io/topics/cluster-spec
