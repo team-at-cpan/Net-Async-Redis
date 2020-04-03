@@ -2401,6 +2401,12 @@ sub bgrewriteaof : method {
 
 Asynchronously save the dataset to disk.
 
+=over 4
+
+=item * [SCHEDULE]
+
+=back
+
 L<https://redis.io/commands/bgsave>
 
 =cut
@@ -4851,6 +4857,8 @@ Set the string value of a key.
 =item * [EX seconds|PX milliseconds]
 
 =item * [NX|XX]
+
+=item * [KEEPTTL]
 
 =back
 
