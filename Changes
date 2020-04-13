@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.002_002 2020-04-14 01:40:41+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     New features:
 
     - Latest Redis has new ACL methods, including those in Commands.pm
