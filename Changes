@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - Latest Redis has new ACL methods, including those in Commands.pm
+    - simple ping latency example for testing
 
 2.002_001 2020-04-03 22:02:06+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     New features:
