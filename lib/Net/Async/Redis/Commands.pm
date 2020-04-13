@@ -2384,6 +2384,160 @@ sub script_load : method {
 
 =head1 METHODS - Server
 
+=head2 acl_load
+
+Reload the ACLs from the configured ACL file.
+
+L<https://redis.io/commands/acl-load>
+
+=cut
+
+sub acl_load : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL LOAD) => @args)
+}
+
+=head2 acl_save
+
+Save the current ACL rules in the configured ACL file.
+
+L<https://redis.io/commands/acl-save>
+
+=cut
+
+sub acl_save : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL SAVE) => @args)
+}
+
+=head2 acl_list
+
+List the current ACL rules in ACL config file format.
+
+L<https://redis.io/commands/acl-list>
+
+=cut
+
+sub acl_list : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL LIST) => @args)
+}
+
+=head2 acl_users
+
+List the username of all the configured ACL rules.
+
+L<https://redis.io/commands/acl-users>
+
+=cut
+
+sub acl_users : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL USERS) => @args)
+}
+
+=head2 acl_setuser
+
+Modify or create the rules for a specific ACL user.
+
+=over 4
+
+=item * rule [rule ...]
+
+=back
+
+L<https://redis.io/commands/acl-setuser>
+
+=cut
+
+sub acl_setuser : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL SETUSER) => @args)
+}
+
+=head2 acl_deluser
+
+Remove the specified ACL users and the associated rules.
+
+=over 4
+
+=item * username [username ...]
+
+=back
+
+L<https://redis.io/commands/acl-deluser>
+
+=cut
+
+sub acl_deluser : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL DELUSER) => @args)
+}
+
+=head2 acl_cat
+
+List the ACL categories or the commands inside a category.
+
+=over 4
+
+=item * [categoryname]
+
+=back
+
+L<https://redis.io/commands/acl-cat>
+
+=cut
+
+sub acl_cat : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL CAT) => @args)
+}
+
+=head2 acl_genpass
+
+Generate a pseudorandom secure password to use for ACL users.
+
+L<https://redis.io/commands/acl-genpass>
+
+=cut
+
+sub acl_genpass : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL GENPASS) => @args)
+}
+
+=head2 acl_whoami
+
+Return the name of the user associated to the current connection.
+
+L<https://redis.io/commands/acl-whoami>
+
+=cut
+
+sub acl_whoami : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL WHOAMI) => @args)
+}
+
+=head2 acl_log
+
+List latest events denied because of ACLs in place.
+
+=over 4
+
+=item * [count or RESET]
+
+=back
+
+L<https://redis.io/commands/acl-log>
+
+=cut
+
+sub acl_log : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(ACL LOG) => @args)
+}
+
 =head2 bgrewriteaof
 
 Asynchronously rewrite the append-only file.
