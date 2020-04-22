@@ -108,7 +108,7 @@ sub on_message {
     $self->{last_command_at} = $self->server->time;
     $log->tracef('Database method: %s', $code);
     (
-        $code 
+        $code
         ? $code->($db, @data)
         : Future->done(qq{ERR unknown command '$command'})
     )->then(sub {
