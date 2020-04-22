@@ -32,6 +32,7 @@ my %WriteMakefileArgs = (
     "Mixin::Event::Dispatch::Bus" => "2.000",
     "Ryu::Async" => "0.016",
     "Scalar::Util" => 0,
+    "Syntax::Keyword::Dynamically" => 0,
     "Syntax::Keyword::Try" => "0.11",
     "URI" => 0,
     "URI::redis" => 0,
@@ -61,7 +62,7 @@ my %WriteMakefileArgs = (
     "Test::More" => "0.98",
     "Variable::Disposition" => "0.004"
   },
-  "VERSION" => "2.002_002",
+  "VERSION" => "2.002_003",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -91,6 +92,7 @@ my %FallbackPrereqs = (
   "Mixin::Event::Dispatch::Bus" => "2.000",
   "Ryu::Async" => "0.016",
   "Scalar::Util" => 0,
+  "Syntax::Keyword::Dynamically" => 0,
   "Syntax::Keyword::Try" => "0.11",
   "Test::CheckDeps" => "0.010",
   "Test::Deep" => 0,
