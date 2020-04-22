@@ -16,6 +16,9 @@ eval {
 };
 
 my $loop = IO::Async::Loop->new;
+my $timeout = $loop->delay_future(after => 15)->on_done(sub {
+    BAIL_OUT('timeout');
+});
 $loop->add(my $redis = Net::Async::Redis->new);
 ok(my $f = $redis->connect(
     host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
