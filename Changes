@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - MULTI implementation broke in the previous version
 
 2.002_002 2020-04-14 01:40:41+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     New features:
