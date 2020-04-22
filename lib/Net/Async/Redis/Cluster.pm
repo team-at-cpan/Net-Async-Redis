@@ -263,7 +263,8 @@ async sub execute_command {
 
 =head1 AUTHOR
 
-Tom Molesworth C<< <TEAM@cpan.org> >>.
+Tom Molesworth C<< <TEAM@cpan.org> >> plus contributors as mentioned in
+L<Net::Async::Redis/CONTRIBUTORS>.
 
 =head1 LICENSE
 

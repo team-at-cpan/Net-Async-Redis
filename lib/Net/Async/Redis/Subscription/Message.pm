@@ -76,7 +76,8 @@ __END__
 
 =head1 AUTHOR
 
-Tom Molesworth <TEAM@cpan.org>
+Tom Molesworth C<< <TEAM@cpan.org> >> plus contributors as mentioned in
+L<Net::Async::Redis/CONTRIBUTORS>.
 
 =head1 LICENSE
 

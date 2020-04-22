@@ -60,3 +60,12 @@ async sub primary_connection {
 
 1;
 
+=head1 AUTHOR
+
+Tom Molesworth C<< <TEAM@cpan.org> >> plus contributors as mentioned in
+L<Net::Async::Redis/CONTRIBUTORS>.
+
+=head1 LICENSE
+
+Copyright Tom Molesworth 2015-2020. Licensed under the same terms as Perl itself.
+
