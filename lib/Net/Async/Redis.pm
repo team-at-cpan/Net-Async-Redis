@@ -9,7 +9,7 @@ use parent qw(
     IO::Async::Notifier
 );
 
-our $VERSION = '2.002_003';
+our $VERSION = '2.002_004';
 
 =head1 NAME
 
@@ -466,7 +466,20 @@ sub on_message {
     return $self->handle_pubsub_message(@$data) if exists $self->{pubsub};
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
+    $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
     $next->[1]->done($data);
+}
+
+sub next_in_pipeline {
+    my ($self) = @_;
+    my $depth = $self->pipeline_depth;
+    until($depth and $self->{pending}->@* >= $depth) {
+        return unless my $next = shift @{$self->{awaiting_pipeline}};
+        $log->tracef("Have free space in pipeline, sending %s", $next->[0]);
+        push @{$self->{pending}}, $next;
+        my $data = $self->protocol->encode_from_client($next->[0]);
+        $self->stream->write($data);
+    }
 }
 
 sub on_error_message {
@@ -655,8 +668,14 @@ sub execute_command {
         local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
         my $cmd = join ' ', @cmd;
         $log->tracef('Outgoing [%s]', $cmd);
+        my $depth = $self->pipeline_depth;
+        $log->tracef("Pipeline depth now %d/%d", 0 + @{$self->{pending}}, $depth);
+        if($depth && $self->{pending}->@* >= $depth) {
+            $log->tracef("Pipeline full, deferring %s (%d others in that queue)", $cmd, 0 + @{$self->{awaiting_pipeline}});
+            push @{$self->{awaiting_pipeline}}, [ $cmd, $f ];
+            return $f;
+        }
         push @{$self->{pending}}, [ $cmd, $f ];
-        $log->tracef("Pipeline depth now %d", 0 + @{$self->{pending}});
         my $data = $self->protocol->encode_from_client(@cmd);
         # Void-context write allows IaStream to combine multiple writes on the same connection.
         $self->stream->write($data);
@@ -730,6 +749,8 @@ sub stream_write_len { shift->{stream_read_len} //= 1048576 }
 sub configure {
     my ($self, %args) = @_;
     $self->{pending_multi} //= [];
+    $self->{pending} //= [];
+    $self->{awaiting_pipeline} //= [];
     for (qw(host port auth uri pipeline_depth stream_read_len stream_write_len on_disconnect)) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }

@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - pipeline parameter now does something, set to 0 to allow "unlimited"
+    pipelined requests (as in keep trying until the Redis server stops listening
+    to process the backlog)
 
 2.002_003 2020-04-23 01:59:30+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     No new features.
