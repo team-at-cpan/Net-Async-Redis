@@ -7,6 +7,8 @@ Revision history for {{$dist->name}}
 
     - the ->multi return value was a nested Future, changing the result
     compared to previous versions - thanks to Nael for reporting
+    - subscribe/psubscribe interleaved with ping or other requests
+    could get confused about the pending queue
 
 2.002_004 2020-04-23 02:19:48+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     New features:

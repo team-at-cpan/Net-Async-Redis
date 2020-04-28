@@ -172,6 +172,25 @@ use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
 use Net::Async::Redis::Subscription::Message;
 
+our %ALLOWED_SUBSCRIPTION_COMMANDS = (
+    SUBSCRIBE    => 1,
+    PSUBSCRIBE   => 1,
+    UNSUBSCRIBE  => 1,
+    PUNSUBSCRIBE => 1,
+    PING         => 1,
+    QUIT         => 1,
+);
+
+our %SUBSCRIPTION_COMMANDS = (
+    SUBSCRIBE    => 1,
+    PSUBSCRIBE   => 1,
+    UNSUBSCRIBE  => 1,
+    PUNSUBSCRIBE => 1,
+    MESSAGE      => 1,
+    PMESSAGE     => 1,
+);
+
+
 =head1 METHODS
 
 B<NOTE>: For a full list of the Redis methods supported by this module,
@@ -463,10 +482,11 @@ sub on_message {
     my ($self, $data) = @_;
     local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
     $log->tracef('Incoming message: %s', $data);
-    return $self->handle_pubsub_message(@$data) if exists $self->{pubsub};
+    return $self->handle_pubsub_message(@$data) if exists $self->{pubsub} and exists $SUBSCRIPTION_COMMANDS{uc $data->[0]};
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
+    warn "our [@$data] entry is ready, original was @{[$next->[0]]}??" if $next->[1]->is_ready;
     $next->[1]->done($data);
 }
 
@@ -633,34 +653,17 @@ sub command_label {
     return $cmd[0];
 }
 
-our %ALLOWED_SUBSCRIPTION_COMMANDS = (
-    SUBSCRIBE    => 1,
-    PSUBSCRIBE   => 1,
-    UNSUBSCRIBE  => 1,
-    PUNSUBSCRIBE => 1,
-    PING         => 1,
-    QUIT         => 1,
-);
-
-our %SUBSCRIPTION_COMMANDS = (
-    SUBSCRIBE    => 1,
-    PSUBSCRIBE   => 1,
-    UNSUBSCRIBE  => 1,
-    PUNSUBSCRIBE => 1,
-);
-
-
 sub execute_command {
     my ($self, @cmd) = @_;
 
     # First, the rules: pubsub or plain
-    my $is_sub_command = exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
+    my $is_sub_command = exists $SUBSCRIPTION_COMMANDS{$cmd[0]};
     return Future->fail(
         'Currently in pubsub mode, cannot send regular commands until unsubscribed',
         redis =>
             0 + (keys %{$self->{subscription_channel}}),
             0 + (keys %{$self->{subscription_pattern_channel}})
-    ) if exists $self->{pubsub} and not $is_sub_command;
+    ) if exists $self->{pubsub} and not exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
 
     my $f = $self->loop->new_future->set_label($self->command_label(@cmd));
     $log->tracef("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
@@ -675,9 +678,11 @@ sub execute_command {
             push @{$self->{awaiting_pipeline}}, [ $cmd, $f ];
             return $f;
         }
-        push @{$self->{pending}}, [ $cmd, $f ];
         my $data = $self->protocol->encode_from_client(@cmd);
+        return $self->stream->write($data)->on_ready($f) if $is_sub_command;
+
         # Void-context write allows IaStream to combine multiple writes on the same connection.
+        push @{$self->{pending}}, [ $cmd, $f ];
         $self->stream->write($data);
         return $f
     };
