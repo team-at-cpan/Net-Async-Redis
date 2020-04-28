@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - the ->multi return value was a nested Future, changing the result
+    compared to previous versions - thanks to Nael for reporting
 
 2.002_004 2020-04-23 02:19:48+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     New features:
