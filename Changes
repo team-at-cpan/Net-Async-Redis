@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.002_005 2020-04-29 02:50:10+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     No new features.
 
     Bugs fixed:
