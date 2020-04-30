@@ -9,7 +9,7 @@ use parent qw(
     IO::Async::Notifier
 );
 
-our $VERSION = '2.002_005';
+our $VERSION = '2.003';
 
 =head1 NAME
 
@@ -66,7 +66,7 @@ Current features include:
 
 =over 4
 
-=item * L<all commands|https://redis.io/commands> as of 5.0.8 (April 2020), see L<https://redis.io/commands> for the methods and parameters
+=item * L<all commands|https://redis.io/commands> as of 6.0 (May 2020), see L<https://redis.io/commands> for the methods and parameters
 
 =item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</Subscriptions>
 

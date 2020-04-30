@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - latest commands from Redis 6.0 GA release
+
+    This is intended to be a stable release with next phase of
+    development aimed at supporting the newer RESP3 protocol:
+    https://github.com/antirez/RESP3
 
 2.002_005 2020-04-29 02:50:10+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
     No new features.
