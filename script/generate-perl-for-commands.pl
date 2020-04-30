@@ -8,7 +8,7 @@ use Path::Tiny;
 use HTML::TreeBuilder;
 use Template;
 use List::Util qw(first);
-use List::UtilsBy qw(extract_by);
+use List::UtilsBy qw(extract_by sort_by);
 
 use Log::Any qw($log);
 use Log::Any::Adapter qw(Stderr), log_level => 'trace';
@@ -58,7 +58,8 @@ for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
 
 for my $group (sort keys %commands_by_group) {
     $log->infof('%s', $group);
-    for(@{$commands_by_group{$group}}) {
+    $commands_by_group{$group} = [ sort_by { $_->{method} } $commands_by_group{$group}->@* ];
+    for($commands_by_group{$group}->@*) {
         $log->infof(' * %s - %s', $_->{method}, $_->{summary});
     }
 }
