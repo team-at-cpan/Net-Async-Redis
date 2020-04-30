@@ -601,6 +601,219 @@ sub auth : method {
     $self->execute_command(qw(AUTH) => @args)
 }
 
+=head2 client_caching
+
+Instruct the server about tracking or not keys in the next request.
+
+=over 4
+
+=item * YES|NO
+
+=back
+
+L<https://redis.io/commands/client-caching>
+
+=cut
+
+sub client_caching : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT CACHING) => @args)
+}
+
+=head2 client_id
+
+Returns the client ID for the current connection.
+
+L<https://redis.io/commands/client-id>
+
+=cut
+
+sub client_id : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT ID) => @args)
+}
+
+=head2 client_kill
+
+Kill the connection of a client.
+
+=over 4
+
+=item * [ip:port]
+
+=item * [ID client-id]
+
+=item * [TYPE normal|master|slave|pubsub]
+
+=item * [ADDR ip:port]
+
+=item * [SKIPME yes/no]
+
+=back
+
+L<https://redis.io/commands/client-kill>
+
+=cut
+
+sub client_kill : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT KILL) => @args)
+}
+
+=head2 client_list
+
+Get the list of client connections.
+
+=over 4
+
+=item * [TYPE normal|master|replica|pubsub]
+
+=back
+
+L<https://redis.io/commands/client-list>
+
+=cut
+
+sub client_list : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT LIST) => @args)
+}
+
+=head2 client_getname
+
+Get the current connection name.
+
+L<https://redis.io/commands/client-getname>
+
+=cut
+
+sub client_getname : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT GETNAME) => @args)
+}
+
+=head2 client_getredir
+
+Get tracking notifications redirection client ID if any.
+
+L<https://redis.io/commands/client-getredir>
+
+=cut
+
+sub client_getredir : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT GETREDIR) => @args)
+}
+
+=head2 client_pause
+
+Stop processing commands from clients for some time.
+
+=over 4
+
+=item * timeout
+
+=back
+
+L<https://redis.io/commands/client-pause>
+
+=cut
+
+sub client_pause : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT PAUSE) => @args)
+}
+
+=head2 client_reply
+
+Instruct the server whether to reply to commands.
+
+=over 4
+
+=item * ON|OFF|SKIP
+
+=back
+
+L<https://redis.io/commands/client-reply>
+
+=cut
+
+sub client_reply : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT REPLY) => @args)
+}
+
+=head2 client_setname
+
+Set the current connection name.
+
+=over 4
+
+=item * connection-name
+
+=back
+
+L<https://redis.io/commands/client-setname>
+
+=cut
+
+sub client_setname : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT SETNAME) => @args)
+}
+
+=head2 client_tracking
+
+Enable or disable server assisted client side caching support.
+
+=over 4
+
+=item * ON|OFF
+
+=item * [REDIRECT client-id]
+
+=item * [PREFIX prefix]
+
+=item * [BCAST]
+
+=item * [OPTIN]
+
+=item * [OPTOUT]
+
+=item * [NOLOOP]
+
+=back
+
+L<https://redis.io/commands/client-tracking>
+
+=cut
+
+sub client_tracking : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT TRACKING) => @args)
+}
+
+=head2 client_unblock
+
+Unblock a client blocked in a blocking command from a different connection.
+
+=over 4
+
+=item * client-id
+
+=item * [TIMEOUT|ERROR]
+
+=back
+
+L<https://redis.io/commands/client-unblock>
+
+=cut
+
+sub client_unblock : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(CLIENT UNBLOCK) => @args)
+}
+
 =head2 echo
 
 Echo the given string.
@@ -618,6 +831,29 @@ L<https://redis.io/commands/echo>
 sub echo : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(ECHO) => @args)
+}
+
+=head2 hello
+
+switch Redis protocol.
+
+=over 4
+
+=item * protover
+
+=item * [AUTH username password]
+
+=item * [SETNAME clientname]
+
+=back
+
+L<https://redis.io/commands/hello>
+
+=cut
+
+sub hello : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(HELLO) => @args)
 }
 
 =head2 ping
@@ -669,27 +905,6 @@ L<https://redis.io/commands/select>
 sub select : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(SELECT) => @args)
-}
-
-=head2 swapdb
-
-Swaps two Redis databases.
-
-=over 4
-
-=item * index1
-
-=item * index2
-
-=back
-
-L<https://redis.io/commands/swapdb>
-
-=cut
-
-sub swapdb : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(SWAPDB) => @args)
 }
 
 =head1 METHODS - Generic
@@ -2497,6 +2712,12 @@ sub acl_cat : method {
 
 Generate a pseudorandom secure password to use for ACL users.
 
+=over 4
+
+=item * [bits]
+
+=back
+
 L<https://redis.io/commands/acl-genpass>
 
 =cut
@@ -2568,156 +2789,6 @@ L<https://redis.io/commands/bgsave>
 sub bgsave : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(BGSAVE) => @args)
-}
-
-=head2 client_id
-
-Returns the client ID for the current connection.
-
-L<https://redis.io/commands/client-id>
-
-=cut
-
-sub client_id : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT ID) => @args)
-}
-
-=head2 client_kill
-
-Kill the connection of a client.
-
-=over 4
-
-=item * [ip:port]
-
-=item * [ID client-id]
-
-=item * [TYPE normal|master|slave|pubsub]
-
-=item * [ADDR ip:port]
-
-=item * [SKIPME yes/no]
-
-=back
-
-L<https://redis.io/commands/client-kill>
-
-=cut
-
-sub client_kill : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT KILL) => @args)
-}
-
-=head2 client_list
-
-Get the list of client connections.
-
-=over 4
-
-=item * [TYPE normal|master|replica|pubsub]
-
-=back
-
-L<https://redis.io/commands/client-list>
-
-=cut
-
-sub client_list : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT LIST) => @args)
-}
-
-=head2 client_getname
-
-Get the current connection name.
-
-L<https://redis.io/commands/client-getname>
-
-=cut
-
-sub client_getname : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT GETNAME) => @args)
-}
-
-=head2 client_pause
-
-Stop processing commands from clients for some time.
-
-=over 4
-
-=item * timeout
-
-=back
-
-L<https://redis.io/commands/client-pause>
-
-=cut
-
-sub client_pause : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT PAUSE) => @args)
-}
-
-=head2 client_reply
-
-Instruct the server whether to reply to commands.
-
-=over 4
-
-=item * ON|OFF|SKIP
-
-=back
-
-L<https://redis.io/commands/client-reply>
-
-=cut
-
-sub client_reply : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT REPLY) => @args)
-}
-
-=head2 client_setname
-
-Set the current connection name.
-
-=over 4
-
-=item * connection-name
-
-=back
-
-L<https://redis.io/commands/client-setname>
-
-=cut
-
-sub client_setname : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT SETNAME) => @args)
-}
-
-=head2 client_unblock
-
-Unblock a client blocked in a blocking command from a different connection.
-
-=over 4
-
-=item * client-id
-
-=item * [TIMEOUT|ERROR]
-
-=back
-
-L<https://redis.io/commands/client-unblock>
-
-=cut
-
-sub client_unblock : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(CLIENT UNBLOCK) => @args)
 }
 
 =head2 command
@@ -3236,6 +3307,27 @@ L<https://redis.io/commands/slowlog>
 sub slowlog : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(SLOWLOG) => @args)
+}
+
+=head2 swapdb
+
+Swaps two Redis databases.
+
+=over 4
+
+=item * index1
+
+=item * index2
+
+=back
+
+L<https://redis.io/commands/swapdb>
+
+=cut
+
+sub swapdb : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(SWAPDB) => @args)
 }
 
 =head2 sync
@@ -5113,6 +5205,27 @@ L<https://redis.io/commands/setrange>
 sub setrange : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(SETRANGE) => @args)
+}
+
+=head2 stralgo
+
+Run algorithms (currently LCS) against strings.
+
+=over 4
+
+=item * LCS
+
+=item * algo-specific-argument [algo-specific-argument ...]
+
+=back
+
+L<https://redis.io/commands/stralgo>
+
+=cut
+
+sub stralgo : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(STRALGO) => @args)
 }
 
 =head2 strlen
