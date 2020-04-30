@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.003     2020-05-01 00:37:12+08:00 Asia/Kuala_Lumpur
     New features:
 
     - latest commands from Redis 6.0 GA release
