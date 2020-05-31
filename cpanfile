@@ -1,7 +1,7 @@
 requires 'parent', 0;
 requires 'curry', 0;
 requires 'Future', '>= 0.42';
-requires 'Future::AsyncAwait', '>= 0.34';
+requires 'Future::AsyncAwait', '>= 0.40';
 requires 'Syntax::Keyword::Try', '>= 0.11';
 requires 'IO::Async', 0;
 requires 'Ryu::Async', '>= 0.016';
