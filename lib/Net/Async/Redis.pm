@@ -162,6 +162,7 @@ use IO::Async::Stream;
 use Ryu::Async;
 use URI;
 use URI::redis;
+use Cache::LRU;
 
 use Log::Any qw($log);
 
@@ -341,6 +342,66 @@ around [qw(discard exec)] => sub {
     (shift @{$self->{pending_multi}})->done;
     $f->retain
 };
+
+=head1 METHODS - Clientside caching
+
+Enable clientside caching by passing a true value for C<client_side_caching_enabled> in
+L</configure> or L</new>. This is currently B<experimental>, and only operates on
+L<Net::Async::Redis::Commands/get> requests.
+
+See L<https://redis.io/topics/client-side-caching> for more details on this feature.
+
+=cut
+
+async sub client_side_connection {
+    my ($self) = @_;
+    return if $self->{client_side_connection};
+    my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
+    $self->{client_side_connection} = my $redis = ref($self)->new(
+        host => $self->host,
+        port => $self->port,
+        auth => $self->{auth},
+    );
+    $self->add_child($redis);
+    my $id = await $redis->client_id;
+    my $sub = await $redis->subscribe('__redis__:invalidate');
+    $sub->events->each(sub {
+        $log->tracef('Invalidating key %s', $_->payload);
+        $self->client_side_cache->remove($_->payload);
+    });
+    $f->done;
+}
+
+sub client_side_cache_ready {
+    my ($self) = @_;
+    my $f = $self->{client_side_cache_ready} or return Future->fail('client-side cache is not enabled');
+    return $f->without_cancel;
+}
+
+sub client_side_cache {
+    my ($self) = @_;
+    $self->{client_side_cache} //= Cache::LRU->new(
+        size => $self->client_side_cache_size,
+    );
+}
+
+sub client_side_cache_enabled { defined shift->{client_side_cache_size} }
+sub client_side_cache_size { shift->{client_side_cache_size} }
+
+around get => async sub {
+    my ($code, $self, $k) = @_;
+    my $use_cache = $self->client_side_cache_enabled;
+    if($use_cache) {
+        $log->tracef('Check cache for [%s]', $k);
+        my $v = $self->client_side_cache->get($k);
+        return $v if defined $v;
+        $log->tracef('Key [%s] was not cached', $k);
+    }
+    my $v = await $self->$code($k);
+    $self->client_side_cache->set($k => $v) if $use_cache;
+    return $v;
+};
+
 
 =head1 METHODS - Generic
 
@@ -758,11 +819,38 @@ sub configure {
     $self->{pending_multi} //= [];
     $self->{pending} //= [];
     $self->{awaiting_pipeline} //= [];
-    for (qw(host port auth uri pipeline_depth stream_read_len stream_write_len on_disconnect)) {
+    for (qw(
+        host
+        port
+        auth
+        uri
+        pipeline_depth
+        stream_read_len
+        stream_write_len
+        on_disconnect
+    )) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
-    $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
+    if(exists $args{client_side_cache_size}) {
+        $self->{client_side_cache_size} = delete $args{client_side_cache_size};
+        delete $self->{client_side_cache};
+        if($self->loop) {
+            $self->remove_child(delete $self->{client_side_connection}) if $self->{client_side_connection};
+            $self->client_side_connection->retain;
+        }
+    }
+    my $uri = $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
+    if($uri) {
+        $self->{host} //= $uri->host;
+        $self->{port} //= $uri->port;
+    }
     $self->next::method(%args)
+}
+
+sub _add_to_loop {
+    my ($self, $loop) = @_;
+    delete $self->{client_side_connection};
+    $self->client_side_connection->retain if $self->client_side_cache_size;
 }
 
 1;

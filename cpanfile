@@ -11,6 +11,7 @@ requires 'URI', 0;
 requires 'URI::redis', 0;
 requires 'Class::Method::Modifiers', 0;
 requires 'Math::Random::Secure', 0;
+requires 'Cache::LRU';
 
 requires 'Digest::CRC', '>= 0.22';
 requires 'List::BinarySearch::XS', '>= 0.09';
