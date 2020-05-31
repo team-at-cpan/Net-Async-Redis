@@ -486,7 +486,9 @@ sub on_message {
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
-    warn "our [@$data] entry is ready, original was @{[$next->[0]]}??" if $next->[1]->is_ready;
+    return if $next->[1]->is_cancelled;
+    # This shouldn't happen, preferably
+    $log->errorf("our [%s] entry is ready, original was [%s]??", $data, $next->[0]) if $next->[1]->is_ready;
     $next->[1]->done($data);
 }
 
