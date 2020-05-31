@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - acl_getuser and related commands added
+    - client-side caching documentation updated
 
 2.003     2020-05-01 00:37:12+08:00 Asia/Kuala_Lumpur
     New features:
