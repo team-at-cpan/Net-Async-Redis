@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - initial client-side caching support for ->get calls,
+    pass client_side_caching_size => $size to enable.
+    Please note that this key is likely to change in a future version.
 
 2.004     2020-06-01 05:29:32+08:00 Asia/Kuala_Lumpur
     New features:
