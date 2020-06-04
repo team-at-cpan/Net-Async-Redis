@@ -40,7 +40,7 @@ Net::Async::Redis - talk to Redis servers via L<IO::Async>
         print "Value: " . shift;
     })->get;
 
-    # ... or with Future::AsyncAwait
+    # ... or with Future::AsyncAwait (recommended)
     await $redis->connect;
     my $value = await $redis->get('some_key');
     $value ||= await $redis->set(some_key => 'some_value');
