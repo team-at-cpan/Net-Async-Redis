@@ -4,6 +4,8 @@ use warnings;
 use Test::More;
 use Test::Fatal;
 
+use Syntax::Keyword::Try;
+use Future::AsyncAwait;
 use Net::Async::Redis;
 use IO::Async::Loop;
 
@@ -36,8 +38,6 @@ my $main = redis(
     pipeline_depth => 5
 );
 
-use Syntax::Keyword::Try;
-use Future::AsyncAwait;
 (async sub {
     try {
         my $f = Future->needs_all(
