@@ -823,13 +823,21 @@ sub configure {
         host
         port
         auth
-        uri
         pipeline_depth
         stream_read_len
         stream_write_len
         on_disconnect
     )) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
+    }
+
+    # Be more lenient with the URI parameter, since it's tedious to
+    # need the redis:// prefix every time... after all, what else
+    # would we expect it to be?
+    if(exists $args{uri}) {
+        my $uri = delete $args{uri};
+        $uri = "redis://$uri" unless ref($uri) or $uri =~ /^redis:/;
+        $self->{uri} = $uri;
     }
     if(exists $args{client_side_cache_size}) {
         $self->{client_side_cache_size} = delete $args{client_side_cache_size};
