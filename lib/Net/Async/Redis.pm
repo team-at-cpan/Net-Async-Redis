@@ -558,11 +558,14 @@ sub next_in_pipeline {
     my $depth = $self->pipeline_depth;
     until($depth and $self->{pending}->@* >= $depth) {
         return unless my $next = shift @{$self->{awaiting_pipeline}};
-        $log->tracef("Have free space in pipeline, sending %s", $next->[0]);
-        push @{$self->{pending}}, $next;
-        my $data = $self->protocol->encode_from_client($next->[0]);
+        my $cmd = join ' ', @{$next->[0]};
+        $log->tracef("Have free space in pipeline, sending %s", $cmd);
+        push @{$self->{pending}}, [ $cmd, $next->[1] ];
+        my $data = $self->protocol->encode_from_client(@{$next->[0]});
         $self->stream->write($data);
     }
+    # Ensure last ->write is in void context
+    return;
 }
 
 sub on_error_message {
@@ -738,7 +741,7 @@ sub execute_command {
         $log->tracef("Pipeline depth now %d/%d", 0 + @{$self->{pending}}, $depth);
         if($depth && $self->{pending}->@* >= $depth) {
             $log->tracef("Pipeline full, deferring %s (%d others in that queue)", $cmd, 0 + @{$self->{awaiting_pipeline}});
-            push @{$self->{awaiting_pipeline}}, [ $cmd, $f ];
+            push @{$self->{awaiting_pipeline}}, [ \@cmd, $f ];
             return $f;
         }
         my $data = $self->protocol->encode_from_client(@cmd);
