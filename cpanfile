@@ -11,7 +11,8 @@ requires 'URI', 0;
 requires 'URI::redis', 0;
 requires 'Class::Method::Modifiers', 0;
 requires 'Math::Random::Secure', 0;
-requires 'OpenTracing::Any', '>= 1.002';
+requires 'OpenTracing::Any', '>= 1.003';
+requires 'Metrics::Any', 0;
 
 # Client-side caching
 requires 'Cache::LRU', '>= 0.04';
