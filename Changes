@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.006     2020-08-26 10:23:47+08:00 Asia/Kuala_Lumpur
     New features:
 
     - latest command updates from Redis 6.0.6 - main change here is ->lpos
