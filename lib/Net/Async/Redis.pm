@@ -181,15 +181,19 @@ use Net::Async::Redis::Subscription::Message;
 
 =head2 OPENTRACING_ENABLED
 
-Defaults to true, this can be controlled by the C<USE_OPENTRACING>
-environment variable.
+Defaults to false, this can be controlled by the C<USE_OPENTRACING>
+environment variable. This provides a way to set the default opentracing
+mode for all L<Net::Async::Redis> instances - you can enable/disable
+for a specific instance via L</configure>:
+
+ $redis->configure(opentracing => 1);
 
 When enabled, this will create a span for every Redis request. See
 L<OpenTracing::Any> for details.
 
 =cut
 
-use constant OPENTRACING_ENABLED => $ENV{USE_OPENTRACING} // 1;
+use constant OPENTRACING_ENABLED => $ENV{USE_OPENTRACING} // 0;
 
 our %ALLOWED_SUBSCRIPTION_COMMANDS = (
     SUBSCRIBE    => 1,
@@ -682,6 +686,14 @@ See L<https://redis.io/topics/pipelining> for more details on this concept.
 
 sub pipeline_depth { shift->{pipeline_depth} //= 100 }
 
+=head2 opentracing
+
+Indicates whether L<OpenTracing::Any> support is enabled.
+
+=cut
+
+sub opentracing { shift->{opentracing} }
+
 =head1 METHODS - Deprecated
 
 This are still supported, but no longer recommended.
@@ -757,7 +769,7 @@ sub execute_command {
     my $f = $self->loop->new_future->set_label(
         $self->command_label(@cmd)
     );
-    $tracer->span_for_future($f) if OPENTRACING_ENABLED;
+    $tracer->span_for_future($f) if $self->opentracing;
     $log->tracef("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
     my $code = sub {
         local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
@@ -846,11 +858,47 @@ sub stream_write_len { shift->{stream_read_len} //= 1048576 }
 
 sub client_name { shift->{client_name} }
 
-sub configure {
-    my ($self, %args) = @_;
+sub _init {
+    my ($self, @args) = @_;
     $self->{pending_multi} //= [];
     $self->{pending} //= [];
     $self->{awaiting_pipeline} //= [];
+    $self->{opentracing} = OPENTRACING_ENABLED;
+    $self->next::method(@args);
+}
+
+=head2 configure
+
+Applies configuration parameters - currently supports:
+
+=over 4
+
+=item * C<host>
+
+=item * C<port>
+
+=item * C<auth>
+
+=item * C<database>
+
+=item * C<pipeline_depth>
+
+=item * C<stream_read_len>
+
+=item * C<stream_write_len>
+
+=item * C<on_disconnect>
+
+=item * C<client_name>
+
+=item * C<opentracing>
+
+=back
+
+=cut
+
+sub configure {
+    my ($self, %args) = @_;
     for (qw(
         host
         port
@@ -861,6 +909,7 @@ sub configure {
         stream_write_len
         on_disconnect
         client_name
+        opentracing
     )) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
