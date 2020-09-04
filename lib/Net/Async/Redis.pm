@@ -66,15 +66,17 @@ Current features include:
 
 =over 4
 
-=item * L<all commands|https://redis.io/commands> as of 6.0 (May 2020), see L<https://redis.io/commands> for the methods and parameters
+=item * L<all commands|https://redis.io/commands> as of 6.0.7 (August 2020), see L<https://redis.io/commands> for the methods and parameters
 
-=item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</Subscriptions>
+=item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</METHODS - Subscriptions>
 
-=item * L<pipelining|https://redis.io/topics/pipelining>, see L</Pipelining>
+=item * L<pipelining|https://redis.io/topics/pipelining>, see L</pipeline_depth>
 
-=item * L<transactions|https://redis.io/topics/transactions>, see L</Transactions>
+=item * L<transactions|https://redis.io/topics/transactions>, see L</METHODS - Transactions>
 
-=item * L<streams|https://redis.io/topics/streams-intro> and consumer groups, see L</Streams>
+=item * L<streams|https://redis.io/topics/streams-intro> and consumer groups, via L<Net::Async::Redis::Commands/XADD> and related methods
+
+=item * L<client-side caching|https://redis.io/topics/client-side-caching>, see L</METHODS - Clientside caching>
 
 =back
 
