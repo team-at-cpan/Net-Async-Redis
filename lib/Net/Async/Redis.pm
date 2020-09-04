@@ -534,6 +534,7 @@ sub connect : method {
         );
         await $self->auth($auth) if defined $auth;
         await $self->select($uri->database) if $uri->database;
+        await $self->client_setname($self->client_name) if defined $self->client_name;
         return Future->done;
     })->on_fail(sub { delete $self->{connection} })
       ->on_cancel(sub { delete $self->{connection} });
@@ -843,6 +844,8 @@ See L</stream_read_len>.
 
 sub stream_write_len { shift->{stream_read_len} //= 1048576 }
 
+sub client_name { shift->{client_name} }
+
 sub configure {
     my ($self, %args) = @_;
     $self->{pending_multi} //= [];
@@ -857,6 +860,7 @@ sub configure {
         stream_read_len
         stream_write_len
         on_disconnect
+        client_name
     )) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
