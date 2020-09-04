@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.007     2020-09-05 02:08:25+08:00 Asia/Kuala_Lumpur
     New features:
 
     - applies client_name on connection if configured
