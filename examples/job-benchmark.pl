@@ -25,6 +25,7 @@ use Math::Random::Secure qw(irand);
 use Getopt::Long;
 use Pod::Usage;
 use Log::Any qw($log);
+use Log::Any::Adapter qw(Stdout), log_level => 'info';
 use Test::More;
 
 my %config;
