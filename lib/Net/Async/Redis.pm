@@ -228,6 +228,256 @@ please see L<Net::Async::Redis::Commands>.
 
 =cut
 
+=head2 configure
+
+Applies configuration parameters - currently supports:
+
+=over 4
+
+=item * C<host>
+
+=item * C<port>
+
+=item * C<auth>
+
+=item * C<database>
+
+=item * C<pipeline_depth>
+
+=item * C<stream_read_len>
+
+=item * C<stream_write_len>
+
+=item * C<on_disconnect>
+
+=item * C<client_name>
+
+=item * C<opentracing>
+
+=back
+
+=cut
+
+sub configure {
+    my ($self, %args) = @_;
+    for (qw(
+        host
+        port
+        auth
+        database
+        pipeline_depth
+        stream_read_len
+        stream_write_len
+        on_disconnect
+        client_name
+        opentracing
+    )) {
+        $self->{$_} = delete $args{$_} if exists $args{$_};
+    }
+
+    # Be more lenient with the URI parameter, since it's tedious to
+    # need the redis:// prefix every time... after all, what else
+    # would we expect it to be?
+    if(exists $args{uri}) {
+        my $uri = delete $args{uri};
+        $uri = "redis://$uri" unless ref($uri) or $uri =~ /^redis:/;
+        $self->{uri} = $uri;
+    }
+
+    if(exists $args{client_side_cache_size}) {
+        $self->{client_side_cache_size} = delete $args{client_side_cache_size};
+        delete $self->{client_side_cache};
+        if($self->loop) {
+            $self->remove_child(delete $self->{client_side_connection}) if $self->{client_side_connection};
+            $self->client_side_connection->retain;
+        }
+    }
+    my $uri = $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
+    if($uri) {
+        $self->{host} //= $uri->host;
+        $self->{port} //= $uri->port;
+    }
+    $self->next::method(%args)
+}
+
+=head2 host
+
+Returns the host or IP address for the Redis server.
+
+=cut
+
+sub host { shift->{host} }
+
+=head2 port
+
+Returns the port used for connecting to the Redis server.
+
+=cut
+
+sub port { shift->{port} }
+
+=head2 database
+
+Returns the database index used when connecting to the Redis server.
+
+See the L<Net::Async::Redis::Commands/select> method for details.
+
+=cut
+
+sub database { shift->{database} }
+
+=head2 uri
+
+Returns the Redis endpoint L<URI> instance.
+
+=cut
+
+sub uri { shift->{uri} //= URI->new('redis://localhost') }
+
+=head2 stream_read_len
+
+Returns the buffer size when reading from a Redis connection.
+
+Defaults to 1MB, reduce this if you're dealing with a lot of connections and
+want to minimise memory usage. Alternatively, if you're reading large amounts
+of data and spend too much time in needless C<epoll_wait> calls, try a larger
+value.
+
+=cut
+
+sub stream_read_len { shift->{stream_read_len} //= 1048576 }
+
+=head2 stream_write_len
+
+Returns the buffer size when writing to Redis connections, in bytes. Defaults to 1MB.
+
+See L</stream_read_len>.
+
+=cut
+
+sub stream_write_len { shift->{stream_read_len} //= 1048576 }
+
+=head2 client_name
+
+Returns the name used for this client when connecting.
+
+=cut
+
+sub client_name { shift->{client_name} }
+
+=head1 METHODS - Connection
+
+=head2 connect
+
+Connects to the Redis server.
+
+Will use the L</configure>d parameters if available, but as a convenience
+can be passed additional parameters which will then be applied as if you
+had called L</configure> with those beforehand. This also means that they
+will be preserved for subsequent L</connect> calls.
+
+=cut
+
+sub connect : method {
+    my ($self, %args) = @_;
+    $self->configure(%args) if %args;
+    my $uri = $self->uri->clone;
+    for (qw(host port)) {
+        $uri->$_($self->$_) if defined $self->$_;
+    }
+
+    # 0 is the default anyway, no need to apply in that case
+    $uri->path('/' . $self->database) if $self->database;
+
+    my $auth = $self->{auth};
+    $auth //= ($uri->userinfo =~ s{^[^:]*:}{}r) if defined $uri->userinfo;
+    $self->{connection} //= $self->loop->connect(
+        service => $uri->port // 6379,
+        host    => $uri->host,
+        socktype => 'stream',
+    )->then(async sub {
+        my ($sock) = @_;
+        $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
+        $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
+        my $proto = $self->protocol;
+        my $stream = IO::Async::Stream->new(
+            handle              => $sock,
+            read_len            => $self->stream_read_len,
+            write_len           => $self->stream_write_len,
+            # Arbitrary multipliers for our stream values,
+            # in a memory-constrained environment it's expected
+            # that ->stream_read_len would be configured with
+            # low enough values for this not to be a concern.
+            read_high_watermark => 16 * $self->stream_read_len,
+            read_low_watermark  => 2 * $self->stream_read_len,
+            on_closed           => $self->curry::weak::notify_close,
+            on_read             => sub {
+                $proto->parse($_[1]);
+                0
+            }
+        );
+        $self->add_child($stream);
+        Scalar::Util::weaken(
+            $self->{stream} = $stream
+        );
+
+        try {
+            # Try issuing a HELLO to detect RESP3 or above
+            await $self->hello(
+                3, defined($auth) ? (
+                    qw(AUTH default), $auth
+                ) : (), defined($self->client_name) ? (
+                    qw(SETNAME), $self->client_name
+                ) : ()
+            );
+            $self->{protocol_level} = 'resp3';
+        } catch {
+            # If we had an auth failure or invalid client name, all bets are off:
+            # immediately raise those back to the caller
+            die $@ unless $@ =~ /ERR unknown command/;
+
+            $log->tracef('Older Redis version detected, dropping back to RESP2 protocol');
+            $self->{protocol_level} = 'resp2';
+
+            await $self->auth($auth) if defined $auth;
+            await $self->client_setname($self->client_name) if defined $self->client_name;
+        }
+
+        await $self->select($uri->database) if $uri->database;
+        return Future->done;
+    })->on_fail(sub { delete $self->{connection} })
+      ->on_cancel(sub { delete $self->{connection} });
+}
+
+=head2 connected
+
+Establishes a connection if needed, otherwise returns an immediately-available
+L<Future> instance.
+
+=cut
+
+sub connected {
+    my ($self) = @_;
+    return $self->{connection} if $self->{connection};
+    $self->connect;
+}
+
+=head2 endpoint
+
+The string describing the remote endpoint.
+
+=cut
+
+sub endpoint { shift->{endpoint} }
+
+=head2 local_endpoint
+
+A string describing the local endpoint, usually C<host:port>.
+
+=cut
+
+sub local_endpoint { shift->{local_endpoint} }
+
 =head1 METHODS - Subscriptions
 
 See L<https://redis.io/topics/pubsub> for more details on this topic.
@@ -484,6 +734,8 @@ Note that this will switch the connection into pubsub mode on versions
 of Redis older than 6.0, so it will no longer be available for any
 other activity. This limitation does not apply on Redis 6 or above.
 
+Use C<*> to listen for all keyspace changes.
+
 Resolves to a L<Ryu::Source> instance.
 
 =cut
@@ -508,116 +760,44 @@ async sub watch_keyspace {
     return $ev;
 }
 
-=head2 endpoint
+=head2 pipeline_depth
 
-The string describing the remote endpoint.
+Number of requests awaiting responses before we start queuing.
+This defaults to an arbitrary value of 100 requests.
 
-=cut
+Note that this does not apply when in L<transaction|METHODS - Transactions> (C<MULTI>) mode.
 
-sub endpoint { shift->{endpoint} }
-
-=head2 local_endpoint
-
-A string describing the local endpoint, usually C<host:port>.
+See L<https://redis.io/topics/pipelining> for more details on this concept.
 
 =cut
 
-sub local_endpoint { shift->{local_endpoint} }
+sub pipeline_depth { shift->{pipeline_depth} //= 100 }
 
-=head2 connect
+=head2 opentracing
 
-Connects to the Redis server.
-
-Will use the L</configure>d parameters if available, but as a convenience
-can be passed additional parameters which will then be applied as if you
-had called L</configure> with those beforehand. This also means that they
-will be preserved for subsequent L</connect> calls.
+Indicates whether L<OpenTracing::Any> support is enabled.
 
 =cut
 
-sub connect : method {
-    my ($self, %args) = @_;
-    $self->configure(%args) if %args;
-    my $uri = $self->uri->clone;
-    for (qw(host port)) {
-        $uri->$_($self->$_) if defined $self->$_;
+sub opentracing { shift->{opentracing} }
+
+=head1 METHODS - Deprecated
+
+This are still supported, but no longer recommended.
+
+=cut
+
+sub bus {
+    shift->{bus} //= do {
+        require Mixin::Event::Dispatch::Bus;
+        Mixin::Event::Dispatch::Bus->VERSION(2.000);
+        Mixin::Event::Dispatch::Bus->new
     }
-
-    # 0 is the default anyway, no need to apply in that case
-    $uri->path('/' . $self->database) if $self->database;
-
-    my $auth = $self->{auth};
-    $auth //= ($uri->userinfo =~ s{^[^:]*:}{}r) if defined $uri->userinfo;
-    $self->{connection} //= $self->loop->connect(
-        service => $uri->port // 6379,
-        host    => $uri->host,
-        socktype => 'stream',
-    )->then(async sub {
-        my ($sock) = @_;
-        $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
-        $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
-        my $proto = $self->protocol;
-        my $stream = IO::Async::Stream->new(
-            handle              => $sock,
-            read_len            => $self->stream_read_len,
-            write_len           => $self->stream_write_len,
-            # Arbitrary multipliers for our stream values,
-            # in a memory-constrained environment it's expected
-            # that ->stream_read_len would be configured with
-            # low enough values for this not to be a concern.
-            read_high_watermark => 16 * $self->stream_read_len,
-            read_low_watermark  => 2 * $self->stream_read_len,
-            on_closed           => $self->curry::weak::notify_close,
-            on_read             => sub {
-                $proto->parse($_[1]);
-                0
-            }
-        );
-        $self->add_child($stream);
-        Scalar::Util::weaken(
-            $self->{stream} = $stream
-        );
-
-        try {
-            # Try issuing a HELLO to detect RESP3 or above
-            await $self->hello(
-                3, defined($auth) ? (
-                    qw(AUTH default), $auth
-                ) : (), defined($self->client_name) ? (
-                    qw(SETNAME), $self->client_name
-                ) : ()
-            );
-            $self->{protocol_level} = 'resp3';
-        } catch {
-            # If we had an auth failure or invalid client name, all bets are off:
-            # immediately raise those back to the caller
-            die $@ unless $@ =~ /ERR unknown command/;
-
-            $log->tracef('Older Redis version detected, dropping back to RESP2 protocol');
-            $self->{protocol_level} = 'resp2';
-
-            await $self->auth($auth) if defined $auth;
-            await $self->client_setname($self->client_name) if defined $self->client_name;
-        }
-
-        await $self->select($uri->database) if $uri->database;
-        return Future->done;
-    })->on_fail(sub { delete $self->{connection} })
-      ->on_cancel(sub { delete $self->{connection} });
 }
 
-=head2 connected
-
-Establishes a connection if needed, otherwise returns an immediately-available
-L<Future> instance.
+=head1 METHODS - Internal
 
 =cut
-
-sub connected {
-    my ($self) = @_;
-    return $self->{connection} if $self->{connection};
-    $self->connect;
-}
 
 =head2 on_message
 
@@ -651,6 +831,12 @@ sub on_message {
     $next->[1]->done($data);
 }
 
+=head2 next_in_pipeline
+
+Attempt to process next pending request when in pipeline mode.
+
+=cut
+
 sub next_in_pipeline {
     my ($self) = @_;
     my $depth = $self->pipeline_depth;
@@ -666,6 +852,12 @@ sub next_in_pipeline {
     return;
 }
 
+=head2 on_error_message
+
+
+
+=cut
+
 sub on_error_message {
     my ($self, $data) = @_;
     local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
@@ -674,6 +866,12 @@ sub on_error_message {
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $next->[1]->fail($data);
 }
+
+=head2 handle_pubsub_message
+
+Deal with an incoming pubsub-related message.
+
+=cut
 
 sub handle_pubsub_message {
     my ($self, $type, @details) = @_;
@@ -744,45 +942,6 @@ Represents the L<IO::Async::Stream> instance for the active Redis connection.
 
 sub stream { shift->{stream} }
 
-=head2 pipeline_depth
-
-Number of requests awaiting responses before we start queuing.
-This defaults to an arbitrary value of 100 requests.
-
-Note that this does not apply when in L<transaction|METHODS - Transactions> (C<MULTI>) mode.
-
-See L<https://redis.io/topics/pipelining> for more details on this concept.
-
-=cut
-
-sub pipeline_depth { shift->{pipeline_depth} //= 100 }
-
-=head2 opentracing
-
-Indicates whether L<OpenTracing::Any> support is enabled.
-
-=cut
-
-sub opentracing { shift->{opentracing} }
-
-=head1 METHODS - Deprecated
-
-This are still supported, but no longer recommended.
-
-=cut
-
-sub bus {
-    shift->{bus} //= do {
-        require Mixin::Event::Dispatch::Bus;
-        Mixin::Event::Dispatch::Bus->VERSION(2.000);
-        Mixin::Event::Dispatch::Bus->new
-    }
-}
-
-=head1 METHODS - Internal
-
-=cut
-
 =head2 notify_close
 
 Called when the socket is closed.
@@ -828,6 +987,12 @@ sub command_label {
     return join ' ', @cmd if $cmd[0] eq 'KEYS';
     return $cmd[0];
 }
+
+=head2 execute_command
+
+Queues or executes the given command.
+
+=cut
 
 sub execute_command {
     my ($self, @cmd) = @_;
@@ -877,6 +1042,12 @@ sub execute_command {
      ->retain;
 }
 
+=head2 ryu
+
+A L<Ryu::Async> instance for source/sink creation.
+
+=cut
+
 sub ryu {
     my ($self) = @_;
     $self->{ryu} ||= do {
@@ -887,10 +1058,23 @@ sub ryu {
     }
 }
 
+=head2 future
+
+Factory method for creating new L<Future> instances.
+
+=cut
+
 sub future {
     my ($self) = @_;
     return $self->loop->new_future(@_);
 }
+
+=head2 protocol
+
+Returns the L<Net::Async::Redis::Protocol> instance used for
+encoding and decoding messages.
+
+=cut
 
 sub protocol {
     my ($self) = @_;
@@ -904,35 +1088,11 @@ sub protocol {
     };
 }
 
-sub host { shift->{host} }
-sub port { shift->{port} }
-sub database { shift->{database} }
-sub uri { shift->{uri} //= URI->new('redis://localhost') }
+=head2 _init
 
-=head2 stream_read_len
 
-Defines the buffer size when reading from a Redis connection.
-
-Defaults to 1MB, reduce this if you're dealing with a lot of connections and
-want to minimise memory usage. Alternatively, if you're reading large amounts
-of data and spend too much time in needless C<epoll_wait> calls, try a larger
-value.
 
 =cut
-
-sub stream_read_len { shift->{stream_read_len} //= 1048576 }
-
-=head2 stream_write_len
-
-The buffer size when writing to Redis connections, in bytes. Defaults to 1MB.
-
-See L</stream_read_len>.
-
-=cut
-
-sub stream_write_len { shift->{stream_read_len} //= 1048576 }
-
-sub client_name { shift->{client_name} }
 
 sub _init {
     my ($self, @args) = @_;
@@ -944,77 +1104,11 @@ sub _init {
     $self->next::method(@args);
 }
 
-=head2 configure
+=head2 _add_to_loop
 
-Applies configuration parameters - currently supports:
 
-=over 4
-
-=item * C<host>
-
-=item * C<port>
-
-=item * C<auth>
-
-=item * C<database>
-
-=item * C<pipeline_depth>
-
-=item * C<stream_read_len>
-
-=item * C<stream_write_len>
-
-=item * C<on_disconnect>
-
-=item * C<client_name>
-
-=item * C<opentracing>
-
-=back
 
 =cut
-
-sub configure {
-    my ($self, %args) = @_;
-    for (qw(
-        host
-        port
-        auth
-        database
-        pipeline_depth
-        stream_read_len
-        stream_write_len
-        on_disconnect
-        client_name
-        opentracing
-    )) {
-        $self->{$_} = delete $args{$_} if exists $args{$_};
-    }
-
-    # Be more lenient with the URI parameter, since it's tedious to
-    # need the redis:// prefix every time... after all, what else
-    # would we expect it to be?
-    if(exists $args{uri}) {
-        my $uri = delete $args{uri};
-        $uri = "redis://$uri" unless ref($uri) or $uri =~ /^redis:/;
-        $self->{uri} = $uri;
-    }
-
-    if(exists $args{client_side_cache_size}) {
-        $self->{client_side_cache_size} = delete $args{client_side_cache_size};
-        delete $self->{client_side_cache};
-        if($self->loop) {
-            $self->remove_child(delete $self->{client_side_connection}) if $self->{client_side_connection};
-            $self->client_side_connection->retain;
-        }
-    }
-    my $uri = $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
-    if($uri) {
-        $self->{host} //= $uri->host;
-        $self->{port} //= $uri->port;
-    }
-    $self->next::method(%args)
-}
 
 sub _add_to_loop {
     my ($self, $loop) = @_;
