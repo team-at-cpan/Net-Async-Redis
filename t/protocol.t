@@ -40,6 +40,12 @@ my @resp3 = (
     [ ",1.23$Z" => 1.23, 'double' ],
     [ ",inf$Z" => 0+"Inf", 'infinity' ],
     [ ",-inf$Z" => 0+"-Inf", 'infinity' ],
+    # Requires some poking around in internals, since
+    # we would only need this for the server implementation
+    # have left it out for now.
+    # [ "#t$Z" => !!1, 'true' ],
+    # [ "#f$Z" => !!0, 'false' ],
+    [ "%2$Z+key$Z:1$Z+second$Z:2$Z", +{ key => 1, second => 2 }, 'map' ],
 );
 
 subtest decoding => sub {
