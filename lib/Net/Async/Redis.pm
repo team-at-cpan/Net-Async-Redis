@@ -403,11 +403,24 @@ async sub client_side_connection {
     return;
 }
 
+=head2 client_side_cache_ready
+
+Returns a L<Future> representing the client-side cache connection status,
+if there is one.
+
+=cut
+
 sub client_side_cache_ready {
     my ($self) = @_;
     my $f = $self->{client_side_cache_ready} or return Future->fail('client-side cache is not enabled');
     return $f->without_cancel;
 }
+
+=head2 client_side_cache
+
+Returns the L<Cache::LRU> instance used for the client-side cache.
+
+=cut
 
 sub client_side_cache {
     my ($self) = @_;
@@ -416,22 +429,33 @@ sub client_side_cache {
     );
 }
 
-sub client_side_cache_enabled { defined shift->{client_side_cache_size} }
+=head2 is_client_side_cache_enabled
+
+Returns true if the client-side cache is enabled.
+
+=cut
+
+sub is_client_side_cache_enabled { defined shift->{client_side_cache_size} }
+
+=head2 client_side_cache_size
+
+Returns the current client-side cache size, as a number of entries.
+
+=cut
 
 sub client_side_cache_size { shift->{client_side_cache_size} }
 
 around get => async sub {
     my ($code, $self, $k) = @_;
-    my $use_cache = $self->client_side_cache_enabled;
-    if($use_cache) {
-        $log->tracef('Check cache for [%s]', $k);
-        my $v = $self->client_side_cache->get($k);
-        return $v if defined $v;
-        $log->tracef('Key [%s] was not cached', $k);
-    }
-    my $v = await $self->$code($k);
-    $self->client_side_cache->set($k => $v) if $use_cache;
-    return $v;
+    return await $self->$code($k) unless $self->is_client_side_cache_enabled;
+
+    $log->tracef('Check cache for [%s]', $k);
+    my $v = $self->client_side_cache->get($k);
+    return $v if defined $v;
+    $log->tracef('Key [%s] was not cached', $k);
+    return await $self->$code($k)->on_done(sub {
+        $self->client_side_cache->set($k => shift)
+    });
 };
 
 
