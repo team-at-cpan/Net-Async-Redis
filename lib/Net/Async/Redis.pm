@@ -67,7 +67,7 @@ Current features include:
 
 =over 4
 
-=item * L<all commands|https://redis.io/commands> as of 6.0.7 (August 2020), see L<https://redis.io/commands> for the methods and parameters
+=item * L<all commands|https://redis.io/commands> as of 6.0.7 (September 2020), see L<https://redis.io/commands> for the methods and parameters
 
 =item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</METHODS - Subscriptions>
 
