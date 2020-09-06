@@ -44,7 +44,7 @@ sub encode {
         if($type eq 'ARRAY') {
             return '*' . (0 + @$data) . CRLF . join '', map $self->encode($_), @$data
         } elsif($type eq 'HASH') {
-            return '%' . (0 + keys %$data) . CRLF . join '', map $self->encode($_), %$data
+            return '%' . (0 + keys %$data) . CRLF . join '', map $self->encode($_), map { $_ => $data->{$_} } sort keys %$data
         }
         die 'no support for ' . $type
     }
