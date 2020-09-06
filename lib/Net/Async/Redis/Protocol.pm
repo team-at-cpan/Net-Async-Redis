@@ -25,7 +25,7 @@ use constant CRLF => "\x0D\x0A";
 # Regex usage
 my $CRLF = CRLF;
 
-sub new { bless { @_[1..$#_] }, $_[0] }
+sub new { bless { protocol => 'resp3', @_[1..$#_] }, $_[0] }
 
 =head2 encode
 
@@ -49,11 +49,13 @@ sub encode {
         die 'no support for ' . $type
     }
     if(!defined($data)) {
-        return '$-1' . CRLF;
+        return $self->{protocol} eq 'resp3' ? '_' . CRLF : '$-1' . CRLF;
     } elsif(!length($data)) {
         return '$0' . CRLF . CRLF;
     } elsif(($data ^ $data) eq "0" and int(0+$data) eq $data) {
         return ':' . (0 + $data) . CRLF;
+    } elsif(($data ^ $data) eq "0" and 0+$data eq $data) {
+        return ',' . (0 + $data) . CRLF;
     } elsif(length($data) < 100 and $data !~ /[$CRLF]/) {
         return '+' . $data . CRLF;
     }
