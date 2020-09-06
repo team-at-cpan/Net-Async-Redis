@@ -201,6 +201,12 @@ sub item_error {
     $self
 }
 
+sub item_pubsub {
+    my ($self, $item) = @_;
+    $self->{pubsub}->($item) if $self->{pubsub};
+    $self
+}
+
 1;
 
 __END__

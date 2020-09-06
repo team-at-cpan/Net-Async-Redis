@@ -263,9 +263,9 @@ Returns a L<Future> which resolves to a L<Net::Async::Redis::Subscription> insta
 
 async sub psubscribe {
     my ($self, $pattern) = @_;
+    $self->{pending_subscription_pattern_channel}{$pattern} //= $self->future('pattern_subscription[' . $pattern . ']');
     await $self->next::method($pattern);
     $self->{pubsub} //= 0;
-    $self->{pending_subscription_pattern_channel}{$pattern} //= $self->future('pattern_subscription[' . $pattern . ']');
     return $self->{subscription_pattern_channel}{$pattern} //= Net::Async::Redis::Subscription->new(
         redis   => $self,
         channel => $pattern
@@ -298,14 +298,14 @@ Example:
 
 async sub subscribe {
     my ($self, @channels) = @_;
+    my @pending = map {
+        $self->{pending_subscription_channel}{$_} //= $self->future('subscription[' . $_ . ']')
+    } @channels;
     await $self->next::method(@channels);
     $log->tracef('Marking as pubsub mode');
     $self->{pubsub} //= 0;
-    await Future->wait_all(
-        map {
-            $self->{pending_subscription_channel}{$_} //= $self->future('subscription[' . $_ . ']')
-        } @channels
-    );
+    await Future->wait_all(@pending);
+    $log->tracef('Susbcriptions established, we are go');
     return @{$self->{subscription_channel}}{@channels};
 }
 
@@ -608,7 +608,16 @@ sub on_message {
     my ($self, $data) = @_;
     local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
     $log->tracef('Incoming message: %s', $data);
-    return $self->handle_pubsub_message(@$data) if exists $self->{pubsub} and exists $SUBSCRIPTION_COMMANDS{uc $data->[0]};
+    if(ref $data eq 'ARRAY' and $data->[0] eq 'subscribe') {
+        my (undef, $chan, $count) = @$data;
+        $log->tracef('this is a subscription notification: %s with count %d', $chan, $count); 
+        if(my $f = delete $self->{pending_subscription_channel}{$chan}) {
+            $f->done unless $f->is_ready;
+        } else {
+            $log->warnf('Subscription notification for a channel that we were not expecting: %s', $chan);
+        }
+    }
+    return $self->handle_pubsub_message(@$data) if $self->{protocol_level} eq 'resp2' and exists $self->{pubsub} and exists $SUBSCRIPTION_COMMANDS{uc $data->[0]};
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
@@ -800,13 +809,13 @@ sub execute_command {
     my ($self, @cmd) = @_;
 
     # First, the rules: pubsub or plain
-    my $is_sub_command = exists $SUBSCRIPTION_COMMANDS{$cmd[0]};
+    my $is_sub_command = $self->{protocol_level} eq 'resp2' and exists $SUBSCRIPTION_COMMANDS{$cmd[0]};
     return Future->fail(
         'Currently in pubsub mode, cannot send regular commands until unsubscribed',
         redis =>
             0 + (keys %{$self->{subscription_channel}}),
             0 + (keys %{$self->{subscription_pattern_channel}})
-    ) if exists $self->{pubsub} and not exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
+    ) if $self->{protocol_level} ne 'resp3' and exists $self->{pubsub} and not exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
 
     my $f = $self->loop->new_future->set_label(
         $self->command_label(@cmd)
@@ -865,6 +874,7 @@ sub protocol {
         require Net::Async::Redis::Protocol;
         Net::Async::Redis::Protocol->new(
             handler => $self->curry::weak::on_message,
+            pubsub  => $self->curry::weak::handle_pubsub_message,
             error   => $self->curry::weak::on_error_message,
         )
     };
