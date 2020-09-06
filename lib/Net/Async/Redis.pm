@@ -518,6 +518,8 @@ sub connect : method {
     for (qw(host port)) {
         $uri->$_($self->$_) if defined $self->$_;
     }
+
+    # 0 is the default anyway, no need to apply in that case
     $uri->path('/' . $self->database) if $self->database;
 
     my $auth = $self->{auth};
@@ -532,13 +534,17 @@ sub connect : method {
         $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
         my $proto = $self->protocol;
         my $stream = IO::Async::Stream->new(
-            handle    => $sock,
-            read_len  => $self->stream_read_len,
-            write_len => $self->stream_write_len,
-            read_high_watermark => 8 * $self->stream_read_len,
+            handle              => $sock,
+            read_len            => $self->stream_read_len,
+            write_len           => $self->stream_write_len,
+            # Arbitrary multipliers for our stream values,
+            # in a memory-constrained environment it's expected
+            # that ->stream_read_len would be configured with
+            # low enough values for this not to be a concern.
+            read_high_watermark => 16 * $self->stream_read_len,
             read_low_watermark  => 2 * $self->stream_read_len,
-            on_closed => $self->curry::weak::notify_close,
-            on_read   => sub {
+            on_closed           => $self->curry::weak::notify_close,
+            on_read             => sub {
                 $proto->parse($_[1]);
                 0
             }
@@ -739,10 +745,14 @@ sub notify_close {
 
     # Also clear our connection future so that the next request is triggered appropriately
     delete $self->{connection};
+
     # Clear out anything in the pending queue - we normally wouldn't expect anything to
     # have ready status here, but no sense failing on a failure. Note that we aren't
     # filtering out the list via grep because some of these Futures may be interdependent.
-    !$_->[1]->is_ready && $_->[1]->fail('Server connection is no longer active', redis => 'disconnected') for splice @{$self->{pending}};
+    $_->[1]->fail(
+        'Server connection is no longer active',
+        redis => 'disconnected'
+    ) for grep { !$_->[1]->is_ready } splice @{$self->{pending}};
 
     # Subscriptions also need clearing up
     $_->cancel for values %{$self->{subscription_channel}};
@@ -933,6 +943,7 @@ sub configure {
         $uri = "redis://$uri" unless ref($uri) or $uri =~ /^redis:/;
         $self->{uri} = $uri;
     }
+
     if(exists $args{client_side_cache_size}) {
         $self->{client_side_cache_size} = delete $args{client_side_cache_size};
         delete $self->{client_side_cache};
@@ -980,6 +991,8 @@ have been new versions released since then
 pipelining and can handle newer commands via C<< ->command >>.
 
 =item * L<Redis> - synchronous (blocking) implementation, handles pub/sub and autoreconnect
+
+=item * L<HiRedis::Raw> - another C<hiredis> wrapper
 
 =back
 
