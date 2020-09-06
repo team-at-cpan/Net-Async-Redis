@@ -936,6 +936,7 @@ sub client_name { shift->{client_name} }
 
 sub _init {
     my ($self, @args) = @_;
+    $self->{protocol_level} //= 'resp2';
     $self->{pending_multi} //= [];
     $self->{pending} //= [];
     $self->{awaiting_pipeline} //= [];
