@@ -52,10 +52,10 @@ sub encode {
         return $self->{protocol} eq 'resp3' ? '_' . CRLF : '$-1' . CRLF;
     } elsif(!length($data)) {
         return '$0' . CRLF . CRLF;
-    } elsif(($data ^ $data) eq "0" and int(0+$data) eq $data) {
+    } elsif(($data ^ $data) eq "0" and int(0+$data) eq $data and lc($data) ne 'inf') {
         return ':' . (0 + $data) . CRLF;
     } elsif(($data ^ $data) eq "0" and 0+$data eq $data) {
-        return ',' . (0 + $data) . CRLF;
+        return ',' . lc(0 + $data) . CRLF;
     } elsif(length($data) < 100 and $data !~ /[$CRLF]/) {
         return '+' . $data . CRLF;
     }
@@ -112,7 +112,7 @@ sub decode {
             $self->item(0 + $int);
         } elsif(s{^,([^\x0D]*)$CRLF}{}) {
             my $num = $1;
-            die 'invalid numeric value ' . $num unless looks_like_number($num) && 0 + $num eq $num;
+            die 'invalid numeric value ' . $num unless looks_like_number($num) && lc(0 + $num) eq lc($num);
             $self->item(0 + $num);
         } elsif(s{^#([tf])$CRLF}{}) {
             $self->item($1 eq 't');
