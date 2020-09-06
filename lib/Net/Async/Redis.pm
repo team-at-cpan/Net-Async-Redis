@@ -57,7 +57,8 @@ L<https://redis.io/commands>
 
 This is intended to be a near-complete low-level client module for asynchronous Redis
 support. See L<Net::Async::Redis::Server> for a (limited) Perl server implementation.
-It is an unofficial Perl port and not endorsed by the Redis server maintainers in any
+
+This is an unofficial Perl port, and not endorsed by the Redis server maintainers in any
 way.
 
 =head2 Supported features
@@ -77,6 +78,8 @@ Current features include:
 =item * L<streams|https://redis.io/topics/streams-intro> and consumer groups, via L<Net::Async::Redis::Commands/XADD> and related methods
 
 =item * L<client-side caching|https://redis.io/topics/client-side-caching>, see L</METHODS - Clientside caching>
+
+=item * L<RESP3/https://github.com/antirez/RESP3/blob/master/spec.md> protocol for Redis 6 and above, allowing pubsub on the same connection as regular commands
 
 =back
 
@@ -195,6 +198,8 @@ L<OpenTracing::Any> for details.
 
 use constant OPENTRACING_ENABLED => $ENV{USE_OPENTRACING} // 0;
 
+# These only apply to the legacy RESP2 protocol. Since RESP3, connections
+# are no longer restricted once pubsub activity has started.
 our %ALLOWED_SUBSCRIPTION_COMMANDS = (
     SUBSCRIBE    => 1,
     PSUBSCRIBE   => 1,
@@ -204,6 +209,8 @@ our %ALLOWED_SUBSCRIPTION_COMMANDS = (
     QUIT         => 1,
 );
 
+# Any of these commands would necessitate switching a RESP2 connection into
+# a limited pubsub-only mode.
 our %SUBSCRIPTION_COMMANDS = (
     SUBSCRIBE    => 1,
     PSUBSCRIBE   => 1,
@@ -378,6 +385,7 @@ See L<https://redis.io/topics/client-side-caching> for more details on this feat
 async sub client_side_connection {
     my ($self) = @_;
     return if $self->{client_side_connection};
+
     my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
     $self->{client_side_connection} = my $redis = ref($self)->new(
         host => $self->host,
@@ -392,6 +400,7 @@ async sub client_side_connection {
         $self->client_side_cache->remove($_->payload);
     });
     $f->done;
+    return;
 }
 
 sub client_side_cache_ready {
@@ -408,6 +417,7 @@ sub client_side_cache {
 }
 
 sub client_side_cache_enabled { defined shift->{client_side_cache_size} }
+
 sub client_side_cache_size { shift->{client_side_cache_size} }
 
 around get => async sub {
@@ -446,8 +456,9 @@ on the C<__keyspace@*__> namespace, setting the configuration required
 for this to start emitting events, and then calls C<$code> with each
 event.
 
-Note that this will switch the connection into pubsub mode, so it will
-no longer be available for any other activity.
+Note that this will switch the connection into pubsub mode on versions
+of Redis older than 6.0, so it will no longer be available for any
+other activity. This limitation does not apply on Redis 6 or above.
 
 Resolves to a L<Ryu::Source> instance.
 

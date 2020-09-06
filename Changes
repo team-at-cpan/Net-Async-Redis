@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - RESP3 support, for Redis 6
+    - pubsub is now allowed on the same connection as
+    other traffic if the connection is in RESP3 mode
+    - protocol is autodetected via `HELLO` command,
+    pass `protocol => 'resp2'` to disable this
 
 2.007     2020-09-05 02:08:25+08:00 Asia/Kuala_Lumpur
     New features:
