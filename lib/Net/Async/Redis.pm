@@ -553,9 +553,30 @@ sub connect : method {
         Scalar::Util::weaken(
             $self->{stream} = $stream
         );
-        await $self->auth($auth) if defined $auth;
+
+        try {
+            # Try issuing a HELLO to detect RESP3 or above
+            await $self->hello(
+                3, defined($auth) ? (
+                    qw(AUTH default), $auth
+                ) : (), defined($self->client_name) ? (
+                    qw(SETNAME), $self->client_name
+                ) : ()
+            );
+            $self->{protocol_level} = 'resp3';
+        } catch {
+            # If we had an auth failure or invalid client name, all bets are off:
+            # immediately raise those back to the caller
+            die $@ unless $@ =~ /ERR unknown command/;
+
+            $log->tracef('Older Redis version detected, dropping back to RESP2 protocol');
+            $self->{protocol_level} = 'resp2';
+
+            await $self->auth($auth) if defined $auth;
+            await $self->client_setname($self->client_name) if defined $self->client_name;
+        }
+
         await $self->select($uri->database) if $uri->database;
-        await $self->client_setname($self->client_name) if defined $self->client_name;
         return Future->done;
     })->on_fail(sub { delete $self->{connection} })
       ->on_cancel(sub { delete $self->{connection} });
