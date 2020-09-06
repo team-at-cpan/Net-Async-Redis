@@ -52,7 +52,7 @@ sub encode {
         return $self->{protocol} eq 'resp3' ? '_' . CRLF : '$-1' . CRLF;
     } elsif(!length($data)) {
         return '$0' . CRLF . CRLF;
-    } elsif(($data ^ $data) eq "0" and int(0+$data) eq $data and lc($data) ne 'inf') {
+    } elsif(($data ^ $data) eq "0" and int(0+$data) eq $data and $data !~ /inf/i) {
         return ':' . (0 + $data) . CRLF;
     } elsif(($data ^ $data) eq "0" and 0+$data eq $data) {
         return ',' . lc(0 + $data) . CRLF;

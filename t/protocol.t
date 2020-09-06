@@ -39,6 +39,7 @@ my @resp3 = (
     [ "_$Z" => undef, 'single-character null' ],
     [ ",1.23$Z" => 1.23, 'double' ],
     [ ",inf$Z" => 0+"Inf", 'infinity' ],
+    [ ",-inf$Z" => 0+"-Inf", 'infinity' ],
 );
 
 subtest decoding => sub {
