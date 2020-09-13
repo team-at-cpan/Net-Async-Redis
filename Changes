@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.000     2020-09-14 02:00:10+08:00 Asia/Kuala_Lumpur
     New features:
 
     - RESP3 support, for Redis 6
