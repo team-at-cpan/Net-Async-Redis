@@ -811,6 +811,7 @@ item, depending on whether we're dealing with subscriptions at the moment.
 sub on_message {
     my ($self, $data) = @_;
     local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+
     $log->tracef('Incoming message: %s', $data);
     if(ref $data eq 'ARRAY' and $data->[0] eq 'subscribe') {
         my (undef, $chan, $count) = @$data;
@@ -854,7 +855,7 @@ sub next_in_pipeline {
 
 =head2 on_error_message
 
-
+Called when there's an error response.
 
 =cut
 
