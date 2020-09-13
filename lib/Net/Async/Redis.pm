@@ -9,7 +9,7 @@ use parent qw(
     IO::Async::Notifier
 );
 
-our $VERSION = '2.007';
+our $VERSION = '3.000';
 
 =head1 NAME
 
@@ -483,6 +483,15 @@ sub local_endpoint { shift->{local_endpoint} }
 See L<https://redis.io/topics/pubsub> for more details on this topic.
 There's also more details on the internal implementation in Redis here:
 L<https://making.pusher.com/redis-pubsub-under-the-hood/>.
+
+B<NOTE>: On Redis versions prior to 6.0, you will need a I<separate> connection
+for subscriptions; you cannot share a connection for regular requests once
+any of the L</subscribe> or L</psubscribe> methods have been called on an
+existing connection.
+
+With Redis 6.0, a newer protocol version (RESP3) is used by default, and
+this is quite happy to support pubsub activity on the same connection
+as other traffic.
 
 =cut
 
