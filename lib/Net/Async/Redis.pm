@@ -552,7 +552,6 @@ async sub subscribe {
         $self->{pending_subscription_channel}{$_} //= $self->future('subscription[' . $_ . ']')
     } @channels;
     await $self->next::method(@channels);
-    $log->tracef('Marking as pubsub mode');
     $self->{pubsub} //= 0;
     await Future->wait_all(@pending);
     $log->tracef('Susbcriptions established, we are go');
@@ -812,24 +811,27 @@ sub on_message {
     my ($self, $data) = @_;
     local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
 
-    $log->tracef('Incoming message: %s', $data);
-    if(ref $data eq 'ARRAY' and $data->[0] eq 'subscribe') {
-        my (undef, $chan, $count) = @$data;
-        $log->tracef('this is a subscription notification: %s with count %d', $chan, $count); 
-        if(my $f = delete $self->{pending_subscription_channel}{$chan}) {
-            $f->done unless $f->is_ready;
-        } else {
-            $log->warnf('Subscription notification for a channel that we were not expecting: %s', $chan);
+    $log->tracef('Incoming message: %s, pending = %s', $data, join ',', map { $_->[0] } $self->{pending}->@*) if $log->is_trace;
+
+    if(ref($data) eq 'ARRAY') {
+        if($self->{protocol_level} ne 'resp2') {
+            return $self->handle_pubsub_message(@$data) if $data->[0] =~ /^p?message$/;
+        } elsif(exists $self->{pubsub} and exists $SUBSCRIPTION_COMMANDS{uc $data->[0]}) {
+            return $self->handle_pubsub_message(@$data);
         }
     }
-    return $self->handle_pubsub_message(@$data) if $self->{protocol_level} eq 'resp2' and exists $self->{pubsub} and exists $SUBSCRIPTION_COMMANDS{uc $data->[0]};
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
     return if $next->[1]->is_cancelled;
+
     # This shouldn't happen, preferably
     $log->errorf("our [%s] entry is ready, original was [%s]??", $data, $next->[0]) if $next->[1]->is_ready;
     $next->[1]->done($data);
+
+    if(ref $data eq 'ARRAY' and $data->[0] =~ /subscribe/) {
+        return $self->handle_pubsub_response(@$data);
+    }
 }
 
 =head2 next_in_pipeline
@@ -913,7 +915,14 @@ sub handle_pubsub_message {
         return;
     }
 
+    # Looks like this isn't a message, it's a response to (un)subscribe
+    return $self->handle_pubsub_response($type, @details);
+}
+
+sub handle_pubsub_response {
+    my ($self, $type, @details) = @_;
     my ($channel, $payload) = @details;
+    $type = lc $type;
     my $k = (substr $type, 0, 1) eq 'p' ? 'subscription_pattern_channel' : 'subscription_channel';
     if($type =~ /unsubscribe$/) {
         --$self->{pubsub};
@@ -999,7 +1008,10 @@ sub execute_command {
     my ($self, @cmd) = @_;
 
     # First, the rules: pubsub or plain
-    my $is_sub_command = $self->{protocol_level} eq 'resp2' and exists $SUBSCRIPTION_COMMANDS{$cmd[0]};
+    my $is_sub_command = (
+        $self->{protocol_level} eq 'resp2' and exists $SUBSCRIPTION_COMMANDS{$cmd[0]}
+    );
+
     return Future->fail(
         'Currently in pubsub mode, cannot send regular commands until unsubscribed',
         redis =>
