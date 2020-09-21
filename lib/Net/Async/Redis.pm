@@ -882,6 +882,8 @@ sub on_error_message {
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $next->[1]->fail($data);
+    $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
+    return;
 }
 
 =head2 handle_pubsub_message
