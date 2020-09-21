@@ -289,7 +289,6 @@ sub configure {
         delete $self->{client_side_cache};
         if($self->loop) {
             $self->remove_child(delete $self->{client_side_connection}) if $self->{client_side_connection};
-            $self->client_side_connection->retain;
         }
     }
     my $uri = $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
@@ -1141,7 +1140,7 @@ sub _init {
 sub _add_to_loop {
     my ($self, $loop) = @_;
     delete $self->{client_side_connection};
-    $self->client_side_connection->retain if $self->client_side_cache_size;
+    # $self->client_side_connection->retain if $self->client_side_cache_size;
 }
 
 1;
