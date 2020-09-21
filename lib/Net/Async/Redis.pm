@@ -644,6 +644,12 @@ async sub client_side_connection {
     my ($self) = @_;
     return if $self->{client_side_connection};
 
+    if($self->{protocol_level} eq 'resp3') {
+        $self->{client_side_cache_ready} = Future->done;
+        Scalar::Util::weaken($self->{client_side_connection} = $self);
+        return;
+    }
+
     my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
     $self->{client_side_connection} = my $redis = ref($self)->new(
         host => $self->host,
