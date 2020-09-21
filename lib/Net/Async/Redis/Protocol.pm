@@ -192,6 +192,7 @@ sub item {
 
         # Skip attributes entirely for now
         return if $active->{type} eq 'attribute';
+        return $self->item_pubsub($data) if $active->{type} eq 'push';
     }
 }
 
@@ -203,7 +204,7 @@ sub item_error {
 
 sub item_pubsub {
     my ($self, $item) = @_;
-    $self->{pubsub}->($item) if $self->{pubsub};
+    $self->{pubsub}->(@$item) if $self->{pubsub};
     $self
 }
 
