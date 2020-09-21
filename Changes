@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.001     2020-09-22 01:51:28+08:00 Asia/Kuala_Lumpur
     New features:
 
     - RESP3 no longer establishes a separate client-side caching connection,
