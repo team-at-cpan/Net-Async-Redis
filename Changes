@@ -5,6 +5,7 @@ Revision history for {{$dist->name}}
 
     - RESP3 no longer establishes a separate client-side caching connection,
     since it can share the main connection
+    - `AUTH username password` from latest Redis now supported
 
     Bugs fixed:
 
