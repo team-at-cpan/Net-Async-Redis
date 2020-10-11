@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.002     2020-10-12 00:19:11+08:00 Asia/Kuala_Lumpur
     New features:
 
     - latest commands from 6.0.8, including LMOVE/BLMOVE
