@@ -25,7 +25,7 @@ use constant CRLF => "\x0D\x0A";
 # Regex usage
 my $CRLF = CRLF;
 
-sub new { bless { protocol => 'resp3', @_[1..$#_] }, $_[0] }
+sub new { bless { protocol => 'resp3', hashrefs => 0, @_[1..$#_] }, $_[0] }
 
 =head2 encode
 
@@ -182,6 +182,7 @@ sub parse { $_[0]->decode($_[1]) }
 
 sub item {
     my ($self, $data) = @_;
+    $data = [ %$data ] if ref $data eq 'HASH' and not $self->{hashrefs};
     while(1) {
         return $self->{handler}->($data) unless @{$self->{active} || []};
 
