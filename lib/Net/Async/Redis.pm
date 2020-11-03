@@ -284,6 +284,7 @@ sub configure {
     )) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
+    die 'invalid protocol requested: ' . $self->{protocol} if defined $self->{protocol} and not $self->{protocol} =~ /^resp[23]$/;
 
     # Be more lenient with the URI parameter, since it's tedious to
     # need the redis:// prefix every time... after all, what else
