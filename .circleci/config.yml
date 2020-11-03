@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  build:
+  redis6:
     docker:
     - image: tm604/perl-dzil
       environment:
@@ -24,7 +24,7 @@ jobs:
         key: cpan-{{ checksum "cpanfile" }}
         paths:
             - /usr/local/lib/perl5/site_perl
-  build:
+  redis5:
     docker:
     - image: tm604/perl-dzil
       environment:
