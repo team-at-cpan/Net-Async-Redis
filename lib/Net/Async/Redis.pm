@@ -308,7 +308,7 @@ sub configure {
         $self->{port} //= $uri->port;
     }
 
-    die 'hashref support requires RESP3 (Redis version 6+)' if defined $self->{protocol} and $self->{protocol} eq 'resp3' and $self->{hashrefs};
+    die 'hashref support requires RESP3 (Redis version 6+)' if defined $self->{protocol} and $self->{protocol} eq 'resp2' and $self->{hashrefs};
     $self->next::method(%args)
 }
 
