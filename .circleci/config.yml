@@ -48,3 +48,10 @@ jobs:
         key: cpan-{{ checksum "cpanfile" }}
         paths:
             - /usr/local/lib/perl5/site_perl
+
+workflows:
+  build-workflow:
+    jobs:
+    - redis5
+    - redis6
+
