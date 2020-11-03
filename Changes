@@ -1,6 +1,14 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - RESP3 protocol changes (enabled by default in earlier versions of this module)
+    meant that you'd end up with hashrefs or arrayrefs depending on what version
+    of Redis you were connecting to. This behaviour is now controlled by the
+    `hashrefs` configuration option, and is disabled by default even under RESP3.
 
 3.002     2020-10-12 00:19:11+08:00 Asia/Kuala_Lumpur
     New features:
