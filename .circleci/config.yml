@@ -16,10 +16,6 @@ jobs:
           cpanm -n --installdeps --with-develop .
           dzil build && perl Makefile.PL && make && make test
         name: Run tests
-    - run:
-        command: |
-          cover -test -report coveralls
-        name: Coverage
     - save_cache:
         key: cpan-{{ checksum "cpanfile" }}
         paths:
@@ -40,10 +36,6 @@ jobs:
           cpanm -n --installdeps --with-develop .
           dzil build && perl Makefile.PL && make && make test
         name: Run tests
-    - run:
-        command: |
-          cover -test -report coveralls
-        name: Coverage
     - save_cache:
         key: cpan-{{ checksum "cpanfile" }}
         paths:
