@@ -1,0 +1,49 @@
+version: 2.1
+jobs:
+  redis6:
+    docker:
+    - image: tm604/perl-dzil
+      environment:
+        NET_ASYNC_REDIS_HOST: 127.0.0.1
+    - image: redis:6
+    steps:
+    - checkout
+    - restore_cache:
+        key: cpan-{{ checksum "cpanfile" }}
+    - run:
+        command: |
+          cpanm -n $(dzil authordeps)
+          cpanm -n --installdeps --with-develop .
+          dzil build && perl Makefile.PL && make && make test
+        name: Run tests
+    - save_cache:
+        key: cpan-{{ checksum "cpanfile" }}
+        paths:
+            - /usr/local/lib/perl5/site_perl
+  redis5:
+    docker:
+    - image: tm604/perl-dzil
+      environment:
+        NET_ASYNC_REDIS_HOST: 127.0.0.1
+    - image: redis:5
+    steps:
+    - checkout
+    - restore_cache:
+        key: cpan-{{ checksum "cpanfile" }}
+    - run:
+        command: |
+          cpanm -n $(dzil authordeps)
+          cpanm -n --installdeps --with-develop .
+          dzil build && perl Makefile.PL && make && make test
+        name: Run tests
+    - save_cache:
+        key: cpan-{{ checksum "cpanfile" }}
+        paths:
+            - /usr/local/lib/perl5/site_perl
+
+workflows:
+  build-workflow:
+    jobs:
+    - redis5
+    - redis6
+
