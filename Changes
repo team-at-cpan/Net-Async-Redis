@@ -1,6 +1,12 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    No new features.
+
+    Bugs fixed:
+
+    - top-level hashes also now follow the `hashrefs` configuration option,
+    this affects methods such as `->xreadgroup`.
 
 3.003     2020-11-03 13:58:00+08:00 Asia/Kuala_Lumpur
     No new features.

@@ -189,7 +189,12 @@ sub item {
         push @{$self->{active}[-1]{items}}, $data;
         return if --$self->{active}[-1]{pending};
         my $active = pop @{$self->{active}};
-        $data = $active->{type} eq 'map' ? { @{$active->{items}} } : $active->{items};
+        $data = $active->{type} eq 'map'
+        ? ($self->{hashrefs}
+            ? { @{$active->{items}} }
+            : [ @{$active->{items}} ]
+        )
+        : $active->{items};
 
         # Skip attributes entirely for now
         return if $active->{type} eq 'attribute';
