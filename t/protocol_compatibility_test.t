@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 
 use Future::AsyncAwait;
+use Syntax::Keyword::Try;
 
 use IO::Async::Loop;
 use Net::Async::Redis;
@@ -48,18 +49,21 @@ subtest 'xread family' => sub {
     (async sub {
         my @responses;
         for my $redis ($redis5, $redis6) {
-            await $redis->xadd('first_stream', '1', key => 'value');
-            await $redis->xadd('second_stream', '1', key => 'value');
+            try {
+                await $redis->xadd('first_stream', '1', key => 'value');
+                await $redis->xadd('second_stream', '1', key => 'value');
 
-            await $redis->xgroup('create', 'first_stream', 'group1', 0);
-            await $redis->xgroup('create', 'second_stream', 'group1', 0);
+                await $redis->xgroup('create', 'first_stream', 'group1', 0);
+                await $redis->xgroup('create', 'second_stream', 'group1', 0);
 
-            my $response = await $redis->xread('streams', 'first_stream', 'second_stream', 0, 0);
-            push @responses, dummy_sort($response);
+                my $response = await $redis->xread('streams', 'first_stream', 'second_stream', 0, 0);
+                push @responses, dummy_sort($response);
 
-            $response = await $redis->xreadgroup(group => 'group1', 'innocent_consumer', 'streams', 'first_stream', 'second_stream', '>', '>');
-            push @responses, dummy_sort($response);
-
+                $response = await $redis->xreadgroup(group => 'group1', 'innocent_consumer', 'streams', 'first_stream', 'second_stream', '>', '>');
+                push @responses, dummy_sort($response);
+            } catch($e) {
+                is($e, undef, 'should not have an error');
+            }
 
             await $redis->xgroup('destroy', 'first_stream', 'group1');
             await $redis->xgroup('destroy', 'second_stream', 'group1');
@@ -78,21 +82,24 @@ subtest 'zrange family' => sub {
     (async sub {
         my @responses;
         for my $redis ($redis5, $redis6) {
-            for my $score (1..5) {
-                await $redis->zadd('sorted-set', $score, 'val_'.$score);
-            }
+            try {
+                for my $score (1..5) {
+                    await $redis->zadd('sorted-set', $score, 'val_'.$score);
+                }
  
-            my $response = await $redis->zrange('sorted-set', 0, -1, 'WITHSCORES');
-            push @responses, $response;
+                my $response = await $redis->zrange('sorted-set', 0, -1, 'WITHSCORES');
+                push @responses, $response;
 
-            $response = await $redis->zrangebyscore('sorted-set', 0, -1, 'WITHSCORES');
-            push @responses, $response;
+                $response = await $redis->zrangebyscore('sorted-set', 0, -1, 'WITHSCORES');
+                push @responses, $response;
 
-            $response = await $redis->zrevrange('sorted-set', -1, 0, 'WITHSCORES');
-            push @responses, $response;
+                $response = await $redis->zrevrange('sorted-set', -1, 0, 'WITHSCORES');
+                push @responses, $response;
 
-            $response = await $redis->zrevrangebyscore('sorted-set', -1, 0, 'WITHSCORES');
-
+                $response = await $redis->zrevrangebyscore('sorted-set', -1, 0, 'WITHSCORES');
+            } catch($e) {
+                is($e, undef, 'should not have an error');
+            }
             await $redis->del('sorted-set');
 
         }
