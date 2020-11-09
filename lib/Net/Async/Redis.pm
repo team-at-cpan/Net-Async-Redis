@@ -1096,6 +1096,46 @@ sub execute_command {
      ->retain;
 }
 
+=head2 RESP3 and RESP2 compatibility
+
+In RESP3 some of the responses are structured differently from RESP2 L<Net::Async::Redis> guarantees the same structure unless you have explicitly requested the new types
+
+=cut
+
+around [qw(xread xreadgroup)] => async sub {
+    my ($code, $self, @args) = @_;
+    return await $self->$code(@args) if $self->{hashrefs};
+
+    return await $self->$code(@args)->transform(done => sub {
+        my $response = shift;
+        # protocol_level is detected while connecting checking before this point is wrong.
+        return $response if $self->{protocol_level} eq 'resp2';
+
+        my $compatible_response = [];
+        for my $stream (keys $response->%*) {
+            push $compatible_response->@*, [$stream, $response->{$stream}];
+        }
+        $log->tracef('Transformed response of xread/xreadgroup into RESP2 format: from %s to %s', $response, $compatible_response);
+        return $compatible_response;
+    });
+};
+
+around [qw(zrange zrangebyscore zrevrange zrevrangebyscore)] => async sub {
+    my ($code, $self, @args) = @_;
+    return await $self->$code(@args) if $self->{hashrefs};
+    
+    return await $self->$code(@args)->transform(done => sub {
+        my $response = shift;
+
+        if (ref $response->[0] eq 'ARRAY') {
+            my @compatible_response = map { $_->@* } $response->@*;
+            return \@compatible_response; 
+        } else {
+            return $response;
+        }
+    });
+};
+
 =head2 ryu
 
 A L<Ryu::Async> instance for source/sink creation.
