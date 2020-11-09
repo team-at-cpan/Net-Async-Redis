@@ -182,19 +182,13 @@ sub parse { $_[0]->decode($_[1]) }
 
 sub item {
     my ($self, $data) = @_;
-    $data = [ %$data ] if ref $data eq 'HASH' and not $self->{hashrefs};
     while(1) {
         return $self->{handler}->($data) unless @{$self->{active} || []};
 
         push @{$self->{active}[-1]{items}}, $data;
         return if --$self->{active}[-1]{pending};
         my $active = pop @{$self->{active}};
-        $data = $active->{type} eq 'map'
-        ? ($self->{hashrefs}
-            ? { @{$active->{items}} }
-            : [ @{$active->{items}} ]
-        )
-        : $active->{items};
+        $data = $active->{type} eq 'map'? { @{$active->{items}} }: $active->{items};
 
         # Skip attributes entirely for now
         return if $active->{type} eq 'attribute';
