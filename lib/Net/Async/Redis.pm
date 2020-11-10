@@ -1112,8 +1112,9 @@ around [qw(xread xreadgroup)] => async sub {
     return $response if $self->{protocol_level} eq 'resp2';
 
     my $compatible_response = [];
-    for my $stream (keys $response->%*) {
-        push $compatible_response->@*, [$stream, $response->{$stream}];
+    my %response_hash = $response->@*;
+    for my $stream (keys %response_hash) {
+        push $compatible_response->@*, [$stream, $response_hash{$stream}];
     }
     $log->tracef('Transformed response of xread/xreadgroup into RESP2 format: from %s to %s', $response, $compatible_response);
 
