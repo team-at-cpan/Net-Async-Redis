@@ -1110,11 +1110,7 @@ around [qw(xread xreadgroup)] => async sub {
     # protocol_level is detected while connecting checking before this point is wrong.
     return $response if $self->{protocol_level} eq 'resp2' || $self->{hashrefs};
 
-    my $compatible_response = [];
-    my %response_hash = $response->@*;
-    for my $stream (keys %response_hash) {
-        push $compatible_response->@*, [$stream, $response_hash{$stream}];
-    }
+    my $compatible_response = [ pairmap { [ $a, $b ] } $response->@* ];
     $log->tracef('Transformed response of xread/xreadgroup into RESP2 format: from %s to %s', $response, $compatible_response);
 
     return $compatible_response;
