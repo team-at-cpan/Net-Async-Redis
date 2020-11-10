@@ -86,7 +86,7 @@ subtest 'zrange family' => sub {
                 for my $score (1..5) {
                     await $redis->zadd('sorted-set', $score, 'val_'.$score);
                 }
- 
+
                 my $response = await $redis->zrange('sorted-set', 0, -1, 'WITHSCORES');
                 push @responses, $response;
 
