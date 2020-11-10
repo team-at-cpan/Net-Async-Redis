@@ -1105,12 +1105,10 @@ L<Net::Async::Redis> guarantees the same structure unless you have explicitly re
 
 around [qw(xread xreadgroup)] => async sub {
     my ($code, $self, @args) = @_;
-    return await $self->$code(@args) if $self->{hashrefs};
-
     my $response = await $self->$code(@args);
 
     # protocol_level is detected while connecting checking before this point is wrong.
-    return $response if $self->{protocol_level} eq 'resp2';
+    return $response if $self->{protocol_level} eq 'resp2' || $self->{hashrefs};
 
     my $compatible_response = [];
     my %response_hash = $response->@*;
@@ -1268,4 +1266,3 @@ tests and feedback:
 
 Copyright Tom Molesworth and others 2015-2020.
 Licensed under the same terms as Perl itself.
-
