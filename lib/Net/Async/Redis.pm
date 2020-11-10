@@ -1098,7 +1098,8 @@ sub execute_command {
 
 =head2 RESP3 and RESP2 compatibility
 
-In RESP3 some of the responses are structured differently from RESP2 L<Net::Async::Redis> guarantees the same structure unless you have explicitly requested the new types
+In RESP3 some of the responses are structured differently from RESP2 
+L<Net::Async::Redis> guarantees the same structure unless you have explicitly requested the new types
 
 =cut
 
