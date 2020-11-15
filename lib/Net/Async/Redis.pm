@@ -141,6 +141,17 @@ note that these are two very different methods:
 Typical async code would not be expected to use the L<Future/get> method extensively;
 often only calling it in one place at the top level in the code.
 
+=head3 RESP3 and RESP2 compatibility
+
+In RESP3 some of the responses are structured differently from RESP2.
+L<Net::Async::Redis> guarantees the same structure unless you have explicitly requested the new types
+using the L</configure> C<hashrefs> option, which is disabled by default.
+
+Generally RESP3 is recommended if you have Redis version 6 or later installed: it allows
+subscription operations to share the same connection as regular Redis traffic.
+
+=cut
+
 =head2 Error handling
 
 Since L<Future> is used for deferred results, failure is indicated
@@ -1095,13 +1106,6 @@ sub execute_command {
     )->then($code)
      ->retain;
 }
-
-=head2 RESP3 and RESP2 compatibility
-
-In RESP3 some of the responses are structured differently from RESP2 
-L<Net::Async::Redis> guarantees the same structure unless you have explicitly requested the new types
-
-=cut
 
 around [qw(xread xreadgroup)] => async sub {
     my ($code, $self, @args) = @_;
