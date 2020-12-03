@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - latest commands from 6.0.9
+    - ->copy is now supported (from latest Redis release)
+    - stream handling now documents `MKSTREAM` and `NOMKSTREAM`,
+    and updates the trimming to mention `~` (approximate) and `=`
+    (exact) modes for removing old entries
 
 3.005     2020-11-16 05:20:49+08:00 Asia/Kuala_Lumpur
     New features:
