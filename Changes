@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.007     2020-12-31 07:23:30+08:00 Asia/Kuala_Lumpur
     New features:
 
     - latest commands from 6.2
