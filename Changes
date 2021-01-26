@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Bugs fixed:
+
+    - XGROUP KEY_FINDER index was wrong.
+    - PUBLISH/SUSBSCRIBE were not in the KEY_FINDER index.
+    - Net::Async::Redis::Cluster was ignoring the protocol compatibility layer.
 
 3.008     2021-01-17 01:29:19+08:00 Asia/Kuala_Lumpur
     New features:
