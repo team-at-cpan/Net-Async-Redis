@@ -7,7 +7,7 @@ use Syntax::Keyword::Try;
 use Future::AsyncAwait;
 
 use Test::More;
-use Test::Fatal qw(dies_ok lives_ok);
+use Test::Fatal qw(lives_ok exception);
 use Test::MockModule;
 use Net::Async::Redis::Cluster;
 use IO::Async::Loop;
@@ -78,12 +78,13 @@ subtest 'Should abort if the cluster has invalid node(s)' => sub {
         ]);
     });
 
-    dies_ok {
-        $cluster->bootstrap(
-            host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
-            port => 6379
-        )->get();
-    }, 'Cluster bootstrap should throw an exception';
+    like(
+        exception {
+            $cluster->bootstrap(
+                host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
+                port => 6379
+            )->get();
+    }, qr/invalid primary/, 'Cluster bootstrap should throw an exception');
 };
 
 # Migrate a slot to the server who owns the slot in the next param

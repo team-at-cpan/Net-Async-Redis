@@ -7,10 +7,12 @@ use warnings;
 
 use parent qw(IO::Async::Notifier);
 
+use Scalar::Util qw(refaddr);
 use Future::AsyncAwait;
 
 use overload
     '""' => sub { 'NaRedis::Cluster::Node[id=' . shift->id . ']' },
+    '0+' => sub { refaddr(shift) },
     bool => sub { 1 },
     fallback => 1;
 
