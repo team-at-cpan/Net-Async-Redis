@@ -58,7 +58,7 @@ subtest 'General cluster behaviour' => sub {
             $log->errorf('error %s', $@);
             my ($err, $key, $host_port) = split ' ', $@;
             $log->errorf('Failed - %s - where key was %s, new target is %s', $err, $key, $host_port);
-            my $node = $cluster->register_moved_slot($key => $host_port);
+            my $node = await $cluster->register_moved_slot($key => $host_port);
             $log->infof('New node is %s', $node);
             is($node, $cluster->node_for_slot($key));
         }
