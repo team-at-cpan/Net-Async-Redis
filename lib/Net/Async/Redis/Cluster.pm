@@ -270,7 +270,17 @@ async sub execute_command {
     my $redis = await $self->connection_for_slot($slot);
     # Some commands have modifiers around them for RESP2/3 transparent support
     my $command = lc(shift @cmd);
-    return await $redis->$command(@cmd);
+    try {
+        return await $redis->$command(@cmd);
+    } catch ($e) {
+        if ($e =~ 'MOVED') {
+            my ($moved, $key, $host_port) = split ' ', $@;
+            $self->register_moved_slot($key => $host_port);
+            return await $self->execute_command(uc($command), @cmd);
+        } else {
+            die $e;
+        }
+    }
 }
 
 1;

@@ -28,6 +28,7 @@ sub from_arrayref {
     die 'invalid start' if $start > $end or $start < 0 or $start >= 16384;
     die 'invalid end' if $end >= 16384;
     die 'no primary found' unless $primary;
+    die 'invalid primary' unless $primary->[0] ne "" && $primary->[1] > 0;
     return $class->new(
         start    => $start,
         end      => $end,
@@ -35,6 +36,7 @@ sub from_arrayref {
         replicas => \@replicas,
     )
 }
+
 sub start { shift->{start} }
 sub end { shift->{end} }
 sub primary { shift->{primary} }
