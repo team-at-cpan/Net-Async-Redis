@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - ->bootstrap will now fail if the cluster's nodes addresses are not initiated.
+    - cluster->execute_command will now redirect the command to the correct node 
+      if 'MOVED' error received.
 
 3.009     2021-01-27 06:33:18+08:00 Asia/Kuala_Lumpur
     No new features.
