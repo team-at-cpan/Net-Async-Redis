@@ -218,9 +218,26 @@ sub node_by_host_port {
     return $node;
 }
 
-sub register_moved_slot {
+async sub register_moved_slot {
     my ($self, $slot, $host_port) = @_;
-    my $node = $self->node_by_host_port(split /:/, $host_port);
+    my ($host, $port) = split /:/, $host_port;
+    my $node = $self->node_by_host_port($host, $port);
+     if(!$node) {
+        $log->tracef("Failed to find node %s:%s in the original node list", $host, $port);
+        # Has a replica become a primary? let's look for a vaild node
+        my $valid_connection;
+        for my $node ($self->{nodes}->@*) {
+            try {
+                $valid_connection = await $node->primary_connection;
+            } catch {
+                $log->tracef("Node at %s was invalid", $node->primary);
+            }
+        }
+        die 'Cluster status changed and cannot find a valid information source' unless $valid_connection;
+        await $self->apply_slots_from_instance($valid_connection);
+        # Try again else propgate failure
+        $node = $self->node_by_host_port($host, $port) or die "Slot $slot has been moved to unknown node";
+    }
     $self->slot_cache->[$slot & (MAX_SLOTS - 1)] = $node;
     return $node;
 }
@@ -270,7 +287,17 @@ async sub execute_command {
     my $redis = await $self->connection_for_slot($slot);
     # Some commands have modifiers around them for RESP2/3 transparent support
     my $command = lc(shift @cmd);
-    return await $redis->$command(@cmd);
+    try {
+        return await $redis->$command(@cmd);
+    } catch ($e) {
+        if ($e =~ 'MOVED') {
+            my ($moved, $slot, $host_port) = split ' ', $@;
+            await $self->register_moved_slot($slot => $host_port);
+            return await $self->execute_command(uc($command), @cmd);
+        } else {
+            die $e;
+        }
+    }
 }
 
 1;
