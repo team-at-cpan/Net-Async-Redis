@@ -57,6 +57,7 @@ proxy routing dæmon, or a service mesh such as L<https://istio.io/|istio>.
 no indirect;
 use Syntax::Keyword::Try;
 use Future::AsyncAwait;
+use Future::Utils qw(fmap_void);
 use List::BinarySearch::XS qw(binsearch);
 use List::UtilsBy qw(nsort_by);
 use List::Util qw(first);
@@ -222,21 +223,24 @@ async sub register_moved_slot {
     my ($self, $slot, $host_port) = @_;
     my ($host, $port) = split /:/, $host_port;
     my $node = $self->node_by_host_port($host, $port);
-     if(!$node) {
+    unless($node) {
         $log->tracef("Failed to find node %s:%s in the original node list", $host, $port);
-        # Has a replica become a primary? let's look for a vaild node
-        my $valid_connection;
-        for my $node ($self->{nodes}->@*) {
+        # Has a replica become a primary? Let's look for a valid node
+        await fmap_void(async sub {
+            my ($node) = @_;
             try {
-                $valid_connection = await $node->primary_connection;
+                my $valid_connection = await $node->primary_connection;
+                die 'Cluster status changed and cannot find a valid information source' unless $valid_connection;
+                # We'll let *all* our nodes try to tell us about slots, the operation
+                # should be atomic so whichever one(s) succeed are hopefully consistent
+                await $self->apply_slots_from_instance($valid_connection);
             } catch {
                 $log->tracef("Node at %s was invalid", $node->primary);
             }
-        }
-        die 'Cluster status changed and cannot find a valid information source' unless $valid_connection;
-        await $self->apply_slots_from_instance($valid_connection);
+        }, concurrent => 4, foreach => [ $self->{nodes}->@* ]);
         # Try again else propgate failure
-        $node = $self->node_by_host_port($host, $port) or die "Slot $slot has been moved to unknown node";
+        $node = $self->node_by_host_port($host, $port)
+            or die "Slot $slot has been moved to unknown node";
     }
     $self->slot_cache->[$slot & (MAX_SLOTS - 1)] = $node;
     return $node;
@@ -286,17 +290,15 @@ async sub execute_command {
     $log->tracef('Look up hash slot for %s - %d', $k, $slot);
     my $redis = await $self->connection_for_slot($slot);
     # Some commands have modifiers around them for RESP2/3 transparent support
-    my $command = lc(shift @cmd);
+    my ($command, @args) = @cmd;
     try {
-        return await $redis->$command(@cmd);
+        $command = lc $command;
+        return await $redis->$command(@args);
     } catch ($e) {
-        if ($e =~ 'MOVED') {
-            my ($moved, $slot, $host_port) = split ' ', $@;
-            await $self->register_moved_slot($slot => $host_port);
-            return await $self->execute_command(uc($command), @cmd);
-        } else {
-            die $e;
-        }
+        die $e unless $e =~ /MOVED/;
+        my ($moved, $slot, $host_port) = split ' ', $e;
+        await $self->register_moved_slot($slot => $host_port);
+        return await $self->execute_command(@cmd);
     }
 }
 
