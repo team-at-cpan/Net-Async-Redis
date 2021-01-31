@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - latest commands from 6.2
+    - this includes ->getdel, ->getex, ->zrandfield
 
 3.009     2021-01-27 06:33:18+08:00 Asia/Kuala_Lumpur
     No new features.
