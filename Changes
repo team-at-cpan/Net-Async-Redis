@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.010     2021-02-01 04:56:52+08:00 Asia/Kuala_Lumpur
     New features:
 
     - ->bootstrap will now fail if the cluster's nodes addresses are not initiated.
