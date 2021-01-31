@@ -109,12 +109,14 @@ async sub migrate_slot {
 };
 
 subtest 'Should redirect request to correct node if MOVED error occurred' => sub {
-    $loop->add(my $cluster = Net::Async::Redis::Cluster->new);
+    $loop->add(
+        my $cluster = Net::Async::Redis::Cluster->new
+    );
     (async sub {
         await $cluster->bootstrap(
             host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
             port => 6379
-        ); 
+        );
 
         try {
             # Migrate slot 3544 to the second server
@@ -128,7 +130,7 @@ subtest 'Should redirect request to correct node if MOVED error occurred' => sub
             # Migrate slot 3544 back
             migrate_slot($cluster, 3544, 1)->get();
         }
-    })->()->get();    
+    })->()->get();
 };
 
 done_testing;
