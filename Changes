@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - ->failover added from latest commands list
 
 3.010     2021-02-01 04:56:52+08:00 Asia/Kuala_Lumpur
     New features:
