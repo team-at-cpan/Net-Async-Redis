@@ -3284,6 +3284,29 @@ sub debug_segfault : method {
     $self->execute_command(qw(DEBUG SEGFAULT) => @args)
 }
 
+=head2 failover
+
+Start a coordinated failover between this server and one of its replicas.
+
+=over 4
+
+=item * [TO host port [FORCE]]
+
+=item * [ABORT]
+
+=item * [TIMEOUT milliseconds]
+
+=back
+
+L<https://redis.io/commands/failover>
+
+=cut
+
+sub failover : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(FAILOVER) => @args)
+}
+
 =head2 flushall
 
 Remove all keys from all databases.
