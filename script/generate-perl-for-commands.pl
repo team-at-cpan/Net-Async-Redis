@@ -145,7 +145,7 @@ Tom Molesworth <TEAM@cpan.org>
 
 =head1 LICENSE
 
-Copyright Tom Molesworth 2015-2020. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth 2015-2021. Licensed under the same terms as Perl itself.
 
 }, {
     commands => \%commands_by_group,
