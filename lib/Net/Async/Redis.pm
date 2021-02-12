@@ -9,7 +9,7 @@ use parent qw(
     IO::Async::Notifier
 );
 
-our $VERSION = '3.011';
+our $VERSION = '3.012';
 
 =head1 NAME
 
@@ -1116,7 +1116,7 @@ sub execute_command {
         return $f
     };
     $log->tracef(
-        'Multi %s with %d pending and connected state %s', 
+        'Multi %s with %d pending and connected state %s',
         $self->{_is_multi},
         0 + @{$self->{pending_multi}},
         $self->connected->state,

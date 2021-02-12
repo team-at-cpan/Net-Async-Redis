@@ -1,6 +1,15 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    New features:
+
+    - automatic connection and queuing is now more reliable, you should only
+    need `await $redis->connected` in a few cases now
+    - acess to client-side invalidation events, for implementing observables
+
+    Bugs fixed:
+
+    - various issues with client-side caching resolved
 
 3.011     2021-02-03 03:43:05+08:00 Asia/Kuala_Lumpur
     New features:
