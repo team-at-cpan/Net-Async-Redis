@@ -177,7 +177,7 @@ use Metrics::Any qw($metrics), strict => 0;
 use OpenTracing::Any qw($tracer);
 
 use List::Util qw(pairmap);
-use Scalar::Util qw(reftype blessed);
+use Scalar::Util qw(reftype blessed refaddr);
 
 use Net::Async::Redis::Multi;
 use Net::Async::Redis::Subscription;
@@ -1229,7 +1229,13 @@ async sub enable_clientside_cache {
         $log->tracef('Invalidating key %s', $_);
         $self->client_side_cache->remove($_);
     });
-    await $self->client_tracking('on');
+
+    # In a multi-connection setup, e.g. RESP2, the notifications need to be
+    # delivered to the subscription connection via `REDIRECT`
+    my @args = refaddr($self) != refaddr($redis)
+    ? (redirect => await $redis->id)
+    : ();
+    await $self->client_tracking('on', @args);
     $f->done;
 }
 
