@@ -1315,6 +1315,8 @@ tests and feedback:
 
 =item * Nael Alolwani
 
+=item * Marc Frank
+
 =back
 
 =head1 LICENSE

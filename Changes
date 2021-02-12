@@ -10,6 +10,8 @@ Revision history for {{$dist->name}}
     Bugs fixed:
 
     - various issues with client-side caching resolved
+    - in cluster mode, XREAD could fail due to incorrect node lookup for key
+    (Github #23, thanks to Marc Frank for the patch)
 
 3.011     2021-02-03 03:43:05+08:00 Asia/Kuala_Lumpur
     New features:
