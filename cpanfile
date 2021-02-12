@@ -3,6 +3,7 @@ requires 'curry', 0;
 requires 'Future', '>= 0.47';
 requires 'Future::AsyncAwait', '>= 0.47';
 requires 'Syntax::Keyword::Try', '>= 0.21';
+requires 'Syntax::Keyword::Dynamically', '>= 0.06';
 requires 'IO::Async', 0;
 requires 'Ryu::Async', '>= 0.019';
 requires 'List::Util', '>= 1.55';
@@ -13,7 +14,6 @@ requires 'Class::Method::Modifiers', 0;
 requires 'Math::Random::Secure', 0;
 requires 'OpenTracing::Any', '>= 1.003';
 requires 'Metrics::Any', 0;
-requires 'Syntax::Keyword::Dynamically', '>= 0.06';
 
 # Client-side caching
 requires 'Cache::LRU', '>= 0.04';
