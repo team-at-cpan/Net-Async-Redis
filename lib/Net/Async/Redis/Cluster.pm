@@ -274,7 +274,7 @@ async sub execute_command {
     my ($self, @cmd) = @_;
     $log->tracef('Will execute %s on cluster', join(' ', @cmd));
     my $k;
-    if($cmd[0] eq 'XREADGROUP') {
+    if($cmd[0] eq 'XREADGROUP' or $cmd[0] eq 'XREAD') {
         my ($idx) = grep { $cmd[$_] eq 'STREAMS' } 0..$#cmd;
         $k = $cmd[$idx + 1];
     } else {
