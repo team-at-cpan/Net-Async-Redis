@@ -22,12 +22,9 @@ Net::Async::Redis - talk to Redis servers via L<IO::Async>
     use IO::Async::Loop;
     my $loop = IO::Async::Loop->new;
     $loop->add(my $redis = Net::Async::Redis->new);
-    (async sub {
-     await $redis->connect;
-     my $value = await $redis->get('some_key');
-     $value ||= await $redis->set(some_key => 'some_value');
-     print "Value: $value";
-    })->()->get;
+    my $value = await $redis->get('some_key');
+    $value ||= await $redis->set(some_key => 'some_value');
+    print "Value: $value\n";
 
     # You can also use ->then chaining, see L<Future> for more details
     $redis->connect->then(sub {
@@ -39,12 +36,6 @@ Net::Async::Redis - talk to Redis servers via L<IO::Async>
     })->on_done(sub {
         print "Value: " . shift;
     })->get;
-
-    # ... or with Future::AsyncAwait (recommended)
-    await $redis->connect;
-    my $value = await $redis->get('some_key');
-    $value ||= await $redis->set(some_key => 'some_value');
-    print "Value: $value";
 
 =head1 DESCRIPTION
 
