@@ -163,6 +163,7 @@ Note that this module uses L<Future::AsyncAwait> internally.
 use mro;
 use Class::Method::Modifiers;
 use Syntax::Keyword::Try;
+use Syntax::Keyword::Dynamically;
 use curry::weak;
 use Future::AsyncAwait;
 use IO::Async::Stream;
@@ -405,6 +406,7 @@ sub connect : method {
 
     my $auth = $self->{auth};
     $auth //= ($uri->userinfo =~ s{^[^:]*:}{}r) if defined $uri->userinfo;
+    $log->tracef('About to start connection to %s', "$uri");
     $self->{connection} //= $self->loop->connect(
         service => $uri->port // 6379,
         host    => $uri->host,
@@ -440,6 +442,7 @@ sub connect : method {
             die 'ERR unknown command' if $self->{protocol} and $self->{protocol} eq 'resp2';
 
             # Try issuing a HELLO to detect RESP3 or above
+            dynamically $self->{connection_in_progress} = 1;
             await $self->hello(
                 3, defined($auth) ? (
                     qw(AUTH default), $auth
@@ -465,11 +468,22 @@ sub connect : method {
             $proto->{hashrefs} = $self->{hashrefs};
             $proto->{protocol} = $self->{protocol_level};
 
+            dynamically $self->{connection_in_progress} = 1;
             await $self->auth($auth) if defined $auth;
+            dynamically $self->{connection_in_progress} = 1;
             await $self->client_setname($self->client_name) if defined $self->client_name;
         }
 
-        await $self->select($uri->database) if $uri->database;
+        if($uri->database) {
+            $log->tracef('Select database %s', $uri->database);
+            dynamically $self->{connection_in_progress} = 1;
+            await $self->select($uri->database);
+        }
+        if($self->is_client_side_cache_enabled) {
+            $log->tracef('Client-side cache requested');
+            dynamically $self->{connection_in_progress} = 1;
+            await $self->client_side_connection;
+        }
         return Future->done;
     })->on_fail(sub { delete $self->{connection} })
       ->on_cancel(sub { delete $self->{connection} });
@@ -673,24 +687,31 @@ async sub client_side_connection {
     if($self->{protocol_level} eq 'resp3') {
         $self->{client_side_cache_ready} = Future->done;
         Scalar::Util::weaken($self->{client_side_connection} = $self);
+        await $self->enable_clientside_cache($self);
         return;
     }
 
-    my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
     $self->{client_side_connection} = my $redis = ref($self)->new(
         host => $self->host,
         port => $self->port,
         auth => $self->{auth},
     );
     $self->add_child($redis);
-    my $id = await $redis->client_id;
-    my $sub = await $redis->subscribe('__redis__:invalidate');
-    $sub->events->each(sub {
-        $log->tracef('Invalidating key %s', $_->payload);
-        $self->client_side_cache->remove($_->payload);
-    });
-    $f->done;
+    await $self->enable_clientside_cache($redis);
     return;
+}
+
+=head2 clientside_cache_events
+
+A L<Ryu::Source> which emits key names as they are invalidated.
+
+With client-side caching enabled, can be used to monitor which keys
+are changing.
+
+=cut
+
+sub clientside_cache_events {
+    shift->{clientside_cache_events} // die 'no client-side cache available yet'
 }
 
 =head2 client_side_cache_ready
@@ -725,7 +746,7 @@ Returns true if the client-side cache is enabled.
 
 =cut
 
-sub is_client_side_cache_enabled { defined shift->{client_side_cache_size} }
+sub is_client_side_cache_enabled { (shift->{client_side_cache_size} // 0) > 0 }
 
 =head2 client_side_cache_size
 
@@ -955,6 +976,14 @@ sub handle_pubsub_message {
         $self->bus->invoke_event(message => [ $type, $channel, $payload ]) if exists $self->{bus};
         return;
     }
+    if($type =~ /invalidate$/) {
+        my ($channel) = @details;
+        for my $k ($channel->@*) {
+            $log->tracef('have invalidation type %s with channel %s', $type, $k);
+            $self->clientside_cache_events->emit($k);
+        }
+        return;
+    }
 
     # Looks like this isn't a message, it's a response to (un)subscribe
     return $self->handle_pubsub_response($type, @details);
@@ -1086,9 +1115,18 @@ sub execute_command {
         $self->stream->write($data);
         return $f
     };
-    return $code->()->retain if $self->{stream} and ($self->{is_multi} or 0 == @{$self->{pending_multi}});
+    $log->tracef(
+        'Multi %s with %d pending and connected state %s', 
+        $self->{_is_multi},
+        0 + @{$self->{pending_multi}},
+        $self->connected->state,
+    );
     return (
-        $self->{_is_multi}
+        # Is this a command issued during the initial connection phase?
+        $self->{connection_in_progress}
+        ? Future->done
+        # Are we the owner of a current MULTI transaction?
+        : $self->{_is_multi}
         ? $self->connected
         : Future->wait_all(
             $self->connected,
@@ -1174,6 +1212,27 @@ sub wire_protocol {
     };
 }
 
+=head2 enable_clientside_cache
+
+Used internally to prepare for client-side caching: subscribes to the
+invalidation events.
+
+=cut
+
+async sub enable_clientside_cache {
+    my ($self, $redis) = @_;
+    my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
+
+    my $sub = await $redis->subscribe('__redis__:invalidate');
+    $self->{clientside_cache_events} = $sub->events;
+    $sub->events->each(sub {
+        $log->tracef('Invalidating key %s', $_);
+        $self->client_side_cache->remove($_);
+    });
+    await $self->client_tracking('on');
+    $f->done;
+}
+
 =head2 _init
 
 
@@ -1199,7 +1258,6 @@ sub _init {
 sub _add_to_loop {
     my ($self, $loop) = @_;
     delete $self->{client_side_connection};
-    # $self->client_side_connection->retain if $self->client_side_cache_size;
 }
 
 1;
