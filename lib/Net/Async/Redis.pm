@@ -1149,21 +1149,27 @@ around [qw(xread xreadgroup)] => async sub {
     return $compatible_response;
 };
 
-around [qw(zrange zrangebyscore zrevrange zrevrangebyscore)] => async sub {
-    my ($code, $self, @args) = @_;
-    return await $self->$code(@args) if $self->{hashrefs};
+# These have different behaviours depending on whether we use the RESP3
+# data structures (hashes etc.) or original RESP2 everything-is-an-array.
+for my $method (qw(zrange zrangebyscore zrevrange zrevrangebyscore)) {
+    around $method => async sub {
+        my ($code, $self, @args) = @_;
+        return await $self->$code(@args) if $self->{hashrefs};
 
-    my $response = await $self->$code(@args);
+        my $response = await $self->$code(@args);
+        return $response unless ref $response->[0] eq 'ARRAY';
 
-    if (ref $response->[0] eq 'ARRAY') {
-        my @compatible_response = map { $_->@* } $response->@*;
-        $log->tracef('Transformed resposne of z(rev)range(byscore) into RESP2 format: from %s, to %s', $response, [@compatible_response]);
+        my $compatible_response = [ map { $_->@* } $response->@* ];
+        $log->tracef(
+            'Transformed response of %s into RESP2 format: from %s, to %s',
+            $method,
+            $response,
+            $compatible_response
+        );
 
-        return \@compatible_response;
-    } else {
-        return $response;
-    }
-};
+        return $compatible_response;
+    };
+}
 
 =head2 ryu
 
