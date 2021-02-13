@@ -12,6 +12,8 @@ Revision history for {{$dist->name}}
     - various issues with client-side caching resolved
     - in cluster mode, XREAD could fail due to incorrect node lookup for key
     (Github #23, thanks to Marc Frank for the patch)
+    - the stream read/write lengths were using the same internal key,
+    so any changes to one value would affect the other as well
 
 3.011     2021-02-03 03:43:05+08:00 Asia/Kuala_Lumpur
     New features:
