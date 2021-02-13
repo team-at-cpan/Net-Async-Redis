@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Deep;
 use Test::Fatal;
 
 use Net::Async::Redis;
@@ -44,6 +45,14 @@ use Future::AsyncAwait;
     await $main->set('some_key', 123);
     is((await $main->get('some_key')), 123, 'key was set correctly');
     ok($main->get('some_key')->is_done, '->get now returns immediate future');
+    await $main->set('some_key', 456);
+    is((await $main->get('some_key')), 456, 'key change picked up correctly');
+    cmp_deeply([ await Future->needs_all(
+        $main->get('some_key'),
+        $main->get('some_key'),
+        $main->get('some_key'),
+        $main->get('some_key'),
+    ) ], bag(qw(456) x 4), 'multiple requests all return the same value');
 })->()->get;
 
 done_testing;
