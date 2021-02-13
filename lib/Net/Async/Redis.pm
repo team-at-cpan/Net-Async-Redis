@@ -871,7 +871,8 @@ item, depending on whether we're dealing with subscriptions at the moment.
 
 sub on_message {
     my ($self, $data) = @_;
-    dynamically @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+    dynamically $log->{context}{redis_remote} = $self->endpoint;
+    dynamically $log->{context}{redis_local} = $self->local_endpoint;
 
     $log->tracef('Incoming message: %s, pending = %s', $data, join ',', map { $_->[0] } $self->{pending}->@*) if $log->is_trace;
 
@@ -923,7 +924,8 @@ Called when there's an error response.
 
 sub on_error_message {
     my ($self, $data) = @_;
-    dynamically @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+    dynamically $log->{context}{redis_remote} = $self->endpoint;
+    dynamically $log->{context}{redis_local} = $self->local_endpoint;
     $log->tracef('Incoming error message: %s', $data);
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
@@ -1097,7 +1099,8 @@ sub execute_command {
     $tracer->span_for_future($f) if $self->opentracing;
     $log->tracef("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
     my $code = sub {
-        dynamically @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+        dynamically $log->{context}{redis_remote} = $self->endpoint;
+        dynamically $log->{context}{redis_local} = $self->local_endpoint;
         my $cmd = join ' ', @cmd;
         $log->tracef('Outgoing [%s]', $cmd);
         my $depth = $self->pipeline_depth;
