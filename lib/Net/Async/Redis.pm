@@ -370,7 +370,7 @@ See L</stream_read_len>.
 
 =cut
 
-sub stream_write_len { shift->{stream_read_len} //= 1048576 }
+sub stream_write_len { shift->{stream_write_len} //= 1048576 }
 
 =head2 client_name
 
@@ -656,7 +656,7 @@ async sub multi {
         @pending
     ) if @pending;
     await do {
-        local $self->{_is_multi} = 1;
+        dynamically $self->{_is_multi} = 1;
         Net::Async::Redis::Commands::multi($self);
     };
     return await $multi->exec($code)
@@ -664,7 +664,7 @@ async sub multi {
 
 around [qw(discard exec)] => sub {
     my ($code, $self, @args) = @_;
-    local $self->{_is_multi} = 1;
+    dynamically $self->{_is_multi} = 1;
     my $f = $self->$code(@args);
     (shift @{$self->{pending_multi}})->done;
     $f->retain
@@ -871,7 +871,8 @@ item, depending on whether we're dealing with subscriptions at the moment.
 
 sub on_message {
     my ($self, $data) = @_;
-    local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+    dynamically $log->{context}{redis_remote} = $self->endpoint;
+    dynamically $log->{context}{redis_local} = $self->local_endpoint;
 
     $log->tracef('Incoming message: %s, pending = %s', $data, join ',', map { $_->[0] } $self->{pending}->@*) if $log->is_trace;
 
@@ -923,7 +924,8 @@ Called when there's an error response.
 
 sub on_error_message {
     my ($self, $data) = @_;
-    local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+    dynamically $log->{context}{redis_remote} = $self->endpoint;
+    dynamically $log->{context}{redis_local} = $self->local_endpoint;
     $log->tracef('Incoming error message: %s', $data);
 
     my $next = shift @{$self->{pending}} or die "No pending handler";
@@ -1097,7 +1099,8 @@ sub execute_command {
     $tracer->span_for_future($f) if $self->opentracing;
     $log->tracef("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
     my $code = sub {
-        local @{$log->{context}}{qw(redis_remote redis_local)} = ($self->endpoint, $self->local_endpoint);
+        dynamically $log->{context}{redis_remote} = $self->endpoint;
+        dynamically $log->{context}{redis_local} = $self->local_endpoint;
         my $cmd = join ' ', @cmd;
         $log->tracef('Outgoing [%s]', $cmd);
         my $depth = $self->pipeline_depth;
@@ -1149,21 +1152,27 @@ around [qw(xread xreadgroup)] => async sub {
     return $compatible_response;
 };
 
-around [qw(zrange zrangebyscore zrevrange zrevrangebyscore)] => async sub {
-    my ($code, $self, @args) = @_;
-    return await $self->$code(@args) if $self->{hashrefs};
+# These have different behaviours depending on whether we use the RESP3
+# data structures (hashes etc.) or original RESP2 everything-is-an-array.
+for my $method (qw(zrange zrangebyscore zrevrange zrevrangebyscore)) {
+    around $method => async sub {
+        my ($code, $self, @args) = @_;
+        return await $self->$code(@args) if $self->{hashrefs};
 
-    my $response = await $self->$code(@args);
+        my $response = await $self->$code(@args);
+        return $response unless ref $response->[0] eq 'ARRAY';
 
-    if (ref $response->[0] eq 'ARRAY') {
-        my @compatible_response = map { $_->@* } $response->@*;
-        $log->tracef('Transformed resposne of z(rev)range(byscore) into RESP2 format: from %s, to %s', $response, [@compatible_response]);
+        my $compatible_response = [ map { $_->@* } $response->@* ];
+        $log->tracef(
+            'Transformed response of %s into RESP2 format: from %s, to %s',
+            $method,
+            $response,
+            $compatible_response
+        );
 
-        return \@compatible_response;
-    } else {
-        return $response;
-    }
-};
+        return $compatible_response;
+    };
+}
 
 =head2 ryu
 
