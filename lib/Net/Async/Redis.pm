@@ -370,7 +370,7 @@ See L</stream_read_len>.
 
 =cut
 
-sub stream_write_len { shift->{stream_read_len} //= 1048576 }
+sub stream_write_len { shift->{stream_write_len} //= 1048576 }
 
 =head2 client_name
 
