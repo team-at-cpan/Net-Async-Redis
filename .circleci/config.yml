@@ -70,7 +70,7 @@ jobs:
     - image: redis:5
       name: redis5
     - image: redis:6.2
-      name: redis62
+      name: redis6
 
     steps:
     - checkout
@@ -92,5 +92,6 @@ workflows:
     jobs:
     - redis5
     - redis6
+    - redis62
     - compatibility
 
