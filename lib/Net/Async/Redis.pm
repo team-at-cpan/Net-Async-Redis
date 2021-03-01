@@ -760,13 +760,39 @@ around get => async sub {
     my ($code, $self, $k) = @_;
     return await $self->$code($k) unless $self->is_client_side_cache_enabled;
 
+    my $cache = $self->client_side_cache;
     $log->tracef('Check cache for [%s]', $k);
-    my $v = $self->client_side_cache->get($k);
-    return $v if defined $v;
+
+    my $v = $cache->get($k);
+    if(ref $v) {
+        $log->tracef('Key [%s] already being requested, joining', $k);
+        return await $v->without_cancel;
+    } else {
+        return $v if exists $cache->{_entries}{$k};
+    }
+
     $log->tracef('Key [%s] was not cached', $k);
-    return await $self->$code($k)->on_done(sub {
-        $self->client_side_cache->set($k => shift)
+    my $f = $self->$code($k);
+    # Set our cache entry regardless of whether it completes
+    # immediately or not...
+    $cache->set(
+        $k => $f
+    );
+    # ... and then rewrite or remove the cache entry once we get a response:
+    $f->on_ready(sub {
+        my $f = shift;
+        if($f->is_done) {
+            # If we had an invalidation message, we may have removed
+            # our cache entry already: we shouldn't cache this value if so.
+            $cache->set($k => $f->get)
+                if exists $cache->{_entries}{$k};
+        } else {
+            # Clear up after any failure or cancellation,
+            # since they may be temporary
+            $cache->remove($k);
+        }
     });
+    return await $f;
 };
 
 
