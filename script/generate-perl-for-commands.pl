@@ -32,8 +32,10 @@ $html->eof;
 my %commands_by_group;
 my @commands;
 my %key_finder = (
-    PUBLISH => 1,
+    PUBLISH   => 1,
     SUBSCRIBE => 1,
+    # This one is not detected correctly - thankfully it's always XINFO [CONSUMER|GROUP|STREAM] key
+    XINFO     => 2,
 );
 for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
     my ($txt) = $cmd->parent->attr('href') =~ m{/commands/([\w-]+)$} or die "failed on " . $cmd->as_text;
@@ -53,7 +55,7 @@ for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
     my @args = $info->{args}->@*;
     if(defined(my $idx = first { $args[$_] =~ /\bkey\b/ } 0..$#args)) {
         warn "have key for $idx";
-        $key_finder{$info->{command}} = (0 + split(' ', $command)) + $idx;
+        $key_finder{$info->{command}} //= (0 + split(' ', $command)) + $idx;
     }
     $info->{summary} =~ s{\.$}{};
     $log->debugf("Adding command %s", $info);
