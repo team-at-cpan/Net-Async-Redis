@@ -144,7 +144,7 @@ our %KEY_FINDER = (
     'XCLAIM' => 1,
     'XDEL' => 1,
     'XGROUP' => 2,
-    'XINFO' => 1,
+    'XINFO' => 2,
     'XLEN' => 1,
     'XPENDING' => 1,
     'XRANGE' => 1,
@@ -704,6 +704,8 @@ Kill the connection of a client.
 =item * [USER username]
 
 =item * [ADDR ip:port]
+
+=item * [LADDR ip:port]
 
 =item * [SKIPME yes/no]
 
