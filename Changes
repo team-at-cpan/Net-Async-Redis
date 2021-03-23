@@ -14,6 +14,8 @@ Revision history for {{$dist->name}}
     (Github #23, thanks to Marc Frank for the patch)
     - the stream read/write lengths were using the same internal key,
     so any changes to one value would affect the other as well
+    - XINFO was mapping to the wrong key in cluster mode, thanks to Eyad for
+    catching and fixing this
 
 3.011     2021-02-03 03:43:05+08:00 Asia/Kuala_Lumpur
     New features:
