@@ -764,6 +764,9 @@ Returns the current client-side cache size, as a number of entries.
 
 sub client_side_cache_size { shift->{client_side_cache_size} }
 
+# For now, we're only caching the GET/SET requests. Client-side caching
+# support in the Redis server covers other commands, though: eventually
+# we'll be extending this for all read commands.
 around get => async sub {
     my ($code, $self, $k) = @_;
     return await $self->$code($k) unless $self->is_client_side_cache_enabled;
