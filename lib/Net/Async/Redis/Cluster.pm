@@ -206,10 +206,29 @@ sub node_for_slot {
     };
 }
 
+sub ryu { shift->{ryu} }
+
+sub _add_to_loop {
+    my ($self) = @_;
+    $self->add_child(
+        $self->{ryu} = Ryu::Async->new
+    );
+}
+
+sub clientside_cache_events {
+    my ($self) = @_;
+    $self->{clientside_cache_events} ||= $self->ryu->source;
+}
+
 async sub connection_for_slot {
     my ($self, $slot) = @_;
     my $node = $self->node_for_slot($slot) or die 'no node found for slot';
-    return await $node->primary_connection;
+    my $conn = await $node->primary_connection;
+    unless($self->{seen_connection}{$conn}) {
+        $self->clientside_cache_events->emit_from($conn->clientside_cache_events)
+            if $self->is_client_side_cache_enabled;
+    }
+    return $conn;
 }
 
 sub node_by_host_port {
