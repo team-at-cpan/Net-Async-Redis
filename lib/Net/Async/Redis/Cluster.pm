@@ -57,7 +57,7 @@ proxy routing dæmon, or a service mesh such as L<https://istio.io/|istio>.
 no indirect;
 use Syntax::Keyword::Try;
 use Future::AsyncAwait;
-use Future::Utils qw(fmap_void);
+use Future::Utils qw(fmap_void fmap_concat);
 use List::BinarySearch::XS qw(binsearch);
 use List::UtilsBy qw(nsort_by);
 use List::Util qw(first);
@@ -362,6 +362,21 @@ sub ryu {
         );
         $ryu
     }
+}
+
+async sub watch_keyspace {
+    my ($self, $pattern) = @_;
+    my @sub = await fmap_concat { 
+        $_->primary_connection->then(sub {
+            shift->watch_keyspace($pattern);
+        });
+    } foreach => [$self->{nodes}->@*], concurrent => 4;
+    my $combined = Net::Async::Redis::Subscription->new(
+        redis   => await $self->{nodes}->[0]->primary_connection,
+        channel => $pattern
+    );
+    $combined->events->emit_from(map { $_ } @sub);
+    return $combined;
 }
 
 1;
