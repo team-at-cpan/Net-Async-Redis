@@ -269,7 +269,7 @@ sub node_by_host_port {
 
 =head2 register_moved_slot
 
-When get MOVED error we will use this 
+When we get MOVED error we will use this
 sub to rebuild the slot cache
 
 =cut
@@ -339,8 +339,8 @@ async sub apply_slots_from_instance {
 
 =head2 execute_command
 
-Lookup the correct node for the key, if there is 
-a mismatch between our slot hashes and Redis's hashes
+Lookup the correct node for the key then execute the command on that node,
+if there is a mismatch between our slot hashes and Redis's hashes 
 we will attempt to rebuild the slot hashes and try again
 
 =cut
