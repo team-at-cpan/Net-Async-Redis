@@ -267,6 +267,13 @@ sub node_by_host_port {
     return $node;
 }
 
+=head2 register_moved_slot
+
+When get MOVED error we will use this 
+sub to rebuild the slot cache
+
+=cut
+
 async sub register_moved_slot {
     my ($self, $slot, $host_port) = @_;
     my ($host, $port) = split /:/, $host_port;
@@ -293,6 +300,14 @@ async sub register_moved_slot {
     $self->slot_cache->[$slot & (MAX_SLOTS - 1)] = $node;
     return $node;
 }
+
+=head2 apply_slots_from_instance
+
+Connect to a random instance in the cluster
+and execute CLUSTER SLOTS to get information
+about the slots and their distribution.
+
+=cut
 
 async sub apply_slots_from_instance {
     my ($self, $redis) = @_;
@@ -321,6 +336,14 @@ async sub apply_slots_from_instance {
 
     $self->replace_nodes(\@nodes);
 }
+
+=head2 execute_command
+
+Lookup the correct node for the key, if there is 
+a mismatch between our slot hashes and Redis's hashes
+we will attempt to rebuild the slot hashes and try again
+
+=cut
 
 async sub execute_command {
     my ($self, @cmd) = @_;
@@ -354,6 +377,12 @@ async sub execute_command {
     }
 }
 
+=head2 ryu
+
+A L<Ryu::Async> instance for source/sink creation.
+
+=cut
+
 sub ryu {
     my ($self) = @_;
     $self->{ryu} ||= do {
@@ -364,6 +393,13 @@ sub ryu {
     }
 }
 
+=head2 watch_keyspace
+
+To watch keyspace notifications across the cluster
+this sub will subscribe to all primary nodes
+
+=cut
+
 async sub watch_keyspace {
     my ($self, $pattern) = @_;
     my @sub = await fmap_concat { 
@@ -371,11 +407,13 @@ async sub watch_keyspace {
             shift->watch_keyspace($pattern);
         });
     } foreach => [$self->{nodes}->@*], concurrent => 4;
+
     my $combined = Net::Async::Redis::Subscription->new(
-        redis   => await $self->{nodes}->[0]->primary_connection,
+        redis   => $self,
         channel => $pattern
     );
-    $combined->events->emit_from(map { $_ } @sub);
+
+    $combined->events->emit_from(@sub);
     return $combined;
 }
 
