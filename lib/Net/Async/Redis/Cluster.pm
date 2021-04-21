@@ -152,7 +152,7 @@ sub clientside_cache_events {
 
 async sub node_connection_established {
     my ($self, $node, $redis) = @_;
-    $self->clientside_cache_events->emit_from($redis->clientside_cache_events);
+    $self->clientside_cache_events->emit_from($redis->clientside_cache_events) if $redis->is_client_side_cache_enabled;
     return;
 }
 
