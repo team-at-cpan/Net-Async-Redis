@@ -88,6 +88,19 @@ BEGIN {
     ) =~ tr/1/1/;
 }
 
+our @CONFIG_KEYS = qw(
+    auth
+    pipeline_depth
+    stream_read_len
+    stream_write_len
+    on_disconnect
+    client_name
+    opentracing
+    protocol
+    hashrefs
+    client_side_cache_size
+);
+
 =head1 METHODS
 
 =head2 bootstrap
@@ -122,6 +135,41 @@ async sub bootstrap {
     } finally {
         $redis->remove_from_parent if $redis;
     }
+}
+
+=head2 clientside_cache_events
+
+Provides combined stream of clientside-cache events from all known Redis primary nodes.
+
+=cut
+
+sub clientside_cache_events {
+    my ($self) = @_;
+    $self->{clientside_cache_events} ||= do {
+        $self->ryu->source;
+    };
+}
+
+async sub node_connection_established {
+    my ($self, $node, $redis) = @_;
+    $self->clientside_cache_events->emit_from($redis->clientside_cache_events);
+    return;
+}
+
+sub node_config {
+    my ($self) = @_;
+    return %{$self}{grep exists $self->{$_}, @CONFIG_KEYS};
+}
+
+sub configure {
+    my ($self, %args) = @_;
+    for (@CONFIG_KEYS) {
+        $self->{$_} = delete $args{$_} if exists $args{$_};
+    }
+    die 'invalid protocol requested: ' . $self->{protocol} if defined $self->{protocol} and not $self->{protocol} =~ /^resp[23]$/;
+
+    die 'hashref support requires RESP3 (Redis version 6+)' if defined $self->{protocol} and $self->{protocol} eq 'resp2' and $self->{hashrefs};
+    return $self->next::method(%args);
 }
 
 sub _init {
@@ -253,7 +301,11 @@ async sub apply_slots_from_instance {
 
     my @nodes;
     for my $slot_data (nsort_by { $_->[0] } $slots->@*) {
-        my $node = Net::Async::Redis::Cluster::Node->from_arrayref($slot_data);
+        my $node = Net::Async::Redis::Cluster::Node->from_arrayref(
+            $slot_data,
+            cluster => $self,
+            $self->node_config
+        );
         $log->tracef(
             'Node %s (%s) handles slots %d-%d and has %d replica(s) - %s',
             $node->id,
@@ -299,6 +351,16 @@ async sub execute_command {
         my ($moved, $slot, $host_port) = split ' ', $e;
         await $self->register_moved_slot($slot => $host_port);
         return await $self->execute_command(@cmd);
+    }
+}
+
+sub ryu {
+    my ($self) = @_;
+    $self->{ryu} ||= do {
+        $self->add_child(
+            my $ryu = Ryu::Async->new
+        );
+        $ryu
     }
 }
 
