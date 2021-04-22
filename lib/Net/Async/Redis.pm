@@ -58,7 +58,7 @@ Current features include:
 
 =over 4
 
-=item * L<all commands|https://redis.io/commands> as of 6.2 (February 2021), see L<https://redis.io/commands> for the methods and parameters
+=item * L<all commands|https://redis.io/commands> as of 6.2 (April 2021), see L<https://redis.io/commands> for the methods and parameters
 
 =item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</METHODS - Subscriptions>
 
@@ -86,25 +86,22 @@ add this to an L<IO::Async::Loop>:
 
 then connect to the server:
 
-    $redis->connect
-        ->then(sub {
-            # You could achieve a similar result by passing client_name in
-            # constructor or ->connect parameters
-            $redis->client_setname("example client")
-        })->get;
+    use Future::AsyncAwait;
+    await $redis->connect;
+    # You could achieve a similar result by passing client_name in
+    # constructor or ->connect parameters
+    await $redis->client_setname("example client");
 
 =head2 Key-value handling
 
 One of the most common Redis scenarios is as a key/value store. The L</get> and L</set>
 methods are typically used here:
 
- $redis->set(some_key => 'some value')
-  ->then(sub {
-   $redis->get('some_key')
-  })->on_done(sub {
-   my ($value) = @_;
-   print "Read back value [$value]\n";
-  })->retain;
+    use Future::AsyncAwait;
+    await $redis->connect;
+    $redis->set(some_key => 'some value');
+    my ($value) = await $redis->get('some_key');
+    print "Read back value [$value]\n";
 
 See the next section for more information on what these methods are actually returning.
 
