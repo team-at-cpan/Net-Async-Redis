@@ -150,6 +150,34 @@ sub clientside_cache_events {
     };
 }
 
+=head2 watch_keyspace
+
+L<Net::Async::Redis/watch_keyspace> support for gathering notifications
+from all known nodes.
+
+=cut
+
+async sub watch_keyspace {
+    my ($self, $pattern) = @_;
+    my @sub = await fmap_concat {
+        $_->primary_connection->then(sub {
+            shift->watch_keyspace($pattern);
+        });
+    } foreach => [$self->{nodes}->@*], concurrent => 4;
+
+    my $combined = Net::Async::Redis::Subscription->new(
+        redis   => $self,
+        channel => $pattern
+    );
+
+    $combined->events->emit_from(@sub);
+    return $combined;
+}
+
+=head1 METHODS - Internal
+
+=cut
+
 async sub node_connection_established {
     my ($self, $node, $redis) = @_;
     $self->clientside_cache_events->emit_from($redis->clientside_cache_events) if $redis->is_client_side_cache_enabled;
@@ -340,7 +368,7 @@ async sub apply_slots_from_instance {
 =head2 execute_command
 
 Lookup the correct node for the key then execute the command on that node,
-if there is a mismatch between our slot hashes and Redis's hashes 
+if there is a mismatch between our slot hashes and Redis's hashes
 we will attempt to rebuild the slot hashes and try again
 
 =cut
@@ -391,30 +419,6 @@ sub ryu {
         );
         $ryu
     }
-}
-
-=head2 watch_keyspace
-
-To watch keyspace notifications across the cluster
-this sub will subscribe to all primary nodes
-
-=cut
-
-async sub watch_keyspace {
-    my ($self, $pattern) = @_;
-    my @sub = await fmap_concat { 
-        $_->primary_connection->then(sub {
-            shift->watch_keyspace($pattern);
-        });
-    } foreach => [$self->{nodes}->@*], concurrent => 4;
-
-    my $combined = Net::Async::Redis::Subscription->new(
-        redis   => $self,
-        channel => $pattern
-    );
-
-    $combined->events->emit_from(@sub);
-    return $combined;
 }
 
 1;
