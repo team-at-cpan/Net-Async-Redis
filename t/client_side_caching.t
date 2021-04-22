@@ -30,7 +30,7 @@ sub redis {
             $loop->timeout_future(after => 5)
         )->get
     };
-    plan skip_all => 'clientside caching not supported in this Redis instance' if $exception =~ /does not support .*caching/i;
+    plan skip_all => 'clientside caching not supported in this Redis instance' if $exception and $exception =~ /does not support .*caching/i;
     is($exception, undef, 'can connect' . ($msg ? " for $msg" : ''));
     return $redis;
 }
