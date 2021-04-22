@@ -299,7 +299,8 @@ sub configure {
         $self->{client_side_cache_size} = delete $args{client_side_cache_size};
         delete $self->{client_side_cache};
         if($self->loop) {
-            $self->remove_child(delete $self->{client_side_connection}) if $self->{client_side_connection};
+            my $conn = delete $self->{client_side_connection};
+            $self->remove_child($conn) if $conn and $conn->parent;
         }
     }
     my $uri = $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
