@@ -1265,21 +1265,31 @@ invalidation events.
 async sub enable_clientside_cache {
     my ($self, $redis) = @_;
     my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
+    try {
+        $log->tracef('At this point we want an ID');
+        my $id = await $redis->client_id;
+        $log->tracef('Set up :invalidate sub');
+        my $sub = await $redis->subscribe('__redis__:invalidate');
+        $log->tracef('We now have :invalidate');
+        $self->{clientside_cache_events} = $sub->events;
+        $sub->events->each(sub {
+            $log->tracef('Invalidating key %s', $_);
+            $self->client_side_cache->remove($_);
+        });
 
-    my $sub = await $redis->subscribe('__redis__:invalidate');
-    $self->{clientside_cache_events} = $sub->events;
-    $sub->events->each(sub {
-        $log->tracef('Invalidating key %s', $_);
-        $self->client_side_cache->remove($_);
-    });
-
-    # In a multi-connection setup, e.g. RESP2, the notifications need to be
-    # delivered to the subscription connection via `REDIRECT`
-    my @args = refaddr($self) != refaddr($redis)
-    ? (redirect => await $redis->id)
-    : ();
-    await $self->client_tracking('on', @args);
-    $f->done;
+        # In a multi-connection setup, e.g. RESP2, the notifications need to be
+        # delivered to the subscription connection via `REDIRECT`
+        my @args = refaddr($self) != refaddr($redis)
+        ? (redirect => $id)
+        : ();
+        $log->tracef('Enable client tracking via %s', $self->can('client_tracking'));
+        await $self->client_tracking('on', @args);
+        $f->done;
+    } catch($e) {
+        $f->fail($e) unless $f->is_ready;
+        die $e;
+    }
+    return;
 }
 
 =head2 _init
