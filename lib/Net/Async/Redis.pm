@@ -472,17 +472,27 @@ sub connect : method {
             await $self->client_setname($self->client_name) if defined $self->client_name;
         }
 
+        dynamically $self->{connection_in_progress} = 1;
         if($uri->database) {
-            $log->tracef('Select database %s', $uri->database);
-            dynamically $self->{connection_in_progress} = 1;
-            await $self->select($uri->database);
+            try {
+                $log->tracef('Select database %s', $uri->database);
+                await $self->select($uri->database);
+            } catch($e) {
+                die 'Failed to switch database on Redis connection - ' . $e;
+            }
         }
         if($self->is_client_side_cache_enabled) {
-            $log->tracef('Client-side cache requested');
-            dynamically $self->{connection_in_progress} = 1;
-            await $self->client_side_connection;
+            try {
+                $log->tracef('Client-side cache requested');
+                await $self->client_side_connection;
+                $log->tracef('Client-side connection established');
+            } catch($e) {
+                die 'This version of Redis does not support clientside caching' if $e =~ /Unknown subcommand .*tracking/i;
+                $log->errorf('Clientside cache setup failure in ->connect - %s', $e);
+                die 'Failed to enable clientside caching on Redis connection - ' . $e;
+            }
         }
-        return Future->done;
+        return;
     })->on_fail(sub { delete $self->{connection} })
       ->on_cancel(sub { delete $self->{connection} });
 }
