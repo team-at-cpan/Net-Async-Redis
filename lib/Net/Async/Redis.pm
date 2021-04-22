@@ -611,7 +611,7 @@ async sub subscribe {
     await $self->next::method(@channels);
     $self->{pubsub} //= 0;
     await Future->wait_all(@pending);
-    $log->tracef('Susbcriptions established, we are go');
+    $log->tracef('Subscriptions established, we are go');
     return @{$self->{subscription_channel}}{@channels};
 }
 
