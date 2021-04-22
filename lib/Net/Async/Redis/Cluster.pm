@@ -57,7 +57,7 @@ proxy routing dæmon, or a service mesh such as L<https://istio.io/|istio>.
 no indirect;
 use Syntax::Keyword::Try;
 use Future::AsyncAwait;
-use Future::Utils qw(fmap_void);
+use Future::Utils qw(fmap_void fmap_concat);
 use List::BinarySearch::XS qw(binsearch);
 use List::UtilsBy qw(nsort_by);
 use List::Util qw(first);
@@ -152,7 +152,7 @@ sub clientside_cache_events {
 
 async sub node_connection_established {
     my ($self, $node, $redis) = @_;
-    $self->clientside_cache_events->emit_from($redis->clientside_cache_events);
+    $self->clientside_cache_events->emit_from($redis->clientside_cache_events) if $redis->is_client_side_cache_enabled;
     return;
 }
 
@@ -267,6 +267,13 @@ sub node_by_host_port {
     return $node;
 }
 
+=head2 register_moved_slot
+
+When we get MOVED error we will use this
+sub to rebuild the slot cache
+
+=cut
+
 async sub register_moved_slot {
     my ($self, $slot, $host_port) = @_;
     my ($host, $port) = split /:/, $host_port;
@@ -293,6 +300,14 @@ async sub register_moved_slot {
     $self->slot_cache->[$slot & (MAX_SLOTS - 1)] = $node;
     return $node;
 }
+
+=head2 apply_slots_from_instance
+
+Connect to a random instance in the cluster
+and execute CLUSTER SLOTS to get information
+about the slots and their distribution.
+
+=cut
 
 async sub apply_slots_from_instance {
     my ($self, $redis) = @_;
@@ -321,6 +336,14 @@ async sub apply_slots_from_instance {
 
     $self->replace_nodes(\@nodes);
 }
+
+=head2 execute_command
+
+Lookup the correct node for the key then execute the command on that node,
+if there is a mismatch between our slot hashes and Redis's hashes 
+we will attempt to rebuild the slot hashes and try again
+
+=cut
 
 async sub execute_command {
     my ($self, @cmd) = @_;
@@ -354,6 +377,12 @@ async sub execute_command {
     }
 }
 
+=head2 ryu
+
+A L<Ryu::Async> instance for source/sink creation.
+
+=cut
+
 sub ryu {
     my ($self) = @_;
     $self->{ryu} ||= do {
@@ -362,6 +391,30 @@ sub ryu {
         );
         $ryu
     }
+}
+
+=head2 watch_keyspace
+
+To watch keyspace notifications across the cluster
+this sub will subscribe to all primary nodes
+
+=cut
+
+async sub watch_keyspace {
+    my ($self, $pattern) = @_;
+    my @sub = await fmap_concat { 
+        $_->primary_connection->then(sub {
+            shift->watch_keyspace($pattern);
+        });
+    } foreach => [$self->{nodes}->@*], concurrent => 4;
+
+    my $combined = Net::Async::Redis::Subscription->new(
+        redis   => $self,
+        channel => $pattern
+    );
+
+    $combined->events->emit_from(@sub);
+    return $combined;
 }
 
 1;

@@ -102,6 +102,7 @@ our %KEY_FINDER = (
     'PFADD' => 1,
     'PFCOUNT' => 1,
     'PSETEX' => 1,
+    'PSUBSCRIBE' => 1,
     'PTTL' => 1,
     'PUBLISH' => 1,
     'RENAME' => 1,

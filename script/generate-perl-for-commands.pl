@@ -34,6 +34,8 @@ my @commands;
 my %key_finder = (
     PUBLISH   => 1,
     SUBSCRIBE => 1,
+    # subscribing to one node is enough in the current cluster design
+    PSUBSCRIBE => 1,
     # This one is not detected correctly - thankfully it's always XINFO [CONSUMER|GROUP|STREAM] key
     XINFO     => 2,
 );

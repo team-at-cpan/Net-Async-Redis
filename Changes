@@ -6,6 +6,7 @@ Revision history for {{$dist->name}}
     - automatic connection and queuing is now more reliable, you should only
     need `await $redis->connected` in a few cases now
     - acess to client-side invalidation events, for implementing observables
+    - enable keyspace notifications in cluster mode
 
     Bugs fixed:
 
