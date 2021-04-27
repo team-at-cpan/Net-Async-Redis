@@ -1757,12 +1757,6 @@ Query a sorted set representing a geospatial index to fetch members inside an ar
 
 =item * [COUNT count [ANY]]
 
-=item * [WITHCOORD]
-
-=item * [WITHDIST]
-
-=item * [WITHHASH]
-
 =item * [STOREDIST]
 
 =back
