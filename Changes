@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [Bugs fixed]
+    - The CLUSTER INFO command generated warnings (RT138053, thanks to Nael for
+    reporting)
 
 3.014     2021-07-20 18:37:09+08:00 Asia/Kuala_Lumpur
     [New features]
