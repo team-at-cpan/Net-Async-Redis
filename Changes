@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.015     2021-07-27 03:47:43+08:00 Asia/Kuala_Lumpur
     [Bugs fixed]
     - The CLUSTER INFO command generated warnings (RT138053, thanks to Nael for
     reporting)
