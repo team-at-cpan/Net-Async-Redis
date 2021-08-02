@@ -188,6 +188,146 @@ our %KEY_FINDER = (
     'ZUNIONSTORE' => 3,
 );
 
+=head1 METHODS - Bitmap
+
+=head2 bitcount
+
+Count set bits in a string.
+
+=over 4
+
+=item * key
+
+=item * [start end]
+
+=back
+
+L<https://redis.io/commands/bitcount>
+
+=cut
+
+sub bitcount : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(BITCOUNT) => @args)
+}
+
+=head2 bitfield
+
+Perform arbitrary bitfield integer operations on strings.
+
+=over 4
+
+=item * key
+
+=item * [GET type offset]
+
+=item * [SET type offset value]
+
+=item * [INCRBY type offset increment]
+
+=item * [OVERFLOW WRAP|SAT|FAIL]
+
+=back
+
+L<https://redis.io/commands/bitfield>
+
+=cut
+
+sub bitfield : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(BITFIELD) => @args)
+}
+
+=head2 bitop
+
+Perform bitwise operations between strings.
+
+=over 4
+
+=item * operation
+
+=item * destkey
+
+=item * key [key ...]
+
+=back
+
+L<https://redis.io/commands/bitop>
+
+=cut
+
+sub bitop : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(BITOP) => @args)
+}
+
+=head2 bitpos
+
+Find first bit set or clear in a string.
+
+=over 4
+
+=item * key
+
+=item * bit
+
+=item * [start [end]]
+
+=back
+
+L<https://redis.io/commands/bitpos>
+
+=cut
+
+sub bitpos : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(BITPOS) => @args)
+}
+
+=head2 getbit
+
+Returns the bit value at offset in the string value stored at key.
+
+=over 4
+
+=item * key
+
+=item * offset
+
+=back
+
+L<https://redis.io/commands/getbit>
+
+=cut
+
+sub getbit : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(GETBIT) => @args)
+}
+
+=head2 setbit
+
+Sets or clears the bit at offset in the string value stored at key.
+
+=over 4
+
+=item * key
+
+=item * offset
+
+=item * value
+
+=back
+
+L<https://redis.io/commands/setbit>
+
+=cut
+
+sub setbit : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(SETBIT) => @args)
+}
+
 =head1 METHODS - Cluster
 
 =head2 cluster_addslots
@@ -1490,7 +1630,7 @@ sub touch : method {
 
 =head2 ttl
 
-Get the time to live for a key.
+Get the time to live for a key in seconds.
 
 =over 4
 
@@ -2162,7 +2302,7 @@ Adds the specified elements to the specified HyperLogLog.
 
 =item * key
 
-=item * element [element ...]
+=item * [element [element ...]]
 
 =back
 
@@ -2797,9 +2937,9 @@ Execute a Lua script server side.
 
 =item * numkeys
 
-=item * key [key ...]
+=item * [key [key ...]]
 
-=item * arg [arg ...]
+=item * [arg [arg ...]]
 
 =back
 
@@ -2847,9 +2987,9 @@ Execute a Lua script server side.
 
 =item * numkeys
 
-=item * key [key ...]
+=item * [key [key ...]]
 
-=item * arg [arg ...]
+=item * [arg [arg ...]]
 
 =back
 
@@ -5398,102 +5538,6 @@ sub append : method {
     $self->execute_command(qw(APPEND) => @args)
 }
 
-=head2 bitcount
-
-Count set bits in a string.
-
-=over 4
-
-=item * key
-
-=item * [start end]
-
-=back
-
-L<https://redis.io/commands/bitcount>
-
-=cut
-
-sub bitcount : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(BITCOUNT) => @args)
-}
-
-=head2 bitfield
-
-Perform arbitrary bitfield integer operations on strings.
-
-=over 4
-
-=item * key
-
-=item * [GET type offset]
-
-=item * [SET type offset value]
-
-=item * [INCRBY type offset increment]
-
-=item * [OVERFLOW WRAP|SAT|FAIL]
-
-=back
-
-L<https://redis.io/commands/bitfield>
-
-=cut
-
-sub bitfield : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(BITFIELD) => @args)
-}
-
-=head2 bitop
-
-Perform bitwise operations between strings.
-
-=over 4
-
-=item * operation
-
-=item * destkey
-
-=item * key [key ...]
-
-=back
-
-L<https://redis.io/commands/bitop>
-
-=cut
-
-sub bitop : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(BITOP) => @args)
-}
-
-=head2 bitpos
-
-Find first bit set or clear in a string.
-
-=over 4
-
-=item * key
-
-=item * bit
-
-=item * [start]
-
-=item * [end]
-
-=back
-
-L<https://redis.io/commands/bitpos>
-
-=cut
-
-sub bitpos : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(BITPOS) => @args)
-}
-
 =head2 decr
 
 Decrement the integer value of a key by one.
@@ -5551,27 +5595,6 @@ L<https://redis.io/commands/get>
 sub get : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(GET) => @args)
-}
-
-=head2 getbit
-
-Returns the bit value at offset in the string value stored at key.
-
-=over 4
-
-=item * key
-
-=item * offset
-
-=back
-
-L<https://redis.io/commands/getbit>
-
-=cut
-
-sub getbit : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(GETBIT) => @args)
 }
 
 =head2 getdel
@@ -5824,29 +5847,6 @@ L<https://redis.io/commands/set>
 sub set : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(SET) => @args)
-}
-
-=head2 setbit
-
-Sets or clears the bit at offset in the string value stored at key.
-
-=over 4
-
-=item * key
-
-=item * offset
-
-=item * value
-
-=back
-
-L<https://redis.io/commands/setbit>
-
-=cut
-
-sub setbit : method {
-    my ($self, @args) = @_;
-    $self->execute_command(qw(SETBIT) => @args)
 }
 
 =head2 setex
