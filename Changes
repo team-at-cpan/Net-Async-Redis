@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+    - Added readonly methods from latest Redis, e.g. `->sort_ro` and `->bitfield_ro`
 
 3.015     2021-07-27 03:47:43+08:00 Asia/Kuala_Lumpur
     [Bugs fixed]
