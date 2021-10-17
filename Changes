@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.017     2021-10-18 00:15:14+08:00 Asia/Kuala_Lumpur
     [New features]
 
     - Added ->client_no_evict from latest Redis
