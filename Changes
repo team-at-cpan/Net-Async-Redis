@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.018     2022-02-01 11:58:52+08:00 Asia/Kuala_Lumpur
     [New features]
 
     - Added latest commands from Redis 7.0 release candidate
