@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+
+    - Added latest commands from Redis 7.0 release candidate
 
 3.017     2021-10-18 00:15:14+08:00 Asia/Kuala_Lumpur
     [New features]
