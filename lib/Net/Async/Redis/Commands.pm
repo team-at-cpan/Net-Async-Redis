@@ -6126,6 +6126,36 @@ sub xdel : method {
     $self->execute_command(qw(XDEL) => @args)
 }
 
+=head2 xgroup
+
+Helper for XGROUP, recent versions of the API split that out into
+separate two-word commands in the manual so this is here to support
+any legacy code which calls `->xgroup`.
+
+=over 4
+
+=item * operation
+
+=item * key
+
+=item * groupname
+
+=item * id|$
+
+=item * [MKSTREAM]
+
+=back
+
+L<https://redis.io/commands/xgroup>
+
+=cut
+
+sub xgroup {
+    my ($self, $cmd, @args) = @_;
+    my $method = "xgroup_" . lc($cmd);
+    return $self->$method(@args);
+}
+
 =head2 xgroup_create
 
 Create a consumer group.
