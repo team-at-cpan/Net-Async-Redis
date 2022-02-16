@@ -9,7 +9,7 @@ use parent qw(
     IO::Async::Notifier
 );
 
-our $VERSION = '3.018';
+our $VERSION = '3.019';
 # AUTHORITY
 
 =head1 NAME
