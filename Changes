@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.019     2022-02-16 15:42:23+08:00 Asia/Kuala_Lumpur
     [Bugs fixed]
 
     - the ->xgroup method was not available due to 7.0 changes, added back in
