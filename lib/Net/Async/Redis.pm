@@ -527,6 +527,15 @@ A string describing the local endpoint, usually C<host:port>.
 
 sub local_endpoint { shift->{local_endpoint} }
 
+# Helper for XGROUP, recent versions of the API split that out into
+# separate two-word commands in the manual so this is here to support
+# any legacy code which calls `->xgroup`.
+sub xgroup {
+    my ($self, $cmd, @args) = @_;
+    my $method = "xgroup_" . lc($cmd);
+    return $self->$method(@args);
+}
+
 =head1 METHODS - Subscriptions
 
 See L<https://redis.io/topics/pubsub> for more details on this topic.
