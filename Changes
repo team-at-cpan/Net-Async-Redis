@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.020     2022-02-17 17:47:08+08:00 Asia/Kuala_Lumpur
     [Bugs fixed]
 
     - the ->xgroup method was still not available in Net::Async::Redis::Cluster due to
