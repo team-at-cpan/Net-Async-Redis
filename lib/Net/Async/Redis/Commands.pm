@@ -3506,7 +3506,7 @@ sub evalsha_ro : method {
 
 =head2 fcall
 
-PATCH__TBD__38__.
+Invoke a function.
 
 =over 4
 
@@ -3531,7 +3531,7 @@ sub fcall : method {
 
 =head2 fcall_ro
 
-PATCH__TBD__7__.
+Invoke a read-only function.
 
 =over 4
 
@@ -3560,7 +3560,7 @@ Delete a function by name.
 
 =over 4
 
-=item * function-name
+=item * library-name
 
 =back
 
@@ -3651,7 +3651,7 @@ Create a function with the given arguments (name, code, description).
 
 =item * [REPLACE]
 
-=item * [DESC library-description]
+=item * [DESCRIPTION library-description]
 
 =item * function-code
 
@@ -4083,6 +4083,19 @@ L<https://redis.io/commands/command-getkeys>
 sub command_getkeys : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(COMMAND GETKEYS) => @args)
+}
+
+=head2 command_getkeysandflags
+
+Extract keys given a full Redis command.
+
+L<https://redis.io/commands/command-getkeysandflags>
+
+=cut
+
+sub command_getkeysandflags : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(COMMAND GETKEYSANDFLAGS) => @args)
 }
 
 =head2 command_info
@@ -6126,6 +6139,21 @@ sub xdel : method {
     $self->execute_command(qw(XDEL) => @args)
 }
 
+=head2 xgroup
+
+Group parent helper command
+.
+
+L<https://redis.io/commands/xgroup>
+
+=cut
+
+sub xgroup : method {
+    my ($self, $cmd, @args) = @_;
+    my $method = "xgroup_" . lc($cmd);
+    return $self->$method(@args);
+}
+
 =head2 xgroup_create
 
 Create a consumer group.
@@ -6239,6 +6267,21 @@ L<https://redis.io/commands/xgroup-setid>
 sub xgroup_setid : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(XGROUP SETID) => @args)
+}
+
+=head2 xinfo
+
+Group parent helper command
+.
+
+L<https://redis.io/commands/xinfo>
+
+=cut
+
+sub xinfo : method {
+    my ($self, $cmd, @args) = @_;
+    my $method = "xinfo_" . lc($cmd);
+    return $self->$method(@args);
 }
 
 =head2 xinfo_consumers
