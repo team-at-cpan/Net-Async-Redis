@@ -36,8 +36,10 @@ my %key_finder = (
     SUBSCRIBE => 1,
     # subscribing to one node is enough in the current cluster design
     PSUBSCRIBE => 1,
-    # This one is not detected correctly - thankfully it's always XINFO [CONSUMER|GROUP|STREAM] key
+    # These two are not detected correctly - thankfully it's always XINFO [CONSUMER|GROUP|STREAM] key
     XINFO     => 2,
+    # and xgroup [CREATE|CREATECONSUMER|DELCONSUMER|DESTROY|SETID] key ...
+    XGROUP    => 2,
 );
 for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
     my ($txt) = $cmd->parent->attr('href') =~ m{/commands/([\w-]+)$} or die "failed on " . $cmd->as_text;
@@ -49,6 +51,7 @@ for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
     my $group = $cmd->parent->parent->attr('data-group') or die 'no group for ' . $cmd->as_text;
     push @{$commands_by_group{$group}}, my $info = {
         group   => $group,
+        group_c => 0,
         method  => $txt,
         command => $command,
         args    => [ map { s/\h+$//r } map { s/^\h+//r } grep { /\S/ } split /\n/, join '', map { $_->as_text } $cmd->parent->look_down(_tag => 'span', class => 'args') ],
@@ -63,8 +66,17 @@ for my $cmd ($html->look_down(_tag => 'span', class => 'command')) {
     $log->debugf("Adding command %s", $info);
 }
 
-# This one's more complicated... so we assign manually for now
-$key_finder{XGROUP} = 2;
+# Special commands (mainly needed for backward compatibility)
+# Considered as group commands (so far only in streams)
+push @{$commands_by_group{'stream'}}, {
+    group => 'stream',
+    group_c => 1,
+    method => $_,
+    command => $_,
+    args => [], # don't set them for now
+    summary => "Group parent helper command\n",
+} for qw(xgroup xinfo);
+
 
 for my $group (sort keys %commands_by_group) {
     $log->infof('%s', $group);
@@ -133,8 +145,14 @@ L<https://redis.io/commands/[% command.method.lower.replace('_', '-') %]>
 =cut
 
 sub [% command.method %] : method {
+[% IF command.group_c -%]
+    my ($self, $cmd, @args) = @_;
+    my $method = "[% command.command %]_" . lc($cmd);
+    return $self->$method(@args);
+[%  ELSE -%]
     my ($self, @args) = @_;
     $self->execute_command(qw([% command.command %]) => @args)
+[% END -%]
 }
 
 [%  END -%]
