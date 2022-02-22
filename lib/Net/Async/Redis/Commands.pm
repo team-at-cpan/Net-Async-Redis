@@ -6141,8 +6141,7 @@ sub xdel : method {
 
 =head2 xgroup
 
-Group parent helper command
-.
+Group parent helper command.
 
 L<https://redis.io/commands/xgroup>
 
@@ -6271,8 +6270,7 @@ sub xgroup_setid : method {
 
 =head2 xinfo
 
-Group parent helper command
-.
+Group parent helper command.
 
 L<https://redis.io/commands/xinfo>
 

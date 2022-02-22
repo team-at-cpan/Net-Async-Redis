@@ -74,7 +74,7 @@ push @{$commands_by_group{'stream'}}, {
     method => $_,
     command => $_,
     args => [], # don't set them for now
-    summary => "Group parent helper command\n",
+    summary => 'Group parent helper command',
 } for qw(xgroup xinfo);
 
 
