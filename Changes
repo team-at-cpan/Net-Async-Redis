@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.021     2022-02-24 23:13:49+08:00 Asia/Kuala_Lumpur
     [New features]
 
     - to improve compatibility in future, the approach for handling multi-word commands
