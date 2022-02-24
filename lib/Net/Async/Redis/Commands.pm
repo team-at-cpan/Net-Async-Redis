@@ -3516,7 +3516,7 @@ sub evalsha_ro : method {
 
 =head2 fcall
 
-PATCH__TBD__38__.
+Invoke a function.
 
 =over 4
 
@@ -3541,7 +3541,7 @@ sub fcall : method {
 
 =head2 fcall_ro
 
-PATCH__TBD__7__.
+Invoke a read-only function.
 
 =over 4
 
@@ -3570,7 +3570,7 @@ Delete a function by name.
 
 =over 4
 
-=item * function-name
+=item * library-name
 
 =back
 
@@ -3661,7 +3661,7 @@ Create a function with the given arguments (name, code, description).
 
 =item * [REPLACE]
 
-=item * [DESC library-description]
+=item * [DESCRIPTION library-description]
 
 =item * function-code
 
@@ -4093,6 +4093,19 @@ L<https://redis.io/commands/command-getkeys>
 sub command_getkeys : method {
     my ($self, @args) = @_;
     $self->execute_command(qw(COMMAND GETKEYS) => @args)
+}
+
+=head2 command_getkeysandflags
+
+Extract keys given a full Redis command.
+
+L<https://redis.io/commands/command-getkeysandflags>
+
+=cut
+
+sub command_getkeysandflags : method {
+    my ($self, @args) = @_;
+    $self->execute_command(qw(COMMAND GETKEYSANDFLAGS) => @args)
 }
 
 =head2 command_info
