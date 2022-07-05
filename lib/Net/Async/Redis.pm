@@ -1161,13 +1161,10 @@ sub execute_command {
         $self->{connection_in_progress}
         ? Future->done
         # Are we the owner of a current MULTI transaction?
-        : $self->connected->then(
-            sub{
-                return $self->{_is_multi}
-                ? Future->wait_all(@{$self->{pending_multi}})
-                : Future->done()
-            }
-        )
+        : $self->{_is_multi}
+        ? $self->connnected
+        : Future->needs_all($self->connected,
+            Future->wait_all(@{$self->{pending_multi}}))
     )->then($code)
      ->retain;
 }
