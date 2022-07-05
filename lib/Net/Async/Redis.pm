@@ -1162,7 +1162,7 @@ sub execute_command {
         ? Future->done
         # Are we the owner of a current MULTI transaction?
         : $self->{_is_multi}
-        ? $self->connnected
+        ? $self->connected
         : Future->needs_all($self->connected,
             Future->wait_all(@{$self->{pending_multi}}))
     )->then($code)
