@@ -53,8 +53,8 @@ Normally called by L<Net::Async::Redis> itself once the subscription is no longe
 
 sub cancel {
     my ($self) = @_;
-    my $f = $self->events->completed;
-    $f->fail('cancelled') unless $f->is_ready;
+    my $ev = $self->events;
+    $ev->fail('cancelled') unless $ev->is_ready;
     $self
 }
 
