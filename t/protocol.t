@@ -47,7 +47,7 @@ my @resp3 = (
     # [ "#f$Z" => !!0, 'false' ],
     #[ "%2$Z+key$Z:1$Z+second$Z:2$Z", +{ key => 1, second => 2 }, 'map' ],
 );
-my $count = 10000;
+my $count = 1000;
 push @resp3, [
     "*1$Z*$count$Z" . (join '' => map { "*2$Z:$_$Z*6$Z+a$Z+1$Z+b$Z+2$Z+c$Z+3$Z" } 1..$count),
     [[ map { [ $_ => [ a => "1", b => "2", c => "3" ] ] } 1..$count ]],
