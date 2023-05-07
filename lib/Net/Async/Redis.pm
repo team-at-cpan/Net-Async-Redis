@@ -616,6 +616,48 @@ async sub subscribe {
     return @{$self->{subscription_channel}}{@channels};
 }
 
+=head2 ssubscribe
+
+Subscribes to one or more sharded channels.
+
+This behaves similarly to L</subscribe>, but applies to messages received on a specific
+shard. This is mostly relevant in a cluster context, where subscriptions can be localised
+to one shard (group of nodes) in the cluster to improve performance.
+
+More details are in the L<https://redis.io/topics/pubsub#sharded-pubsub|sharded pubsub documentation>.
+
+Returns a L<Future> which resolves to a L<Net::Async::Redis::Subscription> instance.
+
+Example:
+
+ # Subscribe to 'notifications' channel,
+ # print the first 5 messages, then unsubscribe
+ $redis->subscribe('notifications')
+    ->then(sub {
+        my $sub = shift;
+        $sub->events
+            ->map('payload')
+            ->take(5)
+            ->say
+            ->completed
+    })->then(sub {
+        $redis->unsubscribe('notifications')
+    })->get
+
+=cut
+
+async sub ssubscribe {
+    my ($self, @channels) = @_;
+    my @pending = map {
+        $self->{pending_subscription_channel}{$_} //= $self->future('subscription[' . $_ . ']')
+    } @channels;
+    await $self->next::method(@channels);
+    $self->{pubsub} //= 0;
+    await Future->wait_all(@pending);
+    $log->tracef('Subscriptions established, we are go');
+    return @{$self->{subscription_channel}}{@channels};
+}
+
 =head1 METHODS - Transactions
 
 =head2 multi
@@ -977,7 +1019,7 @@ Deal with an incoming pubsub-related message.
 sub handle_pubsub_message {
     my ($self, $type, @details) = @_;
     $type = lc $type;
-    if($type eq 'message') {
+    if($type eq 'message' or $type eq 'smessage') {
         my ($channel, $payload) = @details;
         if(my $sub = $self->{subscription_channel}{$channel}) {
             my $msg = Net::Async::Redis::Subscription::Message->new(
