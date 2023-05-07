@@ -624,7 +624,7 @@ This behaves similarly to L</subscribe>, but applies to messages received on a s
 shard. This is mostly relevant in a cluster context, where subscriptions can be localised
 to one shard (group of nodes) in the cluster to improve performance.
 
-More details are in the L<https://redis.io/topics/pubsub#sharded-pubsub|sharded pubsub documentation>.
+More details are in the L<sharded pubsub documentation|https://redis.io/topics/pubsub#sharded-pubsub>.
 
 Returns a L<Future> which resolves to a L<Net::Async::Redis::Subscription> instance.
 
