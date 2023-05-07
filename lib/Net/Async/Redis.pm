@@ -1216,7 +1216,7 @@ sub execute_command {
 around [qw(xread xreadgroup)] => async sub {
     my ($code, $self, @args) = @_;
     my $response = await $self->$code(@args);
-    return $response unless ref $response;
+    return [] unless ref $response;
 
     # protocol_level is detected while connecting checking before this point is wrong.
     return $response if $self->{protocol_level} eq 'resp2' || $self->{hashrefs};
