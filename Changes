@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+3.023     2023-05-08 04:37:32+08:00 Asia/Singapore
     [New features]
 
     - support for sharded pubsub (`SSUBSCRIBE` / `SPUBLISH`)
