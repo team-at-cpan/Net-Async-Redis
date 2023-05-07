@@ -834,7 +834,6 @@ around get => async sub {
     );
     # ... and then rewrite or remove the cache entry once we get a response:
     $f->on_ready(sub {
-        my $f = shift;
         if($f->is_done) {
             # If we had an invalidation message, we may have removed
             # our cache entry already: we shouldn't cache this value if so.
