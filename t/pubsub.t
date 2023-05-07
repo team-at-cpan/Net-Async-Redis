@@ -59,31 +59,22 @@ is(exception {
 }, undef, 'can publish without problems');
 
 # test that we detect and handle cases when redis closes the connection
-my $redis1 = Net::Async::Redis->new();
-$loop->add($redis1);
-my $rfut = $redis1->connect(
-        host => $ENV{NET_ASYNC_REDIS_HOST} // '127.0.0.1',
-        port => $ENV{NET_ASYNC_REDIS_PORT} // '6379',
-    )->then(
-        sub { $redis1->subscribe('non-existent-topic') }
+subtest 'disconnect handling' => sub {
+    note 'start sub test';
+    my $redis1 = redis();
+    my $sub = $redis1->subscribe('non-existent-topic')->get;
+
+    my $f = Future->wait_any(
+        $loop->timeout_future(after => 1),
+        $sub->events->completed,
     );
-$rfut->await;
-my $sub_future;
-my $f = Future->needs_any(
-    $loop->timeout_future(after => 5),
-    $rfut->then(
-        async sub {
-            my $s = shift->events->map('payload');
-            $s->each(sub {});
-            $sub_future = $s->completed;
-            return $sub_future;
-        }
-    ),
-);
-$redis1->{stream}->close;
-$f->await;
-ok $sub_future->is_ready, "redis disconnect has been handled";
-
+    note 'close stream';
+    $redis1->{stream}->close_now;
+    note 'wait for subscription to complete';
+    like(exception {
+        $f->get;
+    }, qr/cancelled/, 'marked as cancelled');
+    ok($sub->events->is_ready, "redis disconnect has been handled");
+    done_testing;
+};
 done_testing;
-
-
