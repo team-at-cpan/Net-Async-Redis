@@ -1,6 +1,15 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+
+    - support for sharded pubsub (`SSUBSCRIBE` / `SPUBLISH`)
+
+    [Bugs fixed]
+
+    - exception during subscription cancellation, thanks to Pavel Shaydo for patch+test
+    - subscription handling should now work properly and consistently on both RESP2/RESP3
+    - `XREAD`/`XREADGROUP` now returns empty arrayref when no items, for consistency
 
 3.022     2022-03-21 02:11:58+08:00 Asia/Kuala_Lumpur
     [New features]
