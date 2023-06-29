@@ -1,0 +1,487 @@
+Revision history for Net-Async-Redis
+
+3.024     2023-06-29 12:19:45+08:00 Asia/Singapore
+    [New features]
+
+    - helper method to allow Net::Async::Redis::Cluster::XS to ensure it's getting XS-backed nodes
+
+3.023     2023-05-08 04:37:32+08:00 Asia/Singapore
+    [New features]
+
+    - support for sharded pubsub (`SSUBSCRIBE` / `SPUBLISH`)
+
+    [Bugs fixed]
+
+    - exception during subscription cancellation, thanks to Pavel Shaydo for patch+test
+    - subscription handling should now work properly and consistently on both RESP2/RESP3
+    - `XREAD`/`XREADGROUP` now returns empty arrayref when no items, for consistency
+    - cancelling a cached `GET` could cause an exception due to the request Future going out of scope
+
+3.022     2022-03-21 02:11:58+08:00 Asia/Kuala_Lumpur
+    [New features]
+
+    - Added latest commands as of 7.0 RC2
+
+3.021     2022-02-24 23:13:49+08:00 Asia/Kuala_Lumpur
+    [New features]
+
+    - to improve compatibility in future, the approach for handling multi-word commands
+    such as `XGROUP CREATE` now applies to all commands, including cases such as `MEMORY DOCTOR`
+    so you can use `->memory('DOCTOR')` or `->memory_doctor` interchangeably. This is
+    due to the command list we auto-extract from the Redis website potentially changing
+    the structure again in future.
+
+3.020     2022-02-17 17:47:08+08:00 Asia/Kuala_Lumpur
+    [Bugs fixed]
+
+    - the ->xgroup method was still not available in Net::Async::Redis::Cluster due to
+    an incomplete fix in 3.019, thanks to Nael Alolwani for catching and fixing this
+
+3.019     2022-02-16 15:42:23+08:00 Asia/Kuala_Lumpur
+    [Bugs fixed]
+
+    - the ->xgroup method was not available due to 7.0 changes, added back in
+
+3.018     2022-02-01 11:58:52+08:00 Asia/Kuala_Lumpur
+    [New features]
+
+    - Added latest commands from Redis 7.0 release candidate
+
+3.017     2021-10-18 00:15:14+08:00 Asia/Kuala_Lumpur
+    [New features]
+
+    - Added ->client_no_evict from latest Redis
+
+3.016     2021-09-26 02:23:34+08:00 Asia/Kuala_Lumpur
+    [New features]
+    - Added readonly methods from latest Redis, e.g. `->sort_ro` and `->bitfield_ro`
+
+3.015     2021-07-27 03:47:43+08:00 Asia/Kuala_Lumpur
+    [Bugs fixed]
+    - The CLUSTER INFO command generated warnings (RT138053, thanks to Nael for
+    reporting)
+
+3.014     2021-07-20 18:37:09+08:00 Asia/Kuala_Lumpur
+    [New features]
+
+    - ->expiretime and ->eval_ro from latest commands list
+
+3.013     2021-04-27 10:28:39+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - removed `dynamically` usage for `$log->{context}` since it can trigger a
+    memory leak and also affects performance, see:
+    https://github.com/binary-com/perl-Myriad/issues/117 for an example
+
+3.012     2021-04-22 21:26:23+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - automatic connection and queuing is now more reliable, you should only
+    need `await $redis->connected` in a few cases now
+    - acess to client-side invalidation events, for implementing observables
+    - enable keyspace notifications in cluster mode
+
+    Bugs fixed:
+
+    - various issues with client-side caching resolved
+    - in cluster mode, XREAD could fail due to incorrect node lookup for key
+    (Github #23, thanks to Marc Frank for the patch)
+    - the stream read/write lengths were using the same internal key,
+    so any changes to one value would affect the other as well
+    - XINFO was mapping to the wrong key in cluster mode, thanks to Eyad for
+    catching and fixing this
+
+3.011     2021-02-03 03:43:05+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->failover added from latest commands list
+
+3.010     2021-02-01 04:56:52+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->bootstrap will now fail if the cluster's nodes addresses are not initiated.
+    - cluster->execute_command will now redirect the command to the correct node 
+      if 'MOVED' error received.
+    - latest commands from 6.2
+    - this includes ->getdel, ->getex, ->zrandfield
+
+3.009     2021-01-27 06:33:18+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - `XGROUP` KEY_FINDER index was wrong.
+    - `PUBLISH`/`SUBSCRIBE` were not in the KEY_FINDER index.
+    - Net::Async::Redis::Cluster was ignoring the protocol compatibility layer.
+
+3.008     2021-01-17 01:29:19+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - latest commands from 6.2
+    - this includes ->xautoclaim, ->client_unpause and the `count => 'any'` option
+    on various commands
+
+3.007     2020-12-31 07:23:30+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - latest commands from 6.2
+    - this includes ->geosearch, ->client_info, ->client_trackinginfo etc.
+
+3.006     2020-12-04 05:33:59+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - latest commands from 6.0.9
+    - ->copy is now supported (from latest Redis release)
+    - stream handling now documents `MKSTREAM` and `NOMKSTREAM`,
+    and updates the trimming to mention `~` (approximate) and `=`
+    (exact) modes for removing old entries
+
+3.005     2020-11-16 05:20:49+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - ->zdiff and ->zdiffstore commands from latest Redis release
+    - provide RESP2/RESP3 compatibility when hashrefs option is not enabled,
+    otherwise some commands such as ->xreadgroup can return inconsistent
+    results between versions (thanks Eyad, Paul and Nael for the patch)
+    - cluster mode now provides basic slot calculation caching, since this
+    yields a small performance improvement
+
+3.004     2020-11-04 12:40:40+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - top-level hashes also now follow the `hashrefs` configuration option,
+    this affects methods such as `->xreadgroup`.
+
+3.003     2020-11-03 13:58:00+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bugs fixed:
+
+    - RESP3 protocol changes (enabled by default in earlier versions of this module)
+    meant that you'd end up with hashrefs or arrayrefs depending on what version
+    of Redis you were connecting to. This behaviour is now controlled by the
+    `hashrefs` configuration option, and is disabled by default even under RESP3.
+
+3.002     2020-10-12 00:19:11+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - latest commands from 6.0.8, including LMOVE/BLMOVE
+
+3.001     2020-09-22 01:51:28+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - RESP3 no longer establishes a separate client-side caching connection,
+    since it can share the main connection
+    - `AUTH username password` from latest Redis now supported
+
+    Bugs fixed:
+
+    - proper differentiation between regular arrays and pubsub messages
+    when in pubsub mode on a RESP3 connection
+    - avoid establishing client-side caching connection until we need one,
+    could also have resulted in an attempt to connect to the wrong Redis server
+    if using `->configure(host => ...); ->configure(port => ...);`
+    - on a failure, continue with next item in pipeline - otherwise subsequent
+    requests would get stuck
+
+3.000     2020-09-14 02:00:10+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - RESP3 support, for Redis 6
+    - pubsub is now allowed on the same connection as
+    other traffic if the connection is in RESP3 mode
+    - protocol is autodetected via `HELLO` command,
+    pass `protocol => 'resp2'` to disable this
+
+2.007     2020-09-05 02:08:25+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - applies client_name on connection if configured
+    - opentracing can be controlled by `->configure(opentracing => 1 || 0)`
+
+    Note that OpenTracing support is now *disabled* by default, since it
+    incurs a small (~5%) performance penalty. The USE_OPENTRACING env var
+    is still supported for enabling/disabling globally.
+
+2.006     2020-08-26 10:23:47+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - latest command updates from Redis 6.0.6 - main change here is ->lpos
+    renaming "first" to "rank", see https://redis.io/commands/lpos
+    - Redis database selection via URI or `database` ->configure parameter
+    - OpenTracing support via OpenTracing::Any
+
+2.005     2020-06-28 00:20:52+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - LPOS method added from latest Redis release
+
+    Bugs fixed:
+
+    - URI parameter without `redis://` prefix is now upgraded,
+    allowing `->new(uri => 'localhost:1234')` (Github issue #7,
+    thanks LeoNerd)
+    - pipelining encoding bug (Github issue #14, thanks to dankroboth
+    for reporting and highlighting the faulty code)
+
+2.004_001 2020-06-01 06:46:51+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
+    New features:
+
+    - initial client-side caching support for ->get calls,
+    pass client_side_caching_size => $size to enable.
+    Please note that this key is likely to change in a future version.
+
+2.004     2020-06-01 05:29:32+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - acl_getuser and related commands added
+    - client-side caching documentation updated
+
+2.003     2020-05-01 00:37:12+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - latest commands from Redis 6.0 GA release
+
+    This is intended to be a stable release with next phase of
+    development aimed at supporting the newer RESP3 protocol:
+    https://github.com/antirez/RESP3
+
+2.002_005 2020-04-29 02:50:10+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
+    No new features.
+
+    Bugs fixed:
+
+    - the ->multi return value was a nested Future, changing the result
+    compared to previous versions - thanks to Nael for reporting
+    - subscribe/psubscribe interleaved with ping or other requests
+    could get confused about the pending queue
+
+2.002_004 2020-04-23 02:19:48+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
+    New features:
+
+    - pipeline parameter now does something, set to 0 to allow "unlimited"
+    pipelined requests (as in keep trying until the Redis server stops listening
+    to process the backlog)
+
+2.002_003 2020-04-23 01:59:30+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
+    No new features.
+
+    Bugs fixed:
+
+    - MULTI implementation broke in the previous version
+
+2.002_002 2020-04-14 01:40:41+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
+    New features:
+
+    - Latest Redis has new ACL methods, including those in Commands.pm
+    - simple ping latency example for testing
+
+2.002_001 2020-04-03 22:02:06+08:00 Asia/Kuala_Lumpur (TRIAL RELEASE)
+    New features:
+
+    - Redis cluster support, https://redis.io/topics/cluster-spec
+    - updated to latest Redis 5.x commands
+
+2.001     2019-07-22 13:36:07+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - improved performance when issuing many Redis commands at once
+    - ->watch_keyspace now provides a Ryu::Source instance
+    - latest command parameters from redis.io (ABSTTL etc. for `restore`
+    and TYPE for `scan`)
+
+    New examples:
+
+    - moving-window sum
+
+2.000     2019-06-16 22:44:26+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - now requires Future::AsyncAwait
+
+1.014     2019-02-04 02:05:21+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - increase default buffer sizes from 8KB to 1MB, to improve efficiency
+    in the common case where there are only a few active Redis connections
+    - support configurable buffer sizes via `stream_read_len` / `stream_write_len`
+
+    New examples:
+
+    - `incr-ratelimit-aa.pl` and `consumer-groups-aa.pl` for Future::AsyncAwait basic
+    examples
+
+    Bugs fixed:
+
+    - the example for `->subscription` was wrong, thanks to Michael Mueller for catching
+    and patching!
+    - retain completion Future when executing commands
+
+1.013     2018-12-10 02:03:19+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - support for `NOACK` and type parameter for `client_kill`, as provided in
+    latest Redis 5.x release
+
+1.012     2018-10-19 11:03:35+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Examples:
+
+    - Improved documentation for consumer-groups.pl example
+    (tested against 5.0 release)
+
+1.011     2018-10-06 20:50:12+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bug fixes:
+
+    - error handling improved, previously requests were not marked as failed
+    - protocol handling for 'undef' arrays (treated as `undef` now)
+
+    Examples:
+
+    - consumer-groups.pl example for XADD/XREADGROUP
+
+1.010     2018-10-06 15:26:00+08:00 Asia/Kuala_Lumpur
+    New commands:
+
+    - CLIENT ID
+    - CLIENT UNBLOCK
+
+    from Redis 5.0rc5.
+
+1.009     2018-10-03 19:26:59+08:00 Asia/Kuala_Lumpur
+    Updated to latest Redis 5.0 commands from last RC prior to 5.0 release.
+
+1.008     2018-09-27 11:28:37+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bug fixes:
+
+    - The connection was cached even if connection failed/interrupted so reconnecting
+    attempts were failing as well, now the connection object will get deleted on failure
+    - Subscriptions were not cancelled when the connection being interrupted,
+    now they are cancelled properly
+
+    (thanks to Eyad Arnabeh for reporting and fixing)
+
+1.007     2018-09-05 10:11:44+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bug fixes:
+
+    - Support auth parameter, rather than insisting on auth information be passed as
+    part of the URI (thanks to Nael Alolwani for reporting)
+    - "Pipeline depth" notifications were logged at `info` level, these are an internal
+    diagnostic and not useful for application code, these are now `trace` level messages
+
+1.006     2018-07-12 22:39:10+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Bug fixes:
+
+    - PSUBSCRIBE wasn't working (reported by Bill Marriott and leonerd, fix+tests by leonerd,
+    I did little more than hit the merge button - thanks!)
+
+    Dependencies:
+
+    - Math::Random::Secure dep was missing (thanks MANWAR!)
+
+1.005     2018-01-06 18:18:22+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Dependencies:
+
+    - Class::Method::Modifiers, and make sure we have a recent version of Future.pm
+
+1.004     2017-12-29 20:10:42+08:00 Asia/Kuala_Lumpur
+    No new features.
+
+    Performance improvements:
+
+    - DISCARD/EXEC are now pipelined, we don't need to wait for the
+    write before sending more commands
+
+
+1.003     2017-12-26 18:00:36+08:00 Asia/Kuala_Lumpur
+    New features:
+
+    - support queuing for MULTI and other commands
+    - support for passing a Redis URI
+    - minor performance improvements in protocol implementation and event handling
+
+    Bugs fixed:
+
+    - it was possible for cancelled/failed items within ->multi to cause the protocol
+    handling to go out of sync, this is now fixed.
+    - multi-word commands were generated incorrectly, these now work again
+
+    Examples:
+
+    - `examples/job-hash-worker.pl` - reliable priority-queue worker with job
+    details in separate hash key
+    - `examples/job-hash-submit.pl` - submit requests for priority-queue workers
+
+
+1.002     2017-12-11 06:06:47+08:00 Asia/Kuala_Lumpur
+    Dependencies:
+
+    - Explicit Log::Any dependency to ensure that context support is available
+
+    New features:
+
+    - PSUBSCRIBE support
+
+1.001     2017-12-11 05:38:20+08:00 Asia/Kuala_Lumpur
+    Dependencies:
+
+    - Added Test::HexString and Test::Deep to test deps list
+
+    New features:
+
+    - Support for MULTI transactions via ->multi method
+
+    Examples:
+
+    - `examples/job-worker.pl` - Simple list-based job queue
+    - `examples/multi.pl` - Transaction using MULTI
+
+1.000     2017-12-09 16:51:40+08:00 Asia/Kuala_Lumpur
+    First stable release. Note that there are some API changes, but
+    previous code should work mostly unmodified.
+
+    New features:
+
+    - Dropped Protocol::Redis in favour of local implementation
+    - Separated out commands into an autogenerated class to make
+    it easier to keep up to date with protocol changes
+    - Better support for subscriptions (see `examples/pub|sub.pl`)
+    - Dropped JSON::MaybeXS and Mixin::Event::Dispatch deps, events
+    are now handled through Ryu
+
+    Known issues:
+
+    - All data is assumed to be binary, callers need their own
+    Encode::encode()/::decode() calls - future versions are likely
+    to include an `->encoding` setting and/or `_utf8` versions of
+    string methods.
+
+0.003     2015-11-15 03:16:27+00:00 Europe/London
+    No new features.
+
+    Dependencies:
+
+    - Added List::Util 1.29, for pairmap
+
+0.002     2015-11-13 16:35:59+00:00 Europe/London
+    Bugs fixed:
+
+    - [RT107134](https://rt.cpan.org/Public/Bug/Display.html?id=107134) Include JSON::MaybeXS dependency
+
+0.001     2015-09-14 02:30:30+01:00 Europe/London
+    Initial CPAN release
