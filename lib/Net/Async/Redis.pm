@@ -162,6 +162,7 @@ use mro;
 use Class::Method::Modifiers;
 use Syntax::Keyword::Try;
 use Syntax::Keyword::Dynamically;
+use Syntax::Keyword::Match;
 use curry::weak;
 use Future::AsyncAwait;
 use IO::Async::Stream;
@@ -169,6 +170,10 @@ use Ryu::Async;
 use URI;
 use URI::redis;
 use Cache::LRU;
+use YAML::XS ();
+use Path::Tiny;
+use Dir::Self;
+use File::ShareDir ();
 
 use Log::Any qw($log);
 use Metrics::Any qw($metrics), strict => 0;
@@ -221,6 +226,16 @@ our %SUBSCRIPTION_COMMANDS = (
     PMESSAGE     => 1,
 );
 
+our %COMMAND_DEFINITION = do {
+    my $path = Path::Tiny::path(__DIR__)->parent(3)->child('share/commands.yaml');
+    $path = Path::Tiny::path(
+        File::ShareDir::dist_file(
+            'Net-Async-Redis',
+            'commands.yaml'
+        )
+    ) unless $path->exists;
+    YAML::XS::LoadFile("$path")->%*
+};
 
 =head1 METHODS
 
@@ -1356,6 +1371,141 @@ sub _init {
 sub _add_to_loop {
     my ($self, $loop) = @_;
     delete $self->{client_side_connection};
+}
+
+=head2 retrieve_full_command_list
+
+Iterates through all commands defined in Redis, extracting the information about
+that command using C<COMMAND INFO>.
+
+The data is formatted for internal use, converting information such as flags
+into hashrefs for easier lookup.
+
+This information is also used by L</extract_keys_from_command>.
+
+Returns a hashref, where each key represents a method name (space-separated
+commands such as C<CLUSTER NODES> are returned as C<cluster_nodes>). The values
+are a restructured form of L<https://redis.io/commands/command>.
+
+=cut
+
+async sub retrieve_full_command_list {
+    my ($self) = @_;
+    my %data;
+    my $commands = await $self->command_list;
+    for my $command_name ($commands->@*) {
+        my $method_name = $command_name =~ s/\|/_/gr;
+        my ($info) = (await $self->command_info($command_name))->@*;
+        my ($name, $arity, $flags, $first_key, $last_key, $step, $acl_cat, $tips, $key_spec, $subcommands) = $info->@*;
+        $flags = +{ map { $_ => 1 } $flags->@* };
+        $acl_cat = +{ map { $_ => 1 } $acl_cat->@* };
+        $tips = +{ map { $_ => 1 } $tips->@* };
+        $key_spec = +{ map { $_->@* } $key_spec->@* };
+        $key_spec->{begin_search} &&= +{ $key_spec->{begin_search}->@* };
+        $key_spec->{begin_search}{spec} &&= +{ $key_spec->{begin_search}{spec}->@* };
+        $key_spec->{find_keys} &&= +{ $key_spec->{find_keys}->@* };
+        $key_spec->{find_keys}{spec} &&= +{ $key_spec->{find_keys}{spec}->@* };
+        $key_spec->{flags} &&= +{ map { $_ => 1 } $key_spec->{flags}->@* };
+
+        $data{$method_name} = {
+            name        => $name,
+            arity       => $arity,
+            flags       => $flags,
+            first_key   => $first_key,
+            last_key    => $last_key,
+            step        => $step,
+            acl_cat     => $acl_cat,
+            tips        => $tips,
+            key_spec    => $key_spec,
+            subcommands => $subcommands
+        };
+    }
+    return \%data;
+}
+
+=head2 extract_keys_for_command
+
+Given a command arrayref and a definition for the server, this will
+return a list of any keys found in that command.
+
+=cut
+
+sub extract_keys_for_command {
+    my ($self, $command, $def) = @_;
+    $def //= \%COMMAND_DEFINITION;
+
+    # The command itself is represented as a method name
+    my ($cmd, @components) = $command->@*;
+    my $info = $def->{$cmd} or die 'command not found: ' . $cmd;
+    my $key_spec = $info->{key_spec};
+    my $type = $key_spec->{begin_search}{type};
+
+    match($type : eq) {
+        case('index') {
+            splice @components, 0, $key_spec->{begin_search}{spec}{index} - 1 if $key_spec->{begin_search}{spec}{index} > 1;
+        }
+        case('keyword') {
+            my $target = $key_spec->{begin_search}{spec}{keyword};
+            my $start = $key_spec->{begin_search}{spec}{startfrom};
+            if($start < 0) {
+                splice @components, $start, -$#components if $start < -1;
+                pop @components while @components and uc($components[-1]) ne $target;
+                @components = reverse @components;
+            } else {
+                splice @components, 0, $start - 1 if $start > 1;
+                shift @components while @components and uc($components[0]) ne $target;
+                shift @components;
+            }
+        }
+        case('unknown') {
+            die 'this is unknown: ' . $cmd;
+        }
+        default {
+            die 'this is completely unknown: ' . $cmd;
+        }
+    }
+
+    match($key_spec->{find_keys}{type} : eq) {
+        case('range') {
+            my $spec = $key_spec->{find_keys}{spec};
+            my $last_key = $spec->{lastkey};
+            return shift @components unless $last_key;
+
+            my $key_step = $spec->{keystep};
+            my $limit = $spec->{limit};
+
+            splice @components, (1 + $last_key) * ($key_step + 1) if $last_key < -1;
+            my $target_index = 0 + @components;
+            $target_index = $last_key * $key_step if $last_key > 0;
+            $target_index = int($target_index / $limit) if $limit > 1;
+            $target_index //= 1;
+
+            my @keys;
+            while(@components and $target_index--) {
+                my ($next) = splice @components, 0, $key_step;
+                push @keys, $next;
+            }
+            return @keys;
+        }
+        case('keynum') {
+            my $spec = $key_spec->{find_keys}{spec};
+            my $key_step = $spec->{keystep};
+            my $count = $components[$spec->{keynumidx}];
+            splice @components, 0, $spec->{firstkey};
+            my @keys;
+            while(@components and $count--) {
+                my ($next) = splice @components, 0, $key_step;
+                push @keys, $next;
+            }
+            return @keys;
+        }
+        case('unknown') {
+            die 'this is unknown: ' . $cmd;
+        }
+        default {
+            die 'this is completely unknown: ' . $cmd;
+        }
+    }
 }
 
 1;
