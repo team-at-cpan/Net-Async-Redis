@@ -158,6 +158,7 @@ async sub bootstrap {
     try {
         $self->add_child(
             $redis = Net::Async::Redis->new(
+                $self->node_config,
                 host => $args{host},
                 port => $args{port},
             )
