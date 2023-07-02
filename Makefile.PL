@@ -6,11 +6,18 @@ use warnings;
 
 use ExtUtils::MakeMaker;
 
+use File::ShareDir::Install;
+$File::ShareDir::Install::INCLUDE_DOTFILES = 1;
+$File::ShareDir::Install::INCLUDE_DOTDIRS = 1;
+install_share dist => "share";
+
+
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Redis support for IO::Async",
   "AUTHOR" => "Tom Molesworth <TEAM\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => 0
+    "ExtUtils::MakeMaker" => 0,
+    "File::ShareDir::Install" => "0.06"
   },
   "DISTNAME" => "Net-Async-Redis",
   "LICENSE" => "perl",
@@ -19,6 +26,7 @@ my %WriteMakefileArgs = (
     "Cache::LRU" => "0.04",
     "Class::Method::Modifiers" => 0,
     "Digest::CRC" => "0.22",
+    "Dir::Self" => 0,
     "Future" => "0.47",
     "Future::AsyncAwait" => "0.48",
     "IO::Async" => 0,
@@ -28,12 +36,14 @@ my %WriteMakefileArgs = (
     "Math::Random::Secure" => 0,
     "Metrics::Any" => 0,
     "OpenTracing::Any" => "1.003",
+    "Path::Tiny" => 0,
     "Ryu" => "2.009",
     "Ryu::Async" => "0.019",
     "Syntax::Keyword::Dynamically" => "0.07",
     "Syntax::Keyword::Try" => "0.21",
     "URI" => 0,
     "URI::redis" => 0,
+    "YAML::XS" => "0.88",
     "curry" => 0,
     "parent" => 0
   },
@@ -61,6 +71,7 @@ my %FallbackPrereqs = (
   "Cache::LRU" => "0.04",
   "Class::Method::Modifiers" => 0,
   "Digest::CRC" => "0.22",
+  "Dir::Self" => 0,
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
   "Future" => "0.47",
@@ -74,6 +85,7 @@ my %FallbackPrereqs = (
   "Math::Random::Secure" => 0,
   "Metrics::Any" => 0,
   "OpenTracing::Any" => "1.003",
+  "Path::Tiny" => 0,
   "Ryu" => "2.009",
   "Ryu::Async" => "0.019",
   "Syntax::Keyword::Dynamically" => "0.07",
@@ -87,6 +99,7 @@ my %FallbackPrereqs = (
   "URI" => 0,
   "URI::redis" => 0,
   "Variable::Disposition" => "0.004",
+  "YAML::XS" => "0.88",
   "curry" => 0,
   "parent" => 0
 );
@@ -102,3 +115,9 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
 WriteMakefile(%WriteMakefileArgs);
+
+{
+package
+MY;
+use File::ShareDir::Install qw(postamble);
+}
