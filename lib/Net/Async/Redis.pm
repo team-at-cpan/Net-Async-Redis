@@ -59,9 +59,9 @@ Current features include:
 
 =over 4
 
-=item * L<all commands|https://redis.io/commands> as of 7.0 RC2 (March 2022), see L<https://redis.io/commands> for the methods and parameters
+=item * L<all commands|https://redis.io/commands> as of 7.2 RC2 (July 2023), see L<https://redis.io/commands> for the methods and parameters
 
-=item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</METHODS - Subscriptions>
+=item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</METHODS - Subscriptions> including sharded pubsub
 
 =item * L<pipelining|https://redis.io/topics/pipelining>, see L</pipeline_depth>
 
@@ -72,6 +72,10 @@ Current features include:
 =item * L<client-side caching|https://redis.io/topics/client-side-caching>, see L</METHODS - Clientside caching>
 
 =item * L<RESP3/https://github.com/antirez/RESP3/blob/master/spec.md> protocol for Redis 6 and above, allowing pubsub on the same connection as regular commands
+
+=item * cluster support via L<Net::Async::Redis::Cluster>
+
+=item * L<Net::Async::Redis::XS> for a faster XS version (can be 40x faster than the pure Perl version, particularly when parsing large L</xreadgroup> responses)
 
 =back
 
