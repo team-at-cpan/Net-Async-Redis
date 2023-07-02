@@ -55,12 +55,15 @@ proxy routing dæmon, or a service mesh such as L<https://istio.io/|istio>.
 =cut
 
 no indirect;
+use Class::Method::Modifiers;
 use Syntax::Keyword::Try;
+use Syntax::Keyword::Dynamically;
 use Future::AsyncAwait;
 use Future::Utils qw(fmap_void fmap_concat);
 use List::BinarySearch::XS qw(binsearch);
 use List::UtilsBy qw(nsort_by);
 use List::Util qw(first);
+use Scalar::Util qw(reftype);
 use Digest::CRC qw(crc);
 use Cache::LRU;
 
@@ -207,6 +210,108 @@ async sub watch_keyspace {
     return $combined;
 }
 
+=head2 client_setname
+
+Apply client name to all nodes.
+
+Note that this only updates the current nodes, it will not
+apply to new nodes. Use the L<Net::Async::Redis/client_name>
+constructor/L</configure> parameter to apply to all nodes.
+
+=cut
+
+async sub client_setname {
+    my ($self, $name) = @_;
+    await fmap_concat {
+        $_->primary_connection->then(sub {
+            shift->client_setname($name);
+        });
+    } foreach => [$self->{nodes}->@*], concurrent => 4;
+    return 'OK';
+}
+
+=head2 multi
+
+A C<MULTI> transaction on a Redis cluster works slightly differently from
+single-node setups.
+
+=over 4
+
+=item * issue C<MULTI> on all nodes
+
+=item * execute the commands, distributing across nodes as usual
+
+=item * issue C<EXEC> or C<DISCARD> as appropriate
+
+=back
+
+Note that the coderef is called only once, even if there are multiple nodes involved.
+
+Currently, there's no optimisation for limiting C<MULTI> to the nodes
+participating in the transaction.
+
+=cut
+
+async sub multi {
+    my ($self, $code) = @_;
+    die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
+
+    my $multi = Net::Async::Redis::Multi->new(
+        redis => $self,
+    );
+    my @pending = @{$self->{pending_multi} ||= []};
+
+    $log->tracef('Have %d pending MULTI transactions',
+        0 + @pending
+    );
+    push @{$self->{pending_multi}}, $self->loop->new_future;
+
+    await Future->wait_all(
+        @pending
+    ) if @pending;
+
+    # Start a transaction on all primary nodes
+    my $cmd = Net::Async::Redis::Commands->can('multi');
+    await fmap_concat(sub {
+        my ($node) = @_;
+        $node->primary_connection->then(sub {
+            dynamically $self->{_is_multi} = 1;
+            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled })
+        });
+    }, foreach => [$self->{nodes}->@*], concurrent => 4);
+    return await $multi->exec($code)
+}
+
+async sub discard {
+    my ($self, @args) = @_;
+    my $cmd = Net::Async::Redis::Commands->can('discard');
+    await fmap_concat(sub {
+        my ($node) = @_;
+        $node->primary_connection->then(sub {
+            dynamically $self->{_is_multi} = 1;
+            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled })
+        });
+    }, foreach => [$self->{nodes}->@*], concurrent => 4);
+    (shift @{$self->{pending_multi}})->done;
+    return;
+}
+
+async sub exec {
+    my ($self, @args) = @_;
+    my $cmd = Net::Async::Redis::Commands->can('exec');
+$log->infof('About to EXEC');
+    my (@res) = await fmap_concat(sub {
+        my ($node) = @_;
+        $node->primary_connection->then(sub {
+            dynamically $self->{_is_multi} = 1;
+            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled; $log->infof('Results: %s', $f->get) if $f->is_done; })
+        });
+    }, foreach => [$self->{nodes}->@*], concurrent => 4);
+$log->infof('Results were: %s', \@res);
+    (shift @{$self->{pending_multi}})->done;
+    return [ map { $_->@* } grep { $_ } @res ];
+};
+
 =head1 METHODS - Internal
 
 =cut
@@ -215,6 +320,11 @@ async sub node_connection_established {
     my ($self, $node, $redis) = @_;
     $self->clientside_cache_events->emit_from($redis->clientside_cache_events) if $redis->is_client_side_cache_enabled;
     return;
+}
+
+sub future {
+    my ($self) = @_;
+    return $self->loop->new_future(@_);
 }
 
 sub node_config {
