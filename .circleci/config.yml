@@ -1,11 +1,11 @@
 version: 2.1
 jobs:
-  redis62:
+  redis7:
     docker:
     - image: tm604/perl-dzil
       environment:
         NET_ASYNC_REDIS_HOST: 127.0.0.1
-    - image: redis:6.2
+    - image: redis:7
     steps:
     - checkout
     - restore_cache:
@@ -92,6 +92,6 @@ workflows:
     jobs:
     - redis5
     - redis6
-    - redis62
+    - redis7
     - compatibility
 
