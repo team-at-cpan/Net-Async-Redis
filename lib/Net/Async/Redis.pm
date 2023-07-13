@@ -297,6 +297,7 @@ sub configure {
     for (qw(
         host
         port
+        username
         auth
         database
         pipeline_depth
@@ -429,7 +430,15 @@ sub connect : method {
     $uri->path('/' . $self->database) if $self->database;
 
     my $auth = $self->{auth};
-    $auth //= ($uri->userinfo =~ s{^[^:]*:}{}r) if defined $uri->userinfo;
+    # Our configured values are used in preference to the URI,
+    # to support separation of sensitive information (pull URI
+    # from config with defaults for user/password, then override
+    # those with secret values taken from another source).
+    my $username = $self->{username} // 'default';
+    if(!defined($auth) and defined($uri->userinfo)) {
+        (my $userpart, $auth) = split ':', $uri->userinfo, 2;
+        $username = $userpart if length $userpart;
+    }
     $log->tracef('About to start connection to %s', "$uri");
     $self->{connection} //= $self->loop->connect(
         service => $uri->port // 6379,
@@ -469,7 +478,7 @@ sub connect : method {
             dynamically $self->{connection_in_progress} = 1;
             await $self->hello(
                 3, defined($auth) ? (
-                    qw(AUTH default), $auth
+                    qw(AUTH), $username, $auth
                 ) : (), defined($self->client_name) ? (
                     qw(SETNAME), $self->client_name
                 ) : ()
