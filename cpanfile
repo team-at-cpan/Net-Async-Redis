@@ -5,6 +5,7 @@ requires 'Dir::Self', 0;
 requires 'Future', '>= 0.47';
 requires 'Future::AsyncAwait', '>= 0.48';
 requires 'Syntax::Keyword::Try', '>= 0.21';
+requires 'Syntax::Keyword::Match', 0;
 requires 'Syntax::Keyword::Dynamically', '>= 0.07';
 requires 'IO::Async', 0;
 requires 'Ryu', '>= 2.008';
