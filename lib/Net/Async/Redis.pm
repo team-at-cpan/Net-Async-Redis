@@ -308,6 +308,9 @@ sub configure {
         opentracing
         protocol
         hashrefs
+        tls_cert_file
+        tls_key_file
+        tls_ca_file
     )) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
@@ -440,10 +443,16 @@ sub connect : method {
         $username = $userpart if length $userpart;
     }
     $log->tracef('About to start connection to %s', "$uri");
+    my $tls = $self->{tls} // $uri->secure // 0;
+    require IO::Async::SSL if $tls;
     $self->{connection} //= $self->loop->connect(
         service => $uri->port // 6379,
         host    => $uri->host,
         socktype => 'stream',
+        $tls ? (
+            extensions => ['SSL'],
+            $self->ssl_options->%*,
+        ) : (),
     )->then(async sub {
         my ($sock) = @_;
         $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
@@ -1525,6 +1534,28 @@ sub extract_keys_for_command {
             die 'this is completely unknown: ' . $cmd;
         }
     }
+}
+
+=head2 ssl_options
+
+Extracts the SSL-related options as a hashref for passing
+to C<< $loop->connect >>.
+
+=cut
+
+sub ssl_options {
+    my ($self) = @_;
+    return {
+        map {
+            defined $self->{"tls_$_"} ? (
+                "SSL_$_" => $self->{"tls_$_"}
+            ) : ()
+        } qw(
+            cert_file
+            key_file
+            ca_file
+        )
+    };
 }
 
 1;
