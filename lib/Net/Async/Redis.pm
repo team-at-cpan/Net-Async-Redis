@@ -1609,6 +1609,8 @@ tests and feedback:
 
 =item * Marc Frank
 
+=item * C<< @pnevins >>
+
 =back
 
 =head1 LICENSE
