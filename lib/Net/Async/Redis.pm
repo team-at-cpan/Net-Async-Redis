@@ -241,6 +241,12 @@ our %COMMAND_DEFINITION = do {
     YAML::XS::LoadFile("$path")->%*
 };
 
+# Add support for secure Redis `rediss://...` URIs
+unless(URI::rediss->can('new')) {
+    push @URI::rediss::ISA, qw(URI::redis);
+    *URI::rediss::secure = sub { 1 };
+}
+
 =head1 METHODS
 
 B<NOTE>: For a full list of the Redis methods supported by this module,
@@ -311,7 +317,7 @@ sub configure {
     # would we expect it to be?
     if(exists $args{uri}) {
         my $uri = delete $args{uri};
-        $uri = "redis://$uri" unless ref($uri) or $uri =~ /^redis:/;
+        $uri = "redis://$uri" unless ref($uri) or $uri =~ /^rediss?:/;
         $self->{uri} = $uri;
     }
 
