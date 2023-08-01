@@ -1228,8 +1228,9 @@ sub execute_command {
         }
         my $data = $self->wire_protocol->encode_from_client(@cmd);
 
-        # Void-context write allows IaStream to combine multiple writes on the same connection.
         push @{$self->{pending}}, [ $cmd, $f ];
+
+        # Void-context write allows IaStream to combine multiple writes on the same connection.
         $self->stream->write($data);
         return $f
     };
