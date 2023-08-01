@@ -521,9 +521,14 @@ we will attempt to rebuild the slot hashes and try again
 
 =cut
 
-async sub execute_command {
+sub execute_command {
     my ($self, @cmd) = @_;
     $log->tracef('Will execute %s on cluster', join(' ', @cmd));
+    return $self->find_node_and_execute_command(@cmd)->retain;
+}
+
+async sub find_node_and_execute_command {
+    my ($self, @cmd) = @_;
     my $k;
     if($cmd[0] eq 'XREADGROUP' or $cmd[0] eq 'XREAD') {
         my ($idx) = grep { $cmd[$_] eq 'STREAMS' } 0..$#cmd;
