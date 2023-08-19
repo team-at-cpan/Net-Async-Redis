@@ -1465,7 +1465,13 @@ sub extract_keys_for_command {
 
     # The command itself is represented as a method name
     my ($cmd, @components) = $command->@*;
-    my $info = $def->{$cmd} or die 'command not found: ' . $cmd;
+    my $info = $def->{lc $cmd} or die 'command not found: ' . $cmd;
+    while(@components && $info->{subcommands} && $info->{subcommands}->@*) {
+        my $next = "${cmd}_" . $components[0];
+        last unless exists $def->{lc $next};
+        $cmd = $next;
+        $info = $def->{lc $cmd};
+    }
     my $key_spec = $info->{key_spec};
     my $type = $key_spec->{begin_search}{type};
 
