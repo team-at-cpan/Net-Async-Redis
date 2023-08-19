@@ -28,6 +28,9 @@ requires 'Digest::CRC', '>= 0.22';
 requires 'List::BinarySearch::XS', '>= 0.09';
 requires 'YAML::XS', '>= 0.88';
 
+requires 'File::ShareDir';
+requires 'File::ShareDir::Install';
+
 on 'test' => sub {
     requires 'Test::More', '>= 0.98';
     requires 'Test::Fatal', '>= 0.016';
