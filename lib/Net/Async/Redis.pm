@@ -1460,7 +1460,7 @@ return a list of any keys found in that command.
 =cut
 
 sub extract_keys_for_command {
-    my ($self, $command, $def) = @_;
+    my ($class, $command, $def) = @_;
     $def //= \%COMMAND_DEFINITION;
 
     # The command itself is represented as a method name

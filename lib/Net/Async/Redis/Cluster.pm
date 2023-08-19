@@ -529,19 +529,12 @@ sub execute_command {
 
 async sub find_node_and_execute_command {
     my ($self, @cmd) = @_;
-    my $k;
-    if($cmd[0] eq 'XREADGROUP' or $cmd[0] eq 'XREAD') {
-        my ($idx) = grep { $cmd[$_] eq 'STREAMS' } 0..$#cmd;
-        $k = $cmd[$idx + 1];
-    } else {
-        # So far our longest command name is 2 words
-        my $key_idx = $Net::Async::Redis::Commands::KEY_FINDER{$cmd[0]};
-        $key_idx //= $Net::Async::Redis::Commands::KEY_FINDER{$cmd[0] . ' ' . $cmd[1]} if @cmd > 1;
-        die 'no index found for ' . join(' ', @cmd) unless defined $key_idx;
-        $k = $cmd[$key_idx];
-    }
-    my $slot = $self->hash_slot_for_key($k);
-    $log->tracef('Look up hash slot for %s - %d', $k, $slot);
+    my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
+    my @slots = map { $self->hash_slot_for_key($_) } @keys;
+    my %slots = map { $_ => 1 } @slots;
+    die 'Multiple slots for command' if keys(%slots) > 1;
+    my $slot = shift(@slots);
+    $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
     my $redis = await $self->connection_for_slot($slot);
     # Some commands have modifiers around them for RESP2/3 transparent support
     my ($command, @args) = @cmd;
