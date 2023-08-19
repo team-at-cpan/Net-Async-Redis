@@ -1474,6 +1474,7 @@ sub extract_keys_for_command {
     }
     my $key_spec = $info->{key_spec};
     my $type = $key_spec->{begin_search}{type};
+    return @components if !defined($type) and $info->{arity} == -2;
 
     match($type : eq) {
         case('index') {
