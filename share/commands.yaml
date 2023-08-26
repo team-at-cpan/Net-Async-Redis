@@ -10,44 +10,6 @@ acl:
   name: acl
   step: 0
   subcommands:
-  - - acl|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - acl|whoami
-    - 2
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - acl|dryrun
-    - -4
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
-    - []
-    - []
   - - acl|load
     - 2
     - - admin
@@ -63,18 +25,14 @@ acl:
     - []
     - []
     - []
-  - - acl|users
+  - - acl|help
     - 2
-    - - admin
-      - noscript
-      - loading
+    - - loading
       - stale
     - 0
     - 0
     - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
+    - - '@slow'
     - []
     - []
     - []
@@ -87,21 +45,6 @@ acl:
     - 0
     - 0
     - - '@slow'
-    - []
-    - []
-    - []
-  - - acl|deluser
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
     - []
     - []
     - []
@@ -120,7 +63,76 @@ acl:
     - []
     - []
     - []
+  - - acl|dryrun
+    - -4
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|cat
+    - -2
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - acl|log
+    - -2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|whoami
+    - 2
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
   - - acl|save
+    - 2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|list
     - 2
     - - admin
       - noscript
@@ -150,20 +162,8 @@ acl:
     - []
     - []
     - []
-  - - acl|cat
-    - -2
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - acl|list
-    - 2
+  - - acl|deluser
+    - -3
     - - admin
       - noscript
       - loading
@@ -177,8 +177,8 @@ acl:
     - []
     - []
     - []
-  - - acl|log
-    - -2
+  - - acl|users
+    - 2
     - - admin
       - noscript
       - loading
@@ -681,7 +681,6 @@ blmove:
   flags:
     blocking: 1
     denyoom: 1
-    noscript: 1
     write: 1
   key_spec:
   - begin_search:
@@ -758,7 +757,6 @@ blpop:
   first_key: 1
   flags:
     blocking: 1
-    noscript: 1
     write: 1
   key_spec:
   - begin_search:
@@ -790,7 +788,6 @@ brpop:
   first_key: 1
   flags:
     blocking: 1
-    noscript: 1
     write: 1
   key_spec:
   - begin_search:
@@ -823,7 +820,6 @@ brpoplpush:
   flags:
     blocking: 1
     denyoom: 1
-    noscript: 1
     write: 1
   key_spec:
   - begin_search:
@@ -901,7 +897,6 @@ bzpopmax:
   flags:
     blocking: 1
     fast: 1
-    noscript: 1
     write: 1
   key_spec:
   - begin_search:
@@ -934,7 +929,6 @@ bzpopmin:
   flags:
     blocking: 1
     fast: 1
-    noscript: 1
     write: 1
   key_spec:
   - begin_search:
@@ -980,31 +974,6 @@ client:
     - []
     - []
     - []
-  - - client|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|info
-    - 2
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - - nondeterministic_output
-    - []
-    - []
   - - client|kill
     - -3
     - - admin
@@ -1017,6 +986,19 @@ client:
     - - '@admin'
       - '@slow'
       - '@dangerous'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|getredir
+    - 2
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
       - '@connection'
     - []
     - []
@@ -1034,8 +1016,8 @@ client:
     - []
     - []
     - []
-  - - client|id
-    - 2
+  - - client|caching
+    - 3
     - - noscript
       - loading
       - stale
@@ -1043,6 +1025,38 @@ client:
     - 0
     - 0
     - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|list
+    - -2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+      - '@connection'
+    - - nondeterministic_output
+    - []
+    - []
+  - - client|no-evict
+    - 3
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
       - '@connection'
     - []
     - []
@@ -1060,8 +1074,21 @@ client:
     - []
     - []
     - []
-  - - client|unpause
-    - 2
+  - - client|tracking
+    - -3
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|pause
+    - -3
     - - admin
       - noscript
       - loading
@@ -1076,7 +1103,7 @@ client:
     - []
     - []
     - []
-  - - client|caching
+  - - client|no-touch
     - 3
     - - noscript
       - loading
@@ -1102,8 +1129,20 @@ client:
     - []
     - []
     - []
-  - - client|tracking
-    - -3
+  - - client|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|id
+    - 2
     - - noscript
       - loading
       - stale
@@ -1131,55 +1170,20 @@ client:
     - []
     - []
     - []
-  - - client|list
-    - -2
-    - - admin
-      - noscript
+  - - client|setinfo
+    - 4
+    - - noscript
       - loading
       - stale
     - 0
     - 0
     - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-      - '@connection'
-    - - nondeterministic_output
-    - []
-    - []
-  - - client|pause
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
+    - - '@slow'
       - '@connection'
     - []
     - []
     - []
-  - - client|no-evict
-    - 3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|getredir
+  - - client|info
     - 2
     - - noscript
       - loading
@@ -1188,6 +1192,22 @@ client:
     - 0
     - 0
     - - '@slow'
+      - '@connection'
+    - - nondeterministic_output
+    - []
+    - []
+  - - client|unpause
+    - 2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
       - '@connection'
     - []
     - []
@@ -1347,6 +1367,22 @@ client_no-evict:
   step: 0
   subcommands: []
   tips: {}
+client_no-touch:
+  acl_cat:
+    '@connection': 1
+    '@slow': 1
+  arity: 3
+  first_key: 0
+  flags:
+    loading: 1
+    noscript: 1
+    stale: 1
+  key_spec: []
+  last_key: 0
+  name: client|no-touch
+  step: 0
+  subcommands: []
+  tips: {}
 client_pause:
   acl_cat:
     '@admin': 1
@@ -1379,6 +1415,22 @@ client_reply:
   key_spec: []
   last_key: 0
   name: client|reply
+  step: 0
+  subcommands: []
+  tips: {}
+client_setinfo:
+  acl_cat:
+    '@connection': 1
+    '@slow': 1
+  arity: 4
+  first_key: 0
+  flags:
+    loading: 1
+    noscript: 1
+    stale: 1
+  key_spec: []
+  last_key: 0
+  name: client|setinfo
   step: 0
   subcommands: []
   tips: {}
@@ -1479,30 +1531,24 @@ cluster:
   name: cluster
   step: 0
   subcommands:
-  - - cluster|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - cluster|links
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|slaves
+  - - cluster|replicate
     - 3
     - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|reset
+    - -2
+    - - admin
+      - noscript
       - stale
     - 0
     - 0
@@ -1510,14 +1556,13 @@ cluster:
     - - '@admin'
       - '@slow'
       - '@dangerous'
-    - - nondeterministic_output
     - []
     - []
-  - - cluster|forget
+    - []
+  - - cluster|slaves
     - 3
     - - admin
       - stale
-      - no_async_loading
     - 0
     - 0
     - 0
@@ -1540,8 +1585,8 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|addslotsrange
-    - -4
+  - - cluster|failover
+    - -2
     - - admin
       - stale
       - no_async_loading
@@ -1551,11 +1596,11 @@ cluster:
     - - '@admin'
       - '@slow'
       - '@dangerous'
-    - - nondeterministic_output
     - []
     - []
-  - - cluster|bumpepoch
-    - 2
+    - []
+  - - cluster|delslots
+    - -3
     - - admin
       - stale
       - no_async_loading
@@ -1565,20 +1610,7 @@ cluster:
     - - '@admin'
       - '@slow'
       - '@dangerous'
-    - - nondeterministic_output
     - []
-    - []
-  - - cluster|count-failure-reports
-    - 3
-    - - admin
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
     - []
     - []
   - - cluster|delslotsrange
@@ -1592,96 +1624,26 @@ cluster:
     - - '@admin'
       - '@slow'
       - '@dangerous'
-    - - nondeterministic_output
     - []
     - []
-  - - cluster|myid
+    - []
+  - - cluster|countkeysinslot
+    - 3
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - cluster|links
     - 2
     - - stale
     - 0
     - 0
     - 0
     - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|addslots
-    - -3
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|meet
-    - -4
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|set-config-epoch
-    - 3
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|replicate
-    - 3
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|info
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|setslot
-    - -4
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
     - - nondeterministic_output
     - []
     - []
@@ -1696,95 +1658,12 @@ cluster:
     - - '@admin'
       - '@slow'
       - '@dangerous'
-    - - nondeterministic_output
     - []
     - []
-  - - cluster|failover
-    - -2
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
     - []
-    - []
-  - - cluster|nodes
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|delslots
-    - -3
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|shards
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|keyslot
+  - - cluster|count-failure-reports
     - 3
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|flushslots
-    - 2
     - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|slots
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|reset
-    - -2
-    - - admin
-      - noscript
       - stale
     - 0
     - 0
@@ -1805,13 +1684,198 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|countkeysinslot
+  - - cluster|addslots
+    - -3
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|addslotsrange
+    - -4
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|flushslots
+    - 2
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|shards
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - cluster|meet
+    - -4
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|setslot
+    - -4
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|myid
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - cluster|info
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|nodes
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|keyslot
     - 3
     - - stale
     - 0
     - 0
     - 0
     - - '@slow'
+    - []
+    - []
+    - []
+  - - cluster|set-config-epoch
+    - 3
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|myshardid
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|forget
+    - 3
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - cluster|slots
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|bumpepoch
+    - 2
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
     - - nondeterministic_output
     - []
     - []
@@ -1832,8 +1896,7 @@ cluster_addslots:
   name: cluster|addslots
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_addslotsrange:
   acl_cat:
     '@admin': 1
@@ -1850,8 +1913,7 @@ cluster_addslotsrange:
   name: cluster|addslotsrange
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_bumpepoch:
   acl_cat:
     '@admin': 1
@@ -1899,8 +1961,7 @@ cluster_countkeysinslot:
   name: cluster|countkeysinslot
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_delslots:
   acl_cat:
     '@admin': 1
@@ -1917,8 +1978,7 @@ cluster_delslots:
   name: cluster|delslots
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_delslotsrange:
   acl_cat:
     '@admin': 1
@@ -1935,8 +1995,7 @@ cluster_delslotsrange:
   name: cluster|delslotsrange
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_failover:
   acl_cat:
     '@admin': 1
@@ -1953,8 +2012,7 @@ cluster_failover:
   name: cluster|failover
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_flushslots:
   acl_cat:
     '@admin': 1
@@ -1971,8 +2029,7 @@ cluster_flushslots:
   name: cluster|flushslots
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_forget:
   acl_cat:
     '@admin': 1
@@ -1989,8 +2046,7 @@ cluster_forget:
   name: cluster|forget
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_getkeysinslot:
   acl_cat:
     '@slow': 1
@@ -2045,8 +2101,7 @@ cluster_keyslot:
   name: cluster|keyslot
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_links:
   acl_cat:
     '@slow': 1
@@ -2077,8 +2132,7 @@ cluster_meet:
   name: cluster|meet
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_myid:
   acl_cat:
     '@slow': 1
@@ -2089,6 +2143,19 @@ cluster_myid:
   key_spec: []
   last_key: 0
   name: cluster|myid
+  step: 0
+  subcommands: []
+  tips: {}
+cluster_myshardid:
+  acl_cat:
+    '@slow': 1
+  arity: 2
+  first_key: 0
+  flags:
+    stale: 1
+  key_spec: []
+  last_key: 0
+  name: cluster|myshardid
   step: 0
   subcommands: []
   tips:
@@ -2140,8 +2207,7 @@ cluster_replicate:
   name: cluster|replicate
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_reset:
   acl_cat:
     '@admin': 1
@@ -2158,8 +2224,7 @@ cluster_reset:
   name: cluster|reset
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_saveconfig:
   acl_cat:
     '@admin': 1
@@ -2176,8 +2241,7 @@ cluster_saveconfig:
   name: cluster|saveconfig
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_set-config-epoch:
   acl_cat:
     '@admin': 1
@@ -2194,8 +2258,7 @@ cluster_set-config-epoch:
   name: cluster|set-config-epoch
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_setslot:
   acl_cat:
     '@admin': 1
@@ -2212,14 +2275,14 @@ cluster_setslot:
   name: cluster|setslot
   step: 0
   subcommands: []
-  tips:
-    nondeterministic_output: 1
+  tips: {}
 cluster_shards:
   acl_cat:
     '@slow': 1
   arity: 2
   first_key: 0
   flags:
+    loading: 1
     stale: 1
   key_spec: []
   last_key: 0
@@ -2251,6 +2314,7 @@ cluster_slots:
   arity: 2
   first_key: 0
   flags:
+    loading: 1
     stale: 1
   key_spec: []
   last_key: 0
@@ -2273,8 +2337,8 @@ command:
   name: command
   step: 0
   subcommands:
-  - - command|help
-    - 2
+  - - command|list
+    - -2
     - - loading
       - stale
     - 0
@@ -2282,7 +2346,7 @@ command:
     - 0
     - - '@slow'
       - '@connection'
-    - []
+    - - nondeterministic_output_order
     - []
     - []
   - - command|count
@@ -2297,8 +2361,8 @@ command:
     - []
     - []
     - []
-  - - command|docs
-    - -2
+  - - command|getkeys
+    - -3
     - - loading
       - stale
     - 0
@@ -2306,11 +2370,11 @@ command:
     - 0
     - - '@slow'
       - '@connection'
-    - - nondeterministic_output_order
+    - []
     - []
     - []
   - - command|getkeysandflags
-    - -4
+    - -3
     - - loading
       - stale
     - 0
@@ -2333,19 +2397,7 @@ command:
     - - nondeterministic_output_order
     - []
     - []
-  - - command|getkeys
-    - -4
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - command|list
+  - - command|docs
     - -2
     - - loading
       - stale
@@ -2355,6 +2407,18 @@ command:
     - - '@slow'
       - '@connection'
     - - nondeterministic_output_order
+    - []
+    - []
+  - - command|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
     - []
     - []
   tips:
@@ -2394,7 +2458,7 @@ command_getkeys:
   acl_cat:
     '@connection': 1
     '@slow': 1
-  arity: -4
+  arity: -3
   first_key: 0
   flags:
     loading: 1
@@ -2409,7 +2473,7 @@ command_getkeysandflags:
   acl_cat:
     '@connection': 1
     '@slow': 1
-  arity: -4
+  arity: -3
   first_key: 0
   flags:
     loading: 1
@@ -2478,6 +2542,21 @@ config:
   name: config
   step: 0
   subcommands:
+  - - config|rewrite
+    - 2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
   - - config|help
     - 2
     - - loading
@@ -2504,8 +2583,8 @@ config:
     - []
     - []
     - []
-  - - config|rewrite
-    - 2
+  - - config|get
+    - -3
     - - admin
       - noscript
       - loading
@@ -2533,21 +2612,6 @@ config:
       - '@dangerous'
     - - request_policy:all_nodes
       - response_policy:all_succeeded
-    - []
-    - []
-  - - config|get
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
     - []
     - []
   tips: {}
@@ -3270,16 +3334,15 @@ function:
   name: function
   step: 0
   subcommands:
-  - - function|help
-    - 2
-    - - loading
-      - stale
+  - - function|list
+    - -2
+    - - noscript
     - 0
     - 0
     - 0
     - - '@slow'
       - '@scripting'
-    - []
+    - - nondeterministic_output_order
     - []
     - []
   - - function|dump
@@ -3293,23 +3356,9 @@ function:
     - []
     - []
     - []
-  - - function|kill
-    - 2
-    - - noscript
-      - allow_busy
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@scripting'
-    - - request_policy:all_shards
-      - response_policy:one_succeeded
-    - []
-    - []
-  - - function|load
-    - -3
+  - - function|delete
+    - 3
     - - write
-      - denyoom
       - noscript
     - 0
     - 0
@@ -3336,9 +3385,10 @@ function:
       - response_policy:all_succeeded
     - []
     - []
-  - - function|delete
-    - 3
+  - - function|load
+    - -3
     - - write
+      - denyoom
       - noscript
     - 0
     - 0
@@ -3348,6 +3398,31 @@ function:
       - '@scripting'
     - - request_policy:all_shards
       - response_policy:all_succeeded
+    - []
+    - []
+  - - function|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@scripting'
+    - []
+    - []
+    - []
+  - - function|kill
+    - 2
+    - - noscript
+      - allow_busy
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@scripting'
+    - - request_policy:all_shards
+      - response_policy:one_succeeded
     - []
     - []
   - - function|flush
@@ -3362,17 +3437,6 @@ function:
       - '@scripting'
     - - request_policy:all_shards
       - response_policy:all_succeeded
-    - []
-    - []
-  - - function|list
-    - -2
-    - - noscript
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@scripting'
-    - - nondeterministic_output_order
     - []
     - []
   - - function|stats
@@ -4721,19 +4785,8 @@ latency:
   name: latency
   step: 0
   subcommands:
-  - - latency|help
+  - - latency|latest
     - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - latency|histogram
-    - -2
     - - admin
       - noscript
       - loading
@@ -4749,8 +4802,24 @@ latency:
       - response_policy:special
     - []
     - []
-  - - latency|doctor
-    - 2
+  - - latency|reset
+    - -2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - request_policy:all_nodes
+      - response_policy:all_succeeded
+    - []
+    - []
+  - - latency|histogram
+    - -2
     - - admin
       - noscript
       - loading
@@ -4783,22 +4852,6 @@ latency:
       - response_policy:special
     - []
     - []
-  - - latency|reset
-    - -2
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - request_policy:all_nodes
-      - response_policy:all_succeeded
-    - []
-    - []
   - - latency|graph
     - 3
     - - admin
@@ -4816,7 +4869,7 @@ latency:
       - response_policy:special
     - []
     - []
-  - - latency|latest
+  - - latency|doctor
     - 2
     - - admin
       - noscript
@@ -4831,6 +4884,17 @@ latency:
     - - nondeterministic_output
       - request_policy:all_nodes
       - response_policy:special
+    - []
+    - []
+  - - latency|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
     - []
     - []
   tips: {}
@@ -5451,17 +5515,6 @@ memory:
       - response_policy:special
     - []
     - []
-  - - memory|purge
-    - 2
-    - []
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - request_policy:all_shards
-      - response_policy:all_succeeded
-    - []
-    - []
   - - memory|usage
     - -3
     - - readonly
@@ -5500,6 +5553,17 @@ memory:
     - - nondeterministic_output
       - request_policy:all_shards
       - response_policy:special
+    - []
+    - []
+  - - memory|purge
+    - 2
+    - []
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - request_policy:all_shards
+      - response_policy:all_succeeded
     - []
     - []
   tips: {}
@@ -5691,15 +5755,17 @@ module:
   name: module
   step: 0
   subcommands:
-  - - module|help
+  - - module|list
     - 2
-    - - loading
-      - stale
+    - - admin
+      - noscript
     - 0
     - 0
     - 0
-    - - '@slow'
-    - []
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output_order
     - []
     - []
   - - module|load
@@ -5716,6 +5782,17 @@ module:
     - []
     - []
     - []
+  - - module|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
   - - module|loadex
     - -3
     - - admin
@@ -5728,19 +5805,6 @@ module:
       - '@slow'
       - '@dangerous'
     - []
-    - []
-    - []
-  - - module|list
-    - 2
-    - - admin
-      - noscript
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output_order
     - []
     - []
   - - module|unload
@@ -5947,9 +6011,7 @@ msetnx:
   name: msetnx
   step: 2
   subcommands: []
-  tips:
-    request_policy:multi_shard: 1
-    response_policy:agg_min: 1
+  tips: {}
 multi:
   acl_cat:
     '@fast': 1
@@ -5979,6 +6041,35 @@ object:
   name: object
   step: 0
   subcommands:
+  - - object|idletime
+    - 3
+    - - readonly
+    - 2
+    - 2
+    - 1
+    - - '@keyspace'
+      - '@read'
+      - '@slow'
+    - - nondeterministic_output
+    - - - flags
+        - - RO
+        - begin_search
+        - - type
+          - index
+          - spec
+          - - index
+            - 2
+        - find_keys
+        - - type
+          - range
+          - spec
+          - - lastkey
+            - 0
+            - keystep
+            - 1
+            - limit
+            - 0
+    - []
   - - object|help
     - 2
     - - loading
@@ -6020,7 +6111,7 @@ object:
             - limit
             - 0
     - []
-  - - object|idletime
+  - - object|encoding
     - 3
     - - readonly
     - 2
@@ -6050,35 +6141,6 @@ object:
             - 0
     - []
   - - object|refcount
-    - 3
-    - - readonly
-    - 2
-    - 2
-    - 1
-    - - '@keyspace'
-      - '@read'
-      - '@slow'
-    - - nondeterministic_output
-    - - - flags
-        - - RO
-        - begin_search
-        - - type
-          - index
-          - spec
-          - - index
-            - 2
-        - find_keys
-        - - type
-          - range
-          - spec
-          - - lastkey
-            - 0
-            - keystep
-            - 1
-            - limit
-            - 0
-    - []
-  - - object|encoding
     - 3
     - - readonly
     - 2
@@ -6640,7 +6702,7 @@ pubsub:
   name: pubsub
   step: 0
   subcommands:
-  - - pubsub|channels
+  - - pubsub|numsub
     - -2
     - - pubsub
       - loading
@@ -6664,7 +6726,7 @@ pubsub:
     - []
     - []
     - []
-  - - pubsub|shardchannels
+  - - pubsub|channels
     - -2
     - - pubsub
       - loading
@@ -6677,8 +6739,8 @@ pubsub:
     - []
     - []
     - []
-  - - pubsub|numsub
-    - -2
+  - - pubsub|numpat
+    - 2
     - - pubsub
       - loading
       - stale
@@ -6703,8 +6765,8 @@ pubsub:
     - []
     - []
     - []
-  - - pubsub|numpat
-    - 2
+  - - pubsub|shardchannels
+    - -2
     - - pubsub
       - loading
       - stale
@@ -6864,6 +6926,7 @@ randomkey:
   tips:
     nondeterministic_output: 1
     request_policy:all_shards: 1
+    response_policy:special: 1
 readonly:
   acl_cat:
     '@connection': 1
@@ -7314,6 +7377,7 @@ scan:
   tips:
     nondeterministic_output: 1
     request_policy:special: 1
+    response_policy:special: 1
 scard:
   acl_cat:
     '@fast': 1
@@ -7353,16 +7417,27 @@ script:
   name: script
   step: 0
   subcommands:
-  - - script|help
-    - 2
-    - - loading
-      - stale
+  - - script|debug
+    - 3
+    - - noscript
     - 0
     - 0
     - 0
     - - '@slow'
       - '@scripting'
     - []
+    - []
+    - []
+  - - script|flush
+    - -2
+    - - noscript
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@scripting'
+    - - request_policy:all_nodes
+      - response_policy:all_succeeded
     - []
     - []
   - - script|load
@@ -7378,19 +7453,6 @@ script:
       - response_policy:all_succeeded
     - []
     - []
-  - - script|kill
-    - 2
-    - - noscript
-      - allow_busy
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@scripting'
-    - - request_policy:all_shards
-      - response_policy:one_succeeded
-    - []
-    - []
   - - script|exists
     - -3
     - - noscript
@@ -7403,27 +7465,29 @@ script:
       - response_policy:agg_logical_and
     - []
     - []
-  - - script|flush
-    - -2
-    - - noscript
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@scripting'
-    - - request_policy:all_nodes
-      - response_policy:all_succeeded
-    - []
-    - []
-  - - script|debug
-    - 3
-    - - noscript
+  - - script|help
+    - 2
+    - - loading
+      - stale
     - 0
     - 0
     - 0
     - - '@slow'
       - '@scripting'
     - []
+    - []
+    - []
+  - - script|kill
+    - 2
+    - - noscript
+      - allow_busy
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@scripting'
+    - - request_policy:all_shards
+      - response_policy:one_succeeded
     - []
     - []
   tips: {}
@@ -7936,17 +8000,6 @@ slowlog:
   name: slowlog
   step: 0
   subcommands:
-  - - slowlog|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
   - - slowlog|reset
     - 2
     - - admin
@@ -7960,6 +8013,17 @@ slowlog:
       - '@dangerous'
     - - request_policy:all_nodes
       - response_policy:all_succeeded
+    - []
+    - []
+  - - slowlog|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
     - []
     - []
   - - slowlog|len
@@ -8825,11 +8889,26 @@ wait:
     '@slow': 1
   arity: 3
   first_key: 0
+  flags: {}
+  key_spec: []
+  last_key: 0
+  name: wait
+  step: 0
+  subcommands: []
+  tips:
+    request_policy:all_shards: 1
+    response_policy:agg_min: 1
+waitaof:
+  acl_cat:
+    '@connection': 1
+    '@slow': 1
+  arity: 4
+  first_key: 0
   flags:
     noscript: 1
   key_spec: []
   last_key: 0
-  name: wait
+  name: waitaof
   step: 0
   subcommands: []
   tips:
@@ -9026,8 +9105,8 @@ xgroup:
   name: xgroup
   step: 0
   subcommands:
-  - - xgroup|create
-    - -5
+  - - xgroup|createconsumer
+    - 5
     - - write
       - denyoom
     - 2
@@ -9057,21 +9136,10 @@ xgroup:
             - limit
             - 0
     - []
-  - - xgroup|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@stream'
-      - '@slow'
-    - []
-    - []
-    - []
-  - - xgroup|destroy
-    - 4
+  - - xgroup|create
+    - -5
     - - write
+      - denyoom
     - 2
     - 2
     - 1
@@ -9081,7 +9149,7 @@ xgroup:
     - []
     - - - flags
         - - RW
-          - delete
+          - insert
         - begin_search
         - - type
           - index
@@ -9129,10 +9197,9 @@ xgroup:
             - limit
             - 0
     - []
-  - - xgroup|createconsumer
-    - 5
+  - - xgroup|destroy
+    - 4
     - - write
-      - denyoom
     - 2
     - 2
     - 1
@@ -9142,7 +9209,7 @@ xgroup:
     - []
     - - - flags
         - - RW
-          - insert
+          - delete
         - begin_search
         - - type
           - index
@@ -9189,6 +9256,18 @@ xgroup:
             - 1
             - limit
             - 0
+    - []
+  - - xgroup|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@stream'
+      - '@slow'
+    - []
+    - []
     - []
   tips: {}
 xgroup_create:
@@ -9359,20 +9438,8 @@ xinfo:
   name: xinfo
   step: 0
   subcommands:
-  - - xinfo|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@stream'
-      - '@slow'
-    - []
-    - []
-    - []
-  - - xinfo|consumers
-    - 4
+  - - xinfo|groups
+    - 3
     - - readonly
     - 2
     - 2
@@ -9380,7 +9447,7 @@ xinfo:
     - - '@read'
       - '@stream'
       - '@slow'
-    - - nondeterministic_output
+    - []
     - - - flags
         - - RO
           - access
@@ -9400,6 +9467,18 @@ xinfo:
             - 1
             - limit
             - 0
+    - []
+  - - xinfo|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@stream'
+      - '@slow'
+    - []
+    - []
     - []
   - - xinfo|stream
     - -3
@@ -9431,8 +9510,8 @@ xinfo:
             - limit
             - 0
     - []
-  - - xinfo|groups
-    - 3
+  - - xinfo|consumers
+    - 4
     - - readonly
     - 2
     - 2
@@ -9440,7 +9519,7 @@ xinfo:
     - - '@read'
       - '@stream'
       - '@slow'
-    - []
+    - - nondeterministic_output
     - - - flags
         - - RO
           - access
@@ -10397,7 +10476,7 @@ zrank:
     '@fast': 1
     '@read': 1
     '@sortedset': 1
-  arity: 3
+  arity: -3
   first_key: 1
   flags:
     fast: 1
@@ -10623,7 +10702,7 @@ zrevrank:
     '@fast': 1
     '@read': 1
     '@sortedset': 1
-  arity: 3
+  arity: -3
   first_key: 1
   flags:
     fast: 1
