@@ -1429,12 +1429,16 @@ async sub retrieve_full_command_list {
         $flags = +{ map { $_ => 1 } $flags->@* };
         $acl_cat = +{ map { $_ => 1 } $acl_cat->@* };
         $tips = +{ map { $_ => 1 } $tips->@* };
-        $key_spec = +{ map { $_->@* } $key_spec->@* };
-        $key_spec->{begin_search} &&= +{ $key_spec->{begin_search}->@* };
-        $key_spec->{begin_search}{spec} &&= +{ $key_spec->{begin_search}{spec}->@* };
-        $key_spec->{find_keys} &&= +{ $key_spec->{find_keys}->@* };
-        $key_spec->{find_keys}{spec} &&= +{ $key_spec->{find_keys}{spec}->@* };
-        $key_spec->{flags} &&= +{ map { $_ => 1 } $key_spec->{flags}->@* };
+        my @key_specs;
+        for my $ks ($key_spec->@*) {
+            $key_spec = +{ $ks->@* };
+            $key_spec->{flags} &&= +{ map { $_ => 1 } $key_spec->{flags}->@* };
+            $key_spec->{begin_search} &&= +{ $key_spec->{begin_search}->@* };
+            $key_spec->{begin_search}{spec} &&= +{ $key_spec->{begin_search}{spec}->@* };
+            $key_spec->{find_keys} &&= +{ $key_spec->{find_keys}->@* };
+            $key_spec->{find_keys}{spec} &&= +{ $key_spec->{find_keys}{spec}->@* };
+            push @key_specs, $key_spec;
+        }
 
         $data{$method_name} = {
             name        => $name,
@@ -1445,7 +1449,7 @@ async sub retrieve_full_command_list {
             step        => $step,
             acl_cat     => $acl_cat,
             tips        => $tips,
-            key_spec    => $key_spec,
+            key_spec    => \@key_specs,
             subcommands => $subcommands
         };
     }
@@ -1457,93 +1461,132 @@ async sub retrieve_full_command_list {
 Given a command arrayref and a definition for the server, this will
 return a list of any keys found in that command.
 
+Since the logic for this is slightly slow, we are caching the result
+unless a specific definition is provided: this is an internal implementation
+detail and not something to rely on.
+
+(the key specification is a relatively new Redis feature - an optimised version
+of this logic will be added to L<Net::Async::Redis::XS> in due course, which
+should reduce the need for caching)
+
+Returns a list of keys.
+
 =cut
 
+my $keyspec_cache = Cache::LRU->new(
+    size => 10_000
+);
 sub extract_keys_for_command {
     my ($class, $command, $def) = @_;
-    $def //= \%COMMAND_DEFINITION;
+    my $cache = 0;
+    unless($def) {
+        my $cached = $keyspec_cache->get(join "\x{01FF}", $command->@*);
+        return $cached->@* if $cached;
+        $def //= \%COMMAND_DEFINITION;
+        ++$cache;
+    }
 
     # The command itself is represented as a method name
-    my ($cmd, @components) = $command->@*;
+    my (@components) = $command->@*;
+    my ($cmd) = @components;
     my $info = $def->{lc $cmd} or die 'command not found: ' . $cmd;
-    while(@components && $info->{subcommands} && $info->{subcommands}->@*) {
-        my $next = "${cmd}_" . $components[0];
+
+    # Identify the full matching command against the known definitions
+    my $idx = 0;
+    while(@components && $info->{subcommands} && $info->{subcommands}->@* && $#components >= $idx) {
+        my $next = "${cmd}_" . $components[++$idx];
         last unless exists $def->{lc $next};
         $cmd = $next;
         $info = $def->{lc $cmd};
     }
-    my $key_spec = $info->{key_spec};
-    my $type = $key_spec->{begin_search}{type};
-    return @components if !defined($type) and $info->{arity} == -2;
-    return @components if !defined($type) and $info->{arity} == -4;
-    return () if !defined($type);
 
-    match($type : eq) {
-        case('index') {
-            splice @components, 0, $key_spec->{begin_search}{spec}{index} - 1 if $key_spec->{begin_search}{spec}{index} > 1;
-        }
-        case('keyword') {
-            my $target = $key_spec->{begin_search}{spec}{keyword};
-            my $start = $key_spec->{begin_search}{spec}{startfrom};
-            if($start < 0) {
-                splice @components, $start, -$#components if $start < -1;
-                pop @components while @components and uc($components[-1]) ne $target;
-                @components = reverse @components;
-            } else {
-                splice @components, 0, $start - 1 if $start > 1;
-                shift @components while @components and uc($components[0]) ne $target;
-                shift @components;
+    # Commands can have zero or more keyspecs which tell us where to find the key information. Each
+    # command may have multiple keyspec definitions.
+    my @keys;
+
+    KEYSPEC:
+    for my $key_spec ($info->{key_spec}->@*) {
+        my $type = $key_spec->{begin_search}{type}
+            or next KEYSPEC;
+
+        # Instead of trying to track index and offset, we work with a copy of the data - less efficient,
+        # but easier to get accurate results.
+        my @target = @components;
+
+        # Find the starting index
+        match($type : eq) {
+            case('index') {
+                splice @target, 0, $key_spec->{begin_search}{spec}{index} if $key_spec->{begin_search}{spec}{index};
+            }
+            case('keyword') {
+                my $target = $key_spec->{begin_search}{spec}{keyword};
+                my $start = $key_spec->{begin_search}{spec}{startfrom};
+                if($start < 0) {
+                    splice @target, $start, -$#target if $start < -1;
+                    pop @target while @target and uc($target[-1]) ne $target;
+                    next KEYSPEC unless @target;
+                    @target = reverse @target;
+                } else {
+                    splice @target, 0, $start - 1 if $start > 1;
+                    shift @target while @target and uc($target[0]) ne $target;
+                    next KEYSPEC unless @target;
+                    shift @target;
+                }
+            }
+            case('unknown') {
+                die 'Unknown key specification for command ' . $cmd;
+            }
+            default {
+                die 'No key specification for command ' . $cmd;
             }
         }
-        case('unknown') {
-            die 'this is unknown: ' . $cmd;
-        }
-        default {
-            die 'this is completely unknown: ' . $cmd;
+
+        # Find the keys, starting from the index identified above
+        match($key_spec->{find_keys}{type} : eq) {
+            case('range') {
+                my $spec = $key_spec->{find_keys}{spec};
+                my $last_key = $spec->{lastkey};
+                unless($last_key) {
+                    push @keys, shift @target;
+                    next KEYSPEC;
+                }
+
+                my $key_step = $spec->{keystep};
+                my $limit = $spec->{limit};
+
+                splice @target, (1 + $last_key) * ($key_step + 1) if $last_key < -1;
+                my $target_index = 0 + @target;
+                $target_index = $last_key * $key_step if $last_key > 0;
+                $target_index = int($target_index / $limit) if $limit > 1;
+                $target_index //= 1;
+
+                while(@target and $target_index--) {
+                    my ($next) = splice @target, 0, $key_step;
+                    push @keys, $next;
+                }
+                next KEYSPEC;
+            }
+            case('keynum') {
+                my $spec = $key_spec->{find_keys}{spec};
+                my $key_step = $spec->{keystep};
+                my $count = $target[$spec->{keynumidx}];
+                splice @target, 0, $spec->{firstkey};
+                while(@target and $count--) {
+                    my ($next) = splice @target, 0, $key_step;
+                    push @keys, $next;
+                }
+                next KEYSPEC;
+            }
+            case('unknown') {
+                die 'Unknown key specification for command ' . $cmd;
+            }
+            default {
+                die 'No key specification for command ' . $cmd;
+            }
         }
     }
-
-    match($key_spec->{find_keys}{type} : eq) {
-        case('range') {
-            my $spec = $key_spec->{find_keys}{spec};
-            my $last_key = $spec->{lastkey};
-            return shift @components unless $last_key;
-
-            my $key_step = $spec->{keystep};
-            my $limit = $spec->{limit};
-
-            splice @components, (1 + $last_key) * ($key_step + 1) if $last_key < -1;
-            my $target_index = 0 + @components;
-            $target_index = $last_key * $key_step if $last_key > 0;
-            $target_index = int($target_index / $limit) if $limit > 1;
-            $target_index //= 1;
-
-            my @keys;
-            while(@components and $target_index--) {
-                my ($next) = splice @components, 0, $key_step;
-                push @keys, $next;
-            }
-            return @keys;
-        }
-        case('keynum') {
-            my $spec = $key_spec->{find_keys}{spec};
-            my $key_step = $spec->{keystep};
-            my $count = $components[$spec->{keynumidx}];
-            splice @components, 0, $spec->{firstkey};
-            my @keys;
-            while(@components and $count--) {
-                my ($next) = splice @components, 0, $key_step;
-                push @keys, $next;
-            }
-            return @keys;
-        }
-        case('unknown') {
-            die 'this is unknown: ' . $cmd;
-        }
-        default {
-            die 'this is completely unknown: ' . $cmd;
-        }
-    }
+    $keyspec_cache->set(join("\x{01FF}", $command->@*), \@keys) if $cache;
+    return @keys;
 }
 
 =head2 ssl_options
