@@ -9,7 +9,7 @@ use parent qw(
     IO::Async::Notifier
 );
 
-our $VERSION = '3.024';
+our $VERSION = '4.000';
 # AUTHORITY
 
 =head1 NAME
@@ -59,7 +59,7 @@ Current features include:
 
 =over 4
 
-=item * L<all commands|https://redis.io/commands> as of 7.2 RC2 (July 2023), see L<https://redis.io/commands> for the methods and parameters
+=item * L<all commands|https://redis.io/commands> as of 7.2 (August 2023), see L<https://redis.io/commands> for the methods and parameters
 
 =item * L<pub/sub support|https://redis.io/topics/pubsub>, see L</METHODS - Subscriptions> including sharded pubsub
 
@@ -73,9 +73,10 @@ Current features include:
 
 =item * L<RESP3/https://github.com/antirez/RESP3/blob/master/spec.md> protocol for Redis 6 and above, allowing pubsub on the same connection as regular commands
 
-=item * cluster support via L<Net::Async::Redis::Cluster>
+=item * cluster support via L<Net::Async::Redis::Cluster>, including key specifications from L<https://redis.io/docs/reference/key-specs/> to route commands to
+the correct node(s)
 
-=item * L<Net::Async::Redis::XS> for a faster XS version (can be 40x faster than the pure Perl version, particularly when parsing large L</xreadgroup> responses)
+=item * see L<Net::Async::Redis::XS> for a faster XS version (can be 40x faster than the pure Perl version, particularly when parsing large L</xreadgroup> responses)
 
 =back
 
