@@ -3,7 +3,7 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
     [New features]
 
-    - latest commands imported via `COMMAND LIST`
+    - latest commands imported via `COMMAND LIST`, covering Redis 7.2
     - support for key spec parsing via https://redis.io/docs/reference/key-specs/
 
     [Bugs fixed]
