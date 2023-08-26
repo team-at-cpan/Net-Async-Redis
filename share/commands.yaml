@@ -5,70 +5,19 @@ acl:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl
   step: 0
   subcommands:
-  - - acl|cat
-    - -2
-    - - noscript
-      - loading
+  - - acl|help
+    - 2
+    - - loading
       - stale
     - 0
     - 0
     - 0
     - - '@slow'
-    - []
-    - []
-    - []
-  - - acl|log
-    - -2
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
-    - []
-    - []
-  - - acl|list
-    - 2
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
-    - []
-    - []
-  - - acl|getuser
-    - 3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
     - []
     - []
     - []
@@ -81,51 +30,6 @@ acl:
     - 0
     - 0
     - - '@slow'
-    - []
-    - []
-    - []
-  - - acl|save
-    - 2
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
-    - []
-    - []
-  - - acl|setuser
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
-    - []
-    - []
-  - - acl|deluser
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
     - []
     - []
     - []
@@ -159,18 +63,6 @@ acl:
     - []
     - []
     - []
-  - - acl|genpass
-    - -2
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
   - - acl|users
     - 2
     - - admin
@@ -186,14 +78,117 @@ acl:
     - []
     - []
     - []
-  - - acl|help
-    - 2
-    - - loading
+  - - acl|genpass
+    - -2
+    - - noscript
+      - loading
       - stale
     - 0
     - 0
     - 0
     - - '@slow'
+    - []
+    - []
+    - []
+  - - acl|deluser
+    - -3
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|setuser
+    - -3
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|save
+    - 2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|getuser
+    - 3
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|cat
+    - -2
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - acl|list
+    - 2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
+  - - acl|log
+    - -2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
     - []
     - []
     - []
@@ -207,12 +202,7 @@ acl_cat:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|cat
   step: 0
@@ -230,12 +220,7 @@ acl_deluser:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|deluser
   step: 0
@@ -253,12 +238,7 @@ acl_dryrun:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|dryrun
   step: 0
@@ -273,12 +253,7 @@ acl_genpass:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|genpass
   step: 0
@@ -296,12 +271,7 @@ acl_getuser:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|getuser
   step: 0
@@ -315,12 +285,7 @@ acl_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|help
   step: 0
@@ -338,12 +303,7 @@ acl_list:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|list
   step: 0
@@ -361,12 +321,7 @@ acl_load:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|load
   step: 0
@@ -384,12 +339,7 @@ acl_log:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|log
   step: 0
@@ -407,12 +357,7 @@ acl_save:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|save
   step: 0
@@ -430,12 +375,7 @@ acl_setuser:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|setuser
   step: 0
@@ -453,12 +393,7 @@ acl_users:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|users
   step: 0
@@ -473,12 +408,7 @@ acl_whoami:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: acl|whoami
   step: 0
@@ -496,7 +426,7 @@ append:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -522,12 +452,7 @@ asking:
   first_key: 0
   flags:
     fast: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: asking
   step: 0
@@ -546,12 +471,7 @@ auth:
     no_auth: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: auth
   step: 0
@@ -568,12 +488,7 @@ bgrewriteaof:
     admin: 1
     no_async_loading: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: bgrewriteaof
   step: 0
@@ -590,12 +505,7 @@ bgsave:
     admin: 1
     no_async_loading: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: bgsave
   step: 0
@@ -611,7 +521,7 @@ bitcount:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -640,7 +550,7 @@ bitfield:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -672,7 +582,7 @@ bitfield_ro:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -701,7 +611,20 @@ bitop:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 2
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 3
       type: index
@@ -729,7 +652,7 @@ bitpos:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -761,7 +684,21 @@ blmove:
     noscript: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -792,7 +729,7 @@ blmpop:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -824,7 +761,7 @@ blpop:
     noscript: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -856,7 +793,7 @@ brpop:
     noscript: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -889,7 +826,21 @@ brpoplpush:
     noscript: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -920,7 +871,7 @@ bzmpop:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -953,7 +904,7 @@ bzpopmax:
     noscript: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -986,7 +937,7 @@ bzpopmin:
     noscript: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -1011,17 +962,12 @@ client:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client
   step: 0
   subcommands:
-  - - client|getname
+  - - client|trackinginfo
     - 2
     - - noscript
       - loading
@@ -1034,10 +980,9 @@ client:
     - []
     - []
     - []
-  - - client|getredir
+  - - client|help
     - 2
-    - - noscript
-      - loading
+    - - loading
       - stale
     - 0
     - 0
@@ -1060,8 +1005,118 @@ client:
     - - nondeterministic_output
     - []
     - []
+  - - client|kill
+    - -3
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|getname
+    - 2
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|id
+    - 2
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|setname
+    - 3
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
   - - client|unpause
     - 2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|caching
+    - 3
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|reply
+    - 3
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|tracking
+    - -3
+    - - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - client|unblock
+    - -3
     - - admin
       - noscript
       - loading
@@ -1092,67 +1147,18 @@ client:
     - - nondeterministic_output
     - []
     - []
-  - - client|reply
-    - 3
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|setname
-    - 3
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|id
-    - 2
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|trackinginfo
-    - 2
-    - - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|tracking
+  - - client|pause
     - -3
-    - - noscript
+    - - admin
+      - noscript
       - loading
       - stale
     - 0
     - 0
     - 0
-    - - '@slow'
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
       - '@connection'
     - []
     - []
@@ -1173,70 +1179,10 @@ client:
     - []
     - []
     - []
-  - - client|caching
-    - 3
+  - - client|getredir
+    - 2
     - - noscript
       - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|kill
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|pause
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|unblock
-    - -3
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - client|help
-    - 2
-    - - loading
       - stale
     - 0
     - 0
@@ -1257,12 +1203,7 @@ client_caching:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|caching
   step: 0
@@ -1278,12 +1219,7 @@ client_getname:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|getname
   step: 0
@@ -1299,12 +1235,7 @@ client_getredir:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|getredir
   step: 0
@@ -1319,12 +1250,7 @@ client_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|help
   step: 0
@@ -1340,12 +1266,7 @@ client_id:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|id
   step: 0
@@ -1361,12 +1282,7 @@ client_info:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|info
   step: 0
@@ -1386,12 +1302,7 @@ client_kill:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|kill
   step: 0
@@ -1410,12 +1321,7 @@ client_list:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|list
   step: 0
@@ -1435,12 +1341,7 @@ client_no-evict:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|no-evict
   step: 0
@@ -1459,12 +1360,7 @@ client_pause:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|pause
   step: 0
@@ -1480,12 +1376,7 @@ client_reply:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|reply
   step: 0
@@ -1501,12 +1392,7 @@ client_setname:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|setname
   step: 0
@@ -1522,12 +1408,7 @@ client_tracking:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|tracking
   step: 0
@@ -1543,12 +1424,7 @@ client_trackinginfo:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|trackinginfo
   step: 0
@@ -1567,12 +1443,7 @@ client_unblock:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|unblock
   step: 0
@@ -1591,12 +1462,7 @@ client_unpause:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: client|unpause
   step: 0
@@ -1608,61 +1474,42 @@ cluster:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster
   step: 0
   subcommands:
-  - - cluster|set-config-epoch
+  - - cluster|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - cluster|links
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|slaves
     - 3
     - - admin
       - stale
-      - no_async_loading
     - 0
     - 0
     - 0
     - - '@admin'
       - '@slow'
       - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|info
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|flushslots
-    - 2
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|shards
-    - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
     - - nondeterministic_output
     - []
     - []
@@ -1680,11 +1527,10 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|delslotsrange
-    - -4
+  - - cluster|replicas
+    - 3
     - - admin
       - stale
-      - no_async_loading
     - 0
     - 0
     - 0
@@ -1708,6 +1554,57 @@ cluster:
     - - nondeterministic_output
     - []
     - []
+  - - cluster|bumpepoch
+    - 2
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|count-failure-reports
+    - 3
+    - - admin
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|delslotsrange
+    - -4
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|myid
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
   - - cluster|addslots
     - -3
     - - admin
@@ -1722,13 +1619,31 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|countkeysinslot
+  - - cluster|meet
+    - -4
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|set-config-epoch
     - 3
-    - - stale
+    - - admin
+      - stale
+      - no_async_loading
     - 0
     - 0
     - 0
-    - - '@slow'
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
     - - nondeterministic_output
     - []
     - []
@@ -1746,7 +1661,31 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|bumpepoch
+  - - cluster|info
+    - 2
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|setslot
+    - -4
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|saveconfig
     - 2
     - - admin
       - stale
@@ -1774,80 +1713,8 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|getkeysinslot
-    - 4
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|slaves
-    - 3
-    - - admin
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|myid
+  - - cluster|nodes
     - 2
-    - - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|meet
-    - -4
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - cluster|setslot
-    - -4
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|keyslot
-    - 3
     - - stale
     - 0
     - 0
@@ -1870,13 +1737,37 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|nodes
+  - - cluster|shards
     - 2
     - - stale
     - 0
     - 0
     - 0
     - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|keyslot
+    - 3
+    - - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+    - []
+    - []
+  - - cluster|flushslots
+    - 2
+    - - admin
+      - stale
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
     - - nondeterministic_output
     - []
     - []
@@ -1904,21 +1795,8 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|count-failure-reports
-    - 3
-    - - admin
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|links
-    - 2
+  - - cluster|getkeysinslot
+    - 4
     - - stale
     - 0
     - 0
@@ -1927,30 +1805,13 @@ cluster:
     - - nondeterministic_output
     - []
     - []
-  - - cluster|replicas
+  - - cluster|countkeysinslot
     - 3
-    - - admin
-      - stale
+    - - stale
     - 0
     - 0
     - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-    - []
-    - []
-  - - cluster|saveconfig
-    - 2
-    - - admin
-      - stale
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
+    - - '@slow'
     - - nondeterministic_output
     - []
     - []
@@ -1966,12 +1827,7 @@ cluster_addslots:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|addslots
   step: 0
@@ -1989,12 +1845,7 @@ cluster_addslotsrange:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|addslotsrange
   step: 0
@@ -2012,12 +1863,7 @@ cluster_bumpepoch:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|bumpepoch
   step: 0
@@ -2034,12 +1880,7 @@ cluster_count-failure-reports:
   flags:
     admin: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|count-failure-reports
   step: 0
@@ -2053,12 +1894,7 @@ cluster_countkeysinslot:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|countkeysinslot
   step: 0
@@ -2076,12 +1912,7 @@ cluster_delslots:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|delslots
   step: 0
@@ -2099,12 +1930,7 @@ cluster_delslotsrange:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|delslotsrange
   step: 0
@@ -2122,12 +1948,7 @@ cluster_failover:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|failover
   step: 0
@@ -2145,12 +1966,7 @@ cluster_flushslots:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|flushslots
   step: 0
@@ -2168,12 +1984,7 @@ cluster_forget:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|forget
   step: 0
@@ -2187,12 +1998,7 @@ cluster_getkeysinslot:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|getkeysinslot
   step: 0
@@ -2207,12 +2013,7 @@ cluster_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|help
   step: 0
@@ -2225,12 +2026,7 @@ cluster_info:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|info
   step: 0
@@ -2244,12 +2040,7 @@ cluster_keyslot:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|keyslot
   step: 0
@@ -2263,12 +2054,7 @@ cluster_links:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|links
   step: 0
@@ -2286,12 +2072,7 @@ cluster_meet:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|meet
   step: 0
@@ -2305,12 +2086,7 @@ cluster_myid:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|myid
   step: 0
@@ -2324,12 +2100,7 @@ cluster_nodes:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|nodes
   step: 0
@@ -2346,12 +2117,7 @@ cluster_replicas:
   flags:
     admin: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|replicas
   step: 0
@@ -2369,12 +2135,7 @@ cluster_replicate:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|replicate
   step: 0
@@ -2392,12 +2153,7 @@ cluster_reset:
     admin: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|reset
   step: 0
@@ -2415,12 +2171,7 @@ cluster_saveconfig:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|saveconfig
   step: 0
@@ -2438,12 +2189,7 @@ cluster_set-config-epoch:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|set-config-epoch
   step: 0
@@ -2461,12 +2207,7 @@ cluster_setslot:
     admin: 1
     no_async_loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|setslot
   step: 0
@@ -2480,12 +2221,7 @@ cluster_shards:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|shards
   step: 0
@@ -2502,12 +2238,7 @@ cluster_slaves:
   flags:
     admin: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|slaves
   step: 0
@@ -2521,12 +2252,7 @@ cluster_slots:
   first_key: 0
   flags:
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: cluster|slots
   step: 0
@@ -2542,18 +2268,25 @@ command:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command
   step: 0
   subcommands:
-  - - command|getkeys
-    - -4
+  - - command|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
+  - - command|count
+    - 2
     - - loading
       - stale
     - 0
@@ -2600,6 +2333,18 @@ command:
     - - nondeterministic_output_order
     - []
     - []
+  - - command|getkeys
+    - -4
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@connection'
+    - []
+    - []
+    - []
   - - command|list
     - -2
     - - loading
@@ -2610,30 +2355,6 @@ command:
     - - '@slow'
       - '@connection'
     - - nondeterministic_output_order
-    - []
-    - []
-  - - command|count
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
-    - []
-    - []
-  - - command|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@connection'
-    - []
     - []
     - []
   tips:
@@ -2647,12 +2368,7 @@ command_count:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|count
   step: 0
@@ -2667,12 +2383,7 @@ command_docs:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|docs
   step: 0
@@ -2688,12 +2399,7 @@ command_getkeys:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|getkeys
   step: 0
@@ -2708,12 +2414,7 @@ command_getkeysandflags:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|getkeysandflags
   step: 0
@@ -2728,12 +2429,7 @@ command_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|help
   step: 0
@@ -2748,12 +2444,7 @@ command_info:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|info
   step: 0
@@ -2769,12 +2460,7 @@ command_list:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: command|list
   step: 0
@@ -2787,17 +2473,23 @@ config:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: config
   step: 0
   subcommands:
-  - - config|rewrite
+  - - config|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - config|resetstat
     - 2
     - - admin
       - noscript
@@ -2812,8 +2504,8 @@ config:
     - []
     - []
     - []
-  - - config|get
-    - -3
+  - - config|rewrite
+    - 2
     - - admin
       - noscript
       - loading
@@ -2843,19 +2535,8 @@ config:
       - response_policy:all_succeeded
     - []
     - []
-  - - config|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - config|resetstat
-    - 2
+  - - config|get
+    - -3
     - - admin
       - noscript
       - loading
@@ -2882,12 +2563,7 @@ config_get:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: config|get
   step: 0
@@ -2901,12 +2577,7 @@ config_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: config|help
   step: 0
@@ -2924,12 +2595,7 @@ config_resetstat:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: config|resetstat
   step: 0
@@ -2947,12 +2613,7 @@ config_rewrite:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: config|rewrite
   step: 0
@@ -2970,12 +2631,7 @@ config_set:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: config|set
   step: 0
@@ -2994,7 +2650,20 @@ copy:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RO: 1
+      access: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3022,12 +2691,7 @@ dbsize:
   flags:
     fast: 1
     readonly: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: dbsize
   step: 0
@@ -3047,12 +2711,7 @@ debug:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: debug
   step: 0
@@ -3070,7 +2729,7 @@ decr:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3101,7 +2760,7 @@ decrby:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3130,7 +2789,7 @@ del:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3162,12 +2821,7 @@ discard:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: discard
   step: 0
@@ -3183,7 +2837,7 @@ dump:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3212,12 +2866,7 @@ echo:
     fast: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: echo
   step: 0
@@ -3236,7 +2885,7 @@ eval:
     skip_monitor: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3271,7 +2920,7 @@ eval_ro:
     skip_monitor: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3304,7 +2953,7 @@ evalsha:
     skip_monitor: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3337,7 +2986,7 @@ evalsha_ro:
     skip_monitor: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3366,12 +3015,7 @@ exec:
     noscript: 1
     skip_slowlog: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: exec
   step: 0
@@ -3388,7 +3032,7 @@ exists:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3418,7 +3062,7 @@ expire:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3447,7 +3091,7 @@ expireat:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3476,7 +3120,7 @@ expiretime:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -3505,12 +3149,7 @@ failover:
     admin: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: failover
   step: 0
@@ -3529,7 +3168,7 @@ fcall:
     skip_monitor: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3564,7 +3203,7 @@ fcall_ro:
     skip_monitor: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -3594,12 +3233,7 @@ flushall:
   first_key: 0
   flags:
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: flushall
   step: 0
@@ -3617,12 +3251,7 @@ flushdb:
   first_key: 0
   flags:
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: flushdb
   step: 0
@@ -3636,39 +3265,21 @@ function:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function
   step: 0
   subcommands:
-  - - function|list
-    - -2
-    - - noscript
+  - - function|help
+    - 2
+    - - loading
+      - stale
     - 0
     - 0
     - 0
     - - '@slow'
       - '@scripting'
-    - - nondeterministic_output_order
     - []
-    - []
-  - - function|flush
-    - -2
-    - - write
-      - noscript
-    - 0
-    - 0
-    - 0
-    - - '@write'
-      - '@slow'
-      - '@scripting'
-    - - request_policy:all_shards
-      - response_policy:all_succeeded
     - []
     - []
   - - function|dump
@@ -3680,20 +3291,6 @@ function:
     - - '@slow'
       - '@scripting'
     - []
-    - []
-    - []
-  - - function|stats
-    - 2
-    - - noscript
-      - allow_busy
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@scripting'
-    - - nondeterministic_output
-      - request_policy:all_shards
-      - response_policy:special
     - []
     - []
   - - function|kill
@@ -3739,18 +3336,6 @@ function:
       - response_policy:all_succeeded
     - []
     - []
-  - - function|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-      - '@scripting'
-    - []
-    - []
-    - []
   - - function|delete
     - 3
     - - write
@@ -3765,6 +3350,45 @@ function:
       - response_policy:all_succeeded
     - []
     - []
+  - - function|flush
+    - -2
+    - - write
+      - noscript
+    - 0
+    - 0
+    - 0
+    - - '@write'
+      - '@slow'
+      - '@scripting'
+    - - request_policy:all_shards
+      - response_policy:all_succeeded
+    - []
+    - []
+  - - function|list
+    - -2
+    - - noscript
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@scripting'
+    - - nondeterministic_output_order
+    - []
+    - []
+  - - function|stats
+    - 2
+    - - noscript
+      - allow_busy
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+      - '@scripting'
+    - - nondeterministic_output
+      - request_policy:all_shards
+      - response_policy:special
+    - []
+    - []
   tips: {}
 function_delete:
   acl_cat:
@@ -3776,12 +3400,7 @@ function_delete:
   flags:
     noscript: 1
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|delete
   step: 0
@@ -3797,12 +3416,7 @@ function_dump:
   first_key: 0
   flags:
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|dump
   step: 0
@@ -3818,12 +3432,7 @@ function_flush:
   flags:
     noscript: 1
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|flush
   step: 0
@@ -3840,12 +3449,7 @@ function_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|help
   step: 0
@@ -3860,12 +3464,7 @@ function_kill:
   flags:
     allow_busy: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|kill
   step: 0
@@ -3881,12 +3480,7 @@ function_list:
   first_key: 0
   flags:
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|list
   step: 0
@@ -3904,12 +3498,7 @@ function_load:
     denyoom: 1
     noscript: 1
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|load
   step: 0
@@ -3928,12 +3517,7 @@ function_restore:
     denyoom: 1
     noscript: 1
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|restore
   step: 0
@@ -3950,12 +3534,7 @@ function_stats:
   flags:
     allow_busy: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: function|stats
   step: 0
@@ -3975,7 +3554,7 @@ geoadd:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4003,7 +3582,7 @@ geodist:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4031,7 +3610,7 @@ geohash:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4059,7 +3638,7 @@ geopos:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4089,7 +3668,34 @@ georadius:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RO: 1
+      access: 1
+  - begin_search:
+      spec:
+        keyword: STORE
+        startfrom: 6
+      type: keyword
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         keyword: STOREDIST
         startfrom: 6
@@ -4118,7 +3724,7 @@ georadius_ro:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4148,7 +3754,34 @@ georadiusbymember:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RO: 1
+      access: 1
+  - begin_search:
+      spec:
+        keyword: STORE
+        startfrom: 5
+      type: keyword
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         keyword: STOREDIST
         startfrom: 5
@@ -4177,7 +3810,7 @@ georadiusbymember_ro:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4205,7 +3838,7 @@ geosearch:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4234,7 +3867,20 @@ geosearchstore:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -4263,7 +3909,7 @@ get:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4292,7 +3938,7 @@ getbit:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4321,7 +3967,7 @@ getdel:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4351,7 +3997,7 @@ getex:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4381,7 +4027,7 @@ getrange:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4411,7 +4057,7 @@ getset:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4441,7 +4087,7 @@ hdel:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4472,12 +4118,7 @@ hello:
     no_auth: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: hello
   step: 0
@@ -4494,7 +4135,7 @@ hexists:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4522,7 +4163,7 @@ hget:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4550,7 +4191,7 @@ hgetall:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4581,7 +4222,7 @@ hincrby:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4612,7 +4253,7 @@ hincrbyfloat:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4641,7 +4282,7 @@ hkeys:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4671,7 +4312,7 @@ hlen:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4699,7 +4340,7 @@ hmget:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4729,7 +4370,7 @@ hmset:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4757,7 +4398,7 @@ hrandfield:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4786,7 +4427,7 @@ hscan:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4817,7 +4458,7 @@ hset:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4847,7 +4488,7 @@ hsetnx:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4876,7 +4517,7 @@ hstrlen:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4903,7 +4544,7 @@ hvals:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4934,7 +4575,7 @@ incr:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4965,7 +4606,7 @@ incrby:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -4996,7 +4637,7 @@ incrbyfloat:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5024,12 +4665,7 @@ info:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: info
   step: 0
@@ -5048,12 +4684,7 @@ keys:
   first_key: 0
   flags:
     readonly: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: keys
   step: 0
@@ -5072,12 +4703,7 @@ lastsave:
     fast: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: lastsave
   step: 0
@@ -5090,68 +4716,24 @@ latency:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency
   step: 0
   subcommands:
-  - - latency|reset
-    - -2
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - request_policy:all_nodes
-      - response_policy:all_succeeded
-    - []
-    - []
-  - - latency|latest
+  - - latency|help
     - 2
-    - - admin
-      - noscript
-      - loading
+    - - loading
       - stale
     - 0
     - 0
     - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-      - request_policy:all_nodes
-      - response_policy:special
+    - - '@slow'
+    - []
     - []
     - []
   - - latency|histogram
     - -2
-    - - admin
-      - noscript
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - - nondeterministic_output
-      - request_policy:all_nodes
-      - response_policy:special
-    - []
-    - []
-  - - latency|history
-    - 3
     - - admin
       - noscript
       - loading
@@ -5184,6 +4766,39 @@ latency:
       - response_policy:special
     - []
     - []
+  - - latency|history
+    - 3
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+      - request_policy:all_nodes
+      - response_policy:special
+    - []
+    - []
+  - - latency|reset
+    - -2
+    - - admin
+      - noscript
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - request_policy:all_nodes
+      - response_policy:all_succeeded
+    - []
+    - []
   - - latency|graph
     - 3
     - - admin
@@ -5201,15 +4816,21 @@ latency:
       - response_policy:special
     - []
     - []
-  - - latency|help
+  - - latency|latest
     - 2
-    - - loading
+    - - admin
+      - noscript
+      - loading
       - stale
     - 0
     - 0
     - 0
-    - - '@slow'
-    - []
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - - nondeterministic_output
+      - request_policy:all_nodes
+      - response_policy:special
     - []
     - []
   tips: {}
@@ -5225,12 +4846,7 @@ latency_doctor:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|doctor
   step: 0
@@ -5251,12 +4867,7 @@ latency_graph:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|graph
   step: 0
@@ -5273,12 +4884,7 @@ latency_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|help
   step: 0
@@ -5296,12 +4902,7 @@ latency_histogram:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|histogram
   step: 0
@@ -5322,12 +4923,7 @@ latency_history:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|history
   step: 0
@@ -5348,12 +4944,7 @@ latency_latest:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|latest
   step: 0
@@ -5374,12 +4965,7 @@ latency_reset:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: latency|reset
   step: 0
@@ -5397,7 +4983,7 @@ lcs:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5425,7 +5011,7 @@ lindex:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5454,7 +5040,7 @@ linsert:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5483,7 +5069,7 @@ llen:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5511,7 +5097,21 @@ lmove:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -5540,7 +5140,7 @@ lmpop:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5568,12 +5168,7 @@ lolwut:
   flags:
     fast: 1
     readonly: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: lolwut
   step: 0
@@ -5590,7 +5185,7 @@ lpop:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5619,7 +5214,7 @@ lpos:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5649,7 +5244,7 @@ lpush:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5679,7 +5274,7 @@ lpushx:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5707,7 +5302,7 @@ lrange:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5735,7 +5330,7 @@ lrem:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5764,7 +5359,7 @@ lset:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5792,7 +5387,7 @@ ltrim:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -5816,16 +5411,57 @@ memory:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: memory
   step: 0
   subcommands:
+  - - memory|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - memory|doctor
+    - 2
+    - []
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+      - request_policy:all_shards
+      - response_policy:special
+    - []
+    - []
+  - - memory|malloc-stats
+    - 2
+    - []
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - nondeterministic_output
+      - request_policy:all_shards
+      - response_policy:special
+    - []
+    - []
+  - - memory|purge
+    - 2
+    - []
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - - request_policy:all_shards
+      - response_policy:all_succeeded
+    - []
+    - []
   - - memory|usage
     - -3
     - - readonly
@@ -5854,18 +5490,6 @@ memory:
             - limit
             - 0
     - []
-  - - memory|malloc-stats
-    - 2
-    - []
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-      - request_policy:all_shards
-      - response_policy:special
-    - []
-    - []
   - - memory|stats
     - 2
     - []
@@ -5878,40 +5502,6 @@ memory:
       - response_policy:special
     - []
     - []
-  - - memory|doctor
-    - 2
-    - []
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - nondeterministic_output
-      - request_policy:all_shards
-      - response_policy:special
-    - []
-    - []
-  - - memory|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
-  - - memory|purge
-    - 2
-    - []
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - - request_policy:all_shards
-      - response_policy:all_succeeded
-    - []
-    - []
   tips: {}
 memory_doctor:
   acl_cat:
@@ -5919,12 +5509,7 @@ memory_doctor:
   arity: 2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: memory|doctor
   step: 0
@@ -5941,12 +5526,7 @@ memory_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: memory|help
   step: 0
@@ -5958,12 +5538,7 @@ memory_malloc-stats:
   arity: 2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: memory|malloc-stats
   step: 0
@@ -5978,12 +5553,7 @@ memory_purge:
   arity: 2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: memory|purge
   step: 0
@@ -5997,12 +5567,7 @@ memory_stats:
   arity: 2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: memory|stats
   step: 0
@@ -6020,7 +5585,7 @@ memory_usage:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6048,7 +5613,7 @@ mget:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6079,7 +5644,21 @@ migrate:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 3
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         keyword: KEYS
         startfrom: -2
@@ -6107,16 +5686,36 @@ module:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: module
   step: 0
   subcommands:
+  - - module|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
+  - - module|load
+    - -3
+    - - admin
+      - noscript
+      - no_async_loading
+    - 0
+    - 0
+    - 0
+    - - '@admin'
+      - '@slow'
+      - '@dangerous'
+    - []
+    - []
+    - []
   - - module|loadex
     - -3
     - - admin
@@ -6144,20 +5743,6 @@ module:
     - - nondeterministic_output_order
     - []
     - []
-  - - module|load
-    - -3
-    - - admin
-      - noscript
-      - no_async_loading
-    - 0
-    - 0
-    - 0
-    - - '@admin'
-      - '@slow'
-      - '@dangerous'
-    - []
-    - []
-    - []
   - - module|unload
     - 3
     - - admin
@@ -6172,17 +5757,6 @@ module:
     - []
     - []
     - []
-  - - module|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
   tips: {}
 module_help:
   acl_cat:
@@ -6192,12 +5766,7 @@ module_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: module|help
   step: 0
@@ -6213,12 +5782,7 @@ module_list:
   flags:
     admin: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: module|list
   step: 0
@@ -6236,12 +5800,7 @@ module_load:
     admin: 1
     no_async_loading: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: module|load
   step: 0
@@ -6258,12 +5817,7 @@ module_loadex:
     admin: 1
     no_async_loading: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: module|loadex
   step: 0
@@ -6280,12 +5834,7 @@ module_unload:
     admin: 1
     no_async_loading: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: module|unload
   step: 0
@@ -6303,12 +5852,7 @@ monitor:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: monitor
   step: 0
@@ -6325,7 +5869,7 @@ move:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6355,7 +5899,7 @@ mset:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6386,7 +5930,7 @@ msetnx:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6418,12 +5962,7 @@ multi:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: multi
   step: 0
@@ -6435,46 +5974,24 @@ object:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: object
   step: 0
   subcommands:
-  - - object|freq
-    - 3
-    - - readonly
+  - - object|help
     - 2
-    - 2
-    - 1
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
     - - '@keyspace'
-      - '@read'
       - '@slow'
-    - - nondeterministic_output
-    - - - flags
-        - - RO
-        - begin_search
-        - - type
-          - index
-          - spec
-          - - index
-            - 2
-        - find_keys
-        - - type
-          - range
-          - spec
-          - - lastkey
-            - 0
-            - keystep
-            - 1
-            - limit
-            - 0
     - []
-  - - object|encoding
+    - []
+    - []
+  - - object|freq
     - 3
     - - readonly
     - 2
@@ -6532,19 +6049,36 @@ object:
             - limit
             - 0
     - []
-  - - object|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@keyspace'
-      - '@slow'
-    - []
-    - []
-    - []
   - - object|refcount
+    - 3
+    - - readonly
+    - 2
+    - 2
+    - 1
+    - - '@keyspace'
+      - '@read'
+      - '@slow'
+    - - nondeterministic_output
+    - - - flags
+        - - RO
+        - begin_search
+        - - type
+          - index
+          - spec
+          - - index
+            - 2
+        - find_keys
+        - - type
+          - range
+          - spec
+          - - lastkey
+            - 0
+            - keystep
+            - 1
+            - limit
+            - 0
+    - []
+  - - object|encoding
     - 3
     - - readonly
     - 2
@@ -6584,7 +6118,7 @@ object_encoding:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6612,7 +6146,7 @@ object_freq:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6639,12 +6173,7 @@ object_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: object|help
   step: 0
@@ -6660,7 +6189,7 @@ object_idletime:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6688,7 +6217,7 @@ object_refcount:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6717,7 +6246,7 @@ persist:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6746,7 +6275,7 @@ pexpire:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6775,7 +6304,7 @@ pexpireat:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6804,7 +6333,7 @@ pexpiretime:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6834,7 +6363,7 @@ pfadd:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6862,7 +6391,7 @@ pfcount:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -6896,7 +6425,7 @@ pfdebug:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6925,7 +6454,21 @@ pfmerge:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      insert: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -6953,12 +6496,7 @@ pfselftest:
   first_key: 0
   flags:
     admin: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pfselftest
   step: 0
@@ -6972,12 +6510,7 @@ ping:
   first_key: 0
   flags:
     fast: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: ping
   step: 0
@@ -6996,7 +6529,7 @@ psetex:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7025,12 +6558,7 @@ psubscribe:
     noscript: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: psubscribe
   step: 0
@@ -7048,12 +6576,7 @@ psync:
     no_async_loading: 1
     no_multi: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: psync
   step: 0
@@ -7070,7 +6593,7 @@ pttl:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7100,12 +6623,7 @@ publish:
     loading: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: publish
   step: 0
@@ -7117,17 +6635,12 @@ pubsub:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub
   step: 0
   subcommands:
-  - - pubsub|numsub
+  - - pubsub|channels
     - -2
     - - pubsub
       - loading
@@ -7137,6 +6650,17 @@ pubsub:
     - 0
     - - '@pubsub'
       - '@slow'
+    - []
+    - []
+    - []
+  - - pubsub|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
     - []
     - []
     - []
@@ -7153,7 +6677,20 @@ pubsub:
     - []
     - []
     - []
-  - - pubsub|channels
+  - - pubsub|numsub
+    - -2
+    - - pubsub
+      - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@pubsub'
+      - '@slow'
+    - []
+    - []
+    - []
+  - - pubsub|shardnumsub
     - -2
     - - pubsub
       - loading
@@ -7179,30 +6716,6 @@ pubsub:
     - []
     - []
     - []
-  - - pubsub|shardnumsub
-    - -2
-    - - pubsub
-      - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@pubsub'
-      - '@slow'
-    - []
-    - []
-    - []
-  - - pubsub|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
   tips: {}
 pubsub_channels:
   acl_cat:
@@ -7214,12 +6727,7 @@ pubsub_channels:
     loading: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub|channels
   step: 0
@@ -7233,12 +6741,7 @@ pubsub_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub|help
   step: 0
@@ -7254,12 +6757,7 @@ pubsub_numpat:
     loading: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub|numpat
   step: 0
@@ -7275,12 +6773,7 @@ pubsub_numsub:
     loading: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub|numsub
   step: 0
@@ -7296,12 +6789,7 @@ pubsub_shardchannels:
     loading: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub|shardchannels
   step: 0
@@ -7317,12 +6805,7 @@ pubsub_shardnumsub:
     loading: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: pubsub|shardnumsub
   step: 0
@@ -7339,12 +6822,7 @@ punsubscribe:
     noscript: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: punsubscribe
   step: 0
@@ -7363,12 +6841,7 @@ quit:
     no_auth: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: quit
   step: 0
@@ -7383,12 +6856,7 @@ randomkey:
   first_key: 0
   flags:
     readonly: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: randomkey
   step: 0
@@ -7406,12 +6874,7 @@ readonly:
     fast: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: readonly
   step: 0
@@ -7427,12 +6890,7 @@ readwrite:
     fast: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: readwrite
   step: 0
@@ -7448,7 +6906,21 @@ rename:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -7477,7 +6949,21 @@ renamenx:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -7508,12 +6994,7 @@ replconf:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: replconf
   step: 0
@@ -7531,12 +7012,7 @@ replicaof:
     no_async_loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: replicaof
   step: 0
@@ -7555,12 +7031,7 @@ reset:
     no_auth: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: reset
   step: 0
@@ -7578,7 +7049,7 @@ restore:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7609,7 +7080,7 @@ restore-asking:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7639,12 +7110,7 @@ role:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: role
   step: 0
@@ -7661,7 +7127,7 @@ rpop:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7691,7 +7157,21 @@ rpoplpush:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -7721,7 +7201,7 @@ rpush:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7751,7 +7231,7 @@ rpushx:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7781,7 +7261,7 @@ sadd:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7811,12 +7291,7 @@ save:
     no_async_loading: 1
     no_multi: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: save
   step: 0
@@ -7831,12 +7306,7 @@ scan:
   first_key: 0
   flags:
     readonly: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: scan
   step: 0
@@ -7855,7 +7325,7 @@ scard:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -7878,26 +7348,21 @@ script:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script
   step: 0
   subcommands:
-  - - script|flush
-    - -2
-    - - noscript
+  - - script|help
+    - 2
+    - - loading
+      - stale
     - 0
     - 0
     - 0
     - - '@slow'
       - '@scripting'
-    - - request_policy:all_nodes
-      - response_policy:all_succeeded
+    - []
     - []
     - []
   - - script|load
@@ -7938,21 +7403,21 @@ script:
       - response_policy:agg_logical_and
     - []
     - []
-  - - script|debug
-    - 3
+  - - script|flush
+    - -2
     - - noscript
     - 0
     - 0
     - 0
     - - '@slow'
       - '@scripting'
+    - - request_policy:all_nodes
+      - response_policy:all_succeeded
     - []
     - []
-    - []
-  - - script|help
-    - 2
-    - - loading
-      - stale
+  - - script|debug
+    - 3
+    - - noscript
     - 0
     - 0
     - 0
@@ -7970,12 +7435,7 @@ script_debug:
   first_key: 0
   flags:
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script|debug
   step: 0
@@ -7989,12 +7449,7 @@ script_exists:
   first_key: 0
   flags:
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script|exists
   step: 0
@@ -8010,12 +7465,7 @@ script_flush:
   first_key: 0
   flags:
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script|flush
   step: 0
@@ -8032,12 +7482,7 @@ script_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script|help
   step: 0
@@ -8052,12 +7497,7 @@ script_kill:
   flags:
     allow_busy: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script|kill
   step: 0
@@ -8074,12 +7514,7 @@ script_load:
   flags:
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: script|load
   step: 0
@@ -8097,7 +7532,7 @@ sdiff:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8127,7 +7562,20 @@ sdiffstore:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -8155,12 +7603,7 @@ select:
     fast: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: select
   step: 0
@@ -8177,7 +7620,7 @@ set:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8209,7 +7652,7 @@ setbit:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8239,7 +7682,7 @@ setex:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8269,7 +7712,7 @@ setnx:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8298,7 +7741,7 @@ setrange:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8330,12 +7773,7 @@ shutdown:
     no_multi: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: shutdown
   step: 0
@@ -8351,7 +7789,7 @@ sinter:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8381,7 +7819,7 @@ sintercard:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8410,7 +7848,20 @@ sinterstore:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -8439,7 +7890,7 @@ sismember:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8468,12 +7919,7 @@ slaveof:
     no_async_loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: slaveof
   step: 0
@@ -8485,16 +7931,22 @@ slowlog:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: slowlog
   step: 0
   subcommands:
+  - - slowlog|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@slow'
+    - []
+    - []
+    - []
   - - slowlog|reset
     - 2
     - - admin
@@ -8526,17 +7978,6 @@ slowlog:
       - nondeterministic_output
     - []
     - []
-  - - slowlog|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@slow'
-    - []
-    - []
-    - []
   - - slowlog|get
     - -2
     - - admin
@@ -8564,12 +8005,7 @@ slowlog_get:
     admin: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: slowlog|get
   step: 0
@@ -8585,12 +8021,7 @@ slowlog_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: slowlog|help
   step: 0
@@ -8607,12 +8038,7 @@ slowlog_len:
     admin: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: slowlog|len
   step: 0
@@ -8632,12 +8058,7 @@ slowlog_reset:
     admin: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: slowlog|reset
   step: 0
@@ -8655,7 +8076,7 @@ smembers:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8685,7 +8106,7 @@ smismember:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8714,7 +8135,21 @@ smove:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RW: 1
+      access: 1
+      delete: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -8747,7 +8182,31 @@ sort:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RO: 1
+      access: 1
+  - begin_search:
+      spec: {}
+      type: unknown
+    find_keys:
+      spec: {}
+      type: unknown
+    flags:
+      RO: 1
+      access: 1
+    notes: For the optional BY/GET keyword. It is marked 'unknown' because the key
+      names derive from the content of the key we sort
+  - begin_search:
       spec: {}
       type: unknown
     find_keys:
@@ -8777,7 +8236,20 @@ sort_ro:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      RO: 1
+      access: 1
+  - begin_search:
       spec: {}
       type: unknown
     find_keys:
@@ -8804,7 +8276,7 @@ spop:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8836,7 +8308,7 @@ spublish:
     pubsub: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8863,7 +8335,7 @@ srandmember:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8893,7 +8365,7 @@ srem:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8921,7 +8393,7 @@ sscan:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8952,7 +8424,7 @@ ssubscribe:
     pubsub: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -8980,7 +8452,7 @@ strlen:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9008,12 +8480,7 @@ subscribe:
     noscript: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: subscribe
   step: 0
@@ -9029,7 +8496,7 @@ substr:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9057,7 +8524,7 @@ sunion:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9087,7 +8554,20 @@ sunionstore:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -9117,7 +8597,7 @@ sunsubscribe:
     pubsub: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9145,12 +8625,7 @@ swapdb:
   flags:
     fast: 1
     write: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: swapdb
   step: 0
@@ -9168,12 +8643,7 @@ sync:
     no_async_loading: 1
     no_multi: 1
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: sync
   step: 0
@@ -9188,12 +8658,7 @@ time:
     fast: 1
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: time
   step: 0
@@ -9211,7 +8676,7 @@ touch:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9241,7 +8706,7 @@ ttl:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9271,7 +8736,7 @@ type:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9299,7 +8764,7 @@ unlink:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9330,12 +8795,7 @@ unsubscribe:
     noscript: 1
     pubsub: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: unsubscribe
   step: 0
@@ -9353,12 +8813,7 @@ unwatch:
     loading: 1
     noscript: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: unwatch
   step: 0
@@ -9372,12 +8827,7 @@ wait:
   first_key: 0
   flags:
     noscript: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: wait
   step: 0
@@ -9398,7 +8848,7 @@ watch:
     noscript: 1
     stale: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9426,7 +8876,7 @@ xack:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9456,7 +8906,7 @@ xadd:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9487,7 +8937,7 @@ xautoclaim:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9517,7 +8967,7 @@ xclaim:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9547,7 +8997,7 @@ xdel:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -9571,16 +9021,54 @@ xgroup:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: xgroup
   step: 0
   subcommands:
+  - - xgroup|create
+    - -5
+    - - write
+      - denyoom
+    - 2
+    - 2
+    - 1
+    - - '@write'
+      - '@stream'
+      - '@slow'
+    - []
+    - - - flags
+        - - RW
+          - insert
+        - begin_search
+        - - type
+          - index
+          - spec
+          - - index
+            - 2
+        - find_keys
+        - - type
+          - range
+          - spec
+          - - lastkey
+            - 0
+            - keystep
+            - 1
+            - limit
+            - 0
+    - []
+  - - xgroup|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@stream'
+      - '@slow'
+    - []
+    - []
+    - []
   - - xgroup|destroy
     - 4
     - - write
@@ -9611,36 +9099,6 @@ xgroup:
             - limit
             - 0
     - []
-  - - xgroup|setid
-    - -5
-    - - write
-    - 2
-    - 2
-    - 1
-    - - '@write'
-      - '@stream'
-      - '@slow'
-    - []
-    - - - flags
-        - - RW
-          - update
-        - begin_search
-        - - type
-          - index
-          - spec
-          - - index
-            - 2
-        - find_keys
-        - - type
-          - range
-          - spec
-          - - lastkey
-            - 0
-            - keystep
-            - 1
-            - limit
-            - 0
-    - []
   - - xgroup|delconsumer
     - 5
     - - write
@@ -9654,37 +9112,6 @@ xgroup:
     - - - flags
         - - RW
           - delete
-        - begin_search
-        - - type
-          - index
-          - spec
-          - - index
-            - 2
-        - find_keys
-        - - type
-          - range
-          - spec
-          - - lastkey
-            - 0
-            - keystep
-            - 1
-            - limit
-            - 0
-    - []
-  - - xgroup|create
-    - -5
-    - - write
-      - denyoom
-    - 2
-    - 2
-    - 1
-    - - '@write'
-      - '@stream'
-      - '@slow'
-    - []
-    - - - flags
-        - - RW
-          - insert
         - begin_search
         - - type
           - index
@@ -9733,17 +9160,35 @@ xgroup:
             - limit
             - 0
     - []
-  - - xgroup|help
+  - - xgroup|setid
+    - -5
+    - - write
     - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@stream'
+    - 2
+    - 1
+    - - '@write'
+      - '@stream'
       - '@slow'
     - []
-    - []
+    - - - flags
+        - - RW
+          - update
+        - begin_search
+        - - type
+          - index
+          - spec
+          - - index
+            - 2
+        - find_keys
+        - - type
+          - range
+          - spec
+          - - lastkey
+            - 0
+            - keystep
+            - 1
+            - limit
+            - 0
     - []
   tips: {}
 xgroup_create:
@@ -9757,7 +9202,7 @@ xgroup_create:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -9786,7 +9231,7 @@ xgroup_createconsumer:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -9814,7 +9259,7 @@ xgroup_delconsumer:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -9842,7 +9287,7 @@ xgroup_destroy:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -9869,12 +9314,7 @@ xgroup_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: xgroup|help
   step: 0
@@ -9890,7 +9330,7 @@ xgroup_setid:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -9914,16 +9354,53 @@ xinfo:
   arity: -2
   first_key: 0
   flags: {}
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: xinfo
   step: 0
   subcommands:
+  - - xinfo|help
+    - 2
+    - - loading
+      - stale
+    - 0
+    - 0
+    - 0
+    - - '@stream'
+      - '@slow'
+    - []
+    - []
+    - []
+  - - xinfo|consumers
+    - 4
+    - - readonly
+    - 2
+    - 2
+    - 1
+    - - '@read'
+      - '@stream'
+      - '@slow'
+    - - nondeterministic_output
+    - - - flags
+        - - RO
+          - access
+        - begin_search
+        - - type
+          - index
+          - spec
+          - - index
+            - 2
+        - find_keys
+        - - type
+          - range
+          - spec
+          - - lastkey
+            - 0
+            - keystep
+            - 1
+            - limit
+            - 0
+    - []
   - - xinfo|stream
     - -3
     - - readonly
@@ -9984,48 +9461,6 @@ xinfo:
             - limit
             - 0
     - []
-  - - xinfo|help
-    - 2
-    - - loading
-      - stale
-    - 0
-    - 0
-    - 0
-    - - '@stream'
-      - '@slow'
-    - []
-    - []
-    - []
-  - - xinfo|consumers
-    - 4
-    - - readonly
-    - 2
-    - 2
-    - 1
-    - - '@read'
-      - '@stream'
-      - '@slow'
-    - - nondeterministic_output
-    - - - flags
-        - - RO
-          - access
-        - begin_search
-        - - type
-          - index
-          - spec
-          - - index
-            - 2
-        - find_keys
-        - - type
-          - range
-          - spec
-          - - lastkey
-            - 0
-            - keystep
-            - 1
-            - limit
-            - 0
-    - []
   tips: {}
 xinfo_consumers:
   acl_cat:
@@ -10037,7 +9472,7 @@ xinfo_consumers:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -10066,7 +9501,7 @@ xinfo_groups:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -10093,12 +9528,7 @@ xinfo_help:
   flags:
     loading: 1
     stale: 1
-  key_spec:
-    begin_search:
-      spec: ~
-    find_keys:
-      spec: ~
-    flags: ~
+  key_spec: []
   last_key: 0
   name: xinfo|help
   step: 0
@@ -10114,7 +9544,7 @@ xinfo_stream:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -10143,7 +9573,7 @@ xlen:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10170,7 +9600,7 @@ xpending:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10199,7 +9629,7 @@ xrange:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10230,7 +9660,7 @@ xread:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         keyword: STREAMS
         startfrom: 1
@@ -10262,7 +9692,7 @@ xreadgroup:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         keyword: STREAMS
         startfrom: 4
@@ -10291,7 +9721,7 @@ xrevrange:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10321,7 +9751,7 @@ xsetid:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10349,7 +9779,7 @@ xtrim:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10380,7 +9810,7 @@ zadd:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10409,7 +9839,7 @@ zcard:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10437,7 +9867,7 @@ zcount:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10466,7 +9896,7 @@ zdiff:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10496,7 +9926,20 @@ zdiffstore:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -10526,7 +9969,7 @@ zincrby:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10556,7 +9999,7 @@ zinter:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10585,7 +10028,7 @@ zintercard:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10615,7 +10058,20 @@ zinterstore:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -10644,7 +10100,7 @@ zlexcount:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10673,7 +10129,7 @@ zmpop:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10703,7 +10159,7 @@ zmscore:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10732,7 +10188,7 @@ zpopmax:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10762,7 +10218,7 @@ zpopmin:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10791,7 +10247,7 @@ zrandmember:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10820,7 +10276,7 @@ zrange:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10848,7 +10304,7 @@ zrangebylex:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10876,7 +10332,7 @@ zrangebyscore:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10905,7 +10361,20 @@ zrangestore:
     denyoom: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
@@ -10934,7 +10403,7 @@ zrank:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10963,7 +10432,7 @@ zrem:
     fast: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -10991,7 +10460,7 @@ zremrangebylex:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11019,7 +10488,7 @@ zremrangebyrank:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11047,7 +10516,7 @@ zremrangebyscore:
   flags:
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11075,7 +10544,7 @@ zrevrange:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11103,7 +10572,7 @@ zrevrangebylex:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11131,7 +10600,7 @@ zrevrangebyscore:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11160,7 +10629,7 @@ zrevrank:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11188,7 +10657,7 @@ zscan:
   flags:
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11218,7 +10687,7 @@ zscore:
     fast: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11247,7 +10716,7 @@ zunion:
     movablekeys: 1
     readonly: 1
   key_spec:
-    begin_search:
+  - begin_search:
       spec:
         index: 1
       type: index
@@ -11277,7 +10746,20 @@ zunionstore:
     movablekeys: 1
     write: 1
   key_spec:
-    begin_search:
+  - begin_search:
+      spec:
+        index: 1
+      type: index
+    find_keys:
+      spec:
+        keystep: 1
+        lastkey: 0
+        limit: 0
+      type: range
+    flags:
+      OW: 1
+      update: 1
+  - begin_search:
       spec:
         index: 2
       type: index
