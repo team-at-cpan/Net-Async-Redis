@@ -35,7 +35,7 @@ async sub exec {
         my $f = $self->$code;
         $f->retain if blessed($f) and $f->isa('Future');
 
-        $log->infof('MULTI exec');
+        $log->tracef('MULTI exec');
         my ($exec_result) = await $self->redis->exec;
         my @reply = $exec_result->@*;
         my $success = 0;
