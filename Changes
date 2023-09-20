@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+4.001     2023-09-21 06:39:51+08:00 Asia/Singapore
     [Bugs fixed]
 
     - MULTI/EXEC were emitting a log message at `info` level
