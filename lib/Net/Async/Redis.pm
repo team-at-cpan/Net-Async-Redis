@@ -1233,6 +1233,7 @@ sub execute_command {
 
         # Void-context write allows IaStream to combine multiple writes on the same connection.
         $self->stream->write($data);
+        push @{$self->{pending}}, [ $cmd, $f ];
         return $f
     };
     $log->tracef(
@@ -1248,10 +1249,8 @@ sub execute_command {
         # Are we the owner of a current MULTI transaction?
         : $self->{_is_multi}
         ? $self->connected
-        : Future->wait_all(
-            $self->connected,
-            @{$self->{pending_multi}}
-        )
+        : Future->needs_all($self->connected,
+            Future->wait_all(@{$self->{pending_multi}}))
     )->then($code)
      ->retain;
 }
