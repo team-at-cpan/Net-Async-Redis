@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+4.002     2023-10-26 11:39:40+08:00 Asia/Singapore
     [Bugs fixed]
 
     - previously unable to connect to a single-node cluster, since the CLUSTER SLOTS
