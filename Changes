@@ -1,6 +1,13 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [Bugs fixed]
+
+    - previously unable to connect to a single-node cluster, since the CLUSTER SLOTS
+    output did not include any host/IP information (single-node clusters are not recommended,
+    but useful for testing and local development!)
+    - subscription on a cluster would fail since the subscription key isn't sharded
+    - connection closure by the Redis server should be handled better now
 
 4.001     2023-09-21 06:39:51+08:00 Asia/Singapore
     [Bugs fixed]
