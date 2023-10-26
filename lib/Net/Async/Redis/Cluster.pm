@@ -167,7 +167,11 @@ async sub bootstrap {
             )
         );
         await $redis->connect;
-        await $self->apply_slots_from_instance($redis);
+        await $self->apply_slots_from_instance(
+            $redis,
+            host => $args{host},
+            port => $args{port}
+        );
     } finally {
         $redis->remove_from_parent if $redis;
     }
@@ -459,7 +463,11 @@ async sub register_moved_slot {
                 die 'Cluster status changed and cannot find a valid information source' unless $valid_connection;
                 # We'll let *all* our nodes try to tell us about slots, the operation
                 # should be atomic so whichever one(s) succeed are hopefully consistent
-                await $self->apply_slots_from_instance($valid_connection);
+                await $self->apply_slots_from_instance(
+                    $valid_connection,
+                    host => $host,
+                    port => $port,
+                );
             } catch {
                 $log->tracef("Node at %s was invalid", $node->primary);
             }
@@ -481,12 +489,16 @@ about the slots and their distribution.
 =cut
 
 async sub apply_slots_from_instance {
-    my ($self, $redis) = @_;
+    my ($self, $redis, %args) = @_;
     my ($slots) = await $redis->cluster_slots;
     $log->tracef('Have %d slots', 0 + @$slots);
 
     my @nodes;
     for my $slot_data (nsort_by { $_->[0] } $slots->@*) {
+        for my $primary ($slot_data->[2]) {
+            $primary->[0] = $args{host} unless length $primary->[0];
+            $primary->[1] = $args{port} unless length $primary->[1];
+        }
         my $node = $self->instantiate_node($slot_data);
         $log->tracef(
             'Node %s (%s) handles slots %d-%d and has %d replica(s) - %s',
