@@ -545,7 +545,7 @@ async sub find_node_and_execute_command {
     my @slots = map { $self->hash_slot_for_key($_) } @keys;
     my %slots = map { $_ => 1 } @slots;
     die 'Multiple slots for command' if keys(%slots) > 1;
-    my $slot = shift(@slots);
+    my $slot = $cmd[0] =~ /^p?(?:un)?s?subscribe/i ? 0 : shift(@slots);
     $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
     my $redis = await $self->connection_for_slot($slot);
     # Some commands have modifiers around them for RESP2/3 transparent support
