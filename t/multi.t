@@ -73,6 +73,7 @@ subtest 'MULTI while existing MULTI is active' => sub { (async sub {
     await $redis->hset($k, x => "y");
     await $redis->expire($k, 60);
     my %result;
+    my $target = $ENV{AUTHOR_TESTING} ? 2000 : 100;
     await fmap_void(async sub ($item) {
         await $redis->multi(sub ($tx) {
             $tx->hset($k, $item => '' . reverse $item);
@@ -86,7 +87,43 @@ subtest 'MULTI while existing MULTI is active' => sub { (async sub {
             });
             return;
         });
-    }, concurrent => 64, foreach => [1..1000]);
+    }, concurrent => 64, foreach => [1 .. $target]);
+    done_testing;
+})->()->get };
+
+subtest 'MULTI interspersed with regular Redis calls' => sub { (async sub {
+    my $data;
+    my $k = "multi.key";
+    await $redis->unlink($k);
+    await $redis->hset($k, x => "y");
+    await $redis->expire($k, 300);
+    my %result;
+    my $target = $ENV{AUTHOR_TESTING} ? 2000 : 100;
+    await $redis->unlink($k . '.count');
+    await fmap_void(async sub ($item) {
+        await $redis->multi(sub ($tx) {
+            my $v = '' . reverse $item;
+            $tx->hset($k, $item => $v);
+            $redis->hget($k, $item)->on_ready(sub {
+                my $f = shift;
+                is(exception {
+                    ($data) = $f->get;
+                    is($data, $result{$item}, 'data is correct inside regular HGET');
+                }, undef, 'no exception on ->get');
+            });
+            $redis->incr($k . '.count')->retain;
+            $tx->hget($k, $item)->on_ready(sub {
+                my $f = shift;
+                is(exception {
+                    ($data) = $f->get;
+                    $result{$item} = $data;
+                    is($data, $v, 'data is correct inside MULTI');
+                }, undef, 'no exception on ->get');
+            });
+            return;
+        });
+    }, concurrent => 64, foreach => [1..$target]);
+    is(await $redis->get($k . '.count'), $target, 'count matches afterwards');
     done_testing;
 })->()->get };
 
