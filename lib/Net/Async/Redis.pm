@@ -170,6 +170,7 @@ use Syntax::Keyword::Dynamically;
 use Syntax::Keyword::Match;
 use curry::weak;
 use Future::AsyncAwait;
+use Future::Queue;
 use IO::Async::Stream;
 use Ryu::Async;
 use URI;
@@ -737,30 +738,9 @@ async sub multi {
     my $multi = Net::Async::Redis::Multi->new(
         redis => $self,
     );
-    my @pending = @{$self->{pending_multi}};
-
-    $log->tracef('Have %d pending MULTI transactions',
-        0 + @pending
-    );
-    push @{$self->{pending_multi}}, $self->loop->new_future->set_label($self->command_label('multi'));
-
-    await Future->wait_all(
-        @pending
-    ) if @pending;
-    await do {
-        dynamically $self->{_is_multi} = 1;
-        Net::Async::Redis::Commands::multi($self);
-    };
-    return await $multi->exec($code)
+    await $self->next::method;
+    return await $multi->exec($code);
 }
-
-around [qw(discard exec)] => sub {
-    my ($code, $self, @args) = @_;
-    dynamically $self->{_is_multi} = 1;
-    my $f = $self->$code(@args);
-    (shift @{$self->{pending_multi}})->done;
-    $f->retain
-};
 
 =head1 METHODS - Clientside caching
 
@@ -1179,67 +1159,97 @@ method command_label (@cmd) {
 
 =head2 execute_command
 
-Queues or executes the given command.
+Queues the given command for execution.
 
 =cut
 
 sub execute_command {
     my ($self, @cmd) = @_;
 
+    # This represents the completion of the command
+    my $f = $self->loop->new_future->set_label(
+        $self->command_label(@cmd)
+    );
+    $tracer->span_for_future($f) if $self->opentracing;
+
+    my $item = [ \@cmd, $f];
+    if($self->{connection_in_progress}) {
+        $self->handle_command($item);
+        return $f->retain;
+    }
+    my $queue = $self->{_is_multi} // $self->command_queue;
+    # We register this as a command we want to run - it'll be
+    # send to the server once nothing else is in the way
+    return $queue->push($item)->then(sub { $f })->retain;
+}
+
+method command_queue {
+    return $self->{command_queue} if $self->{command_queue};
+    $self->{command_queue} = my $queue = Future::Queue->new(
+        (
+            $self->pipeline_depth
+            ? (max_items => $self->pipeline_depth)
+            : ()
+        ),
+        prototype => $self->future
+    );
+    $self->{command_processing} = $self->command_processing->on_ready(sub { delete $self->{command_processing} });
+    return $queue;
+}
+
+async method command_processing {
+    my $queue = $self->{command_queue};
+    await $self->connected;
+    while(1) {
+        # An active MULTI always takes priority over regular commands
+        if(my $queue = $self->{multi_queue}) {
+            while(my $next = await $queue->shift) {
+                $self->handle_command($next);
+            }
+            delete $self->{multi_queue};
+        }
+        my $queue = $self->{command_queue};
+        my $next = await $queue->shift
+            or last;
+        $self->handle_command($next);
+    }
+}
+
+method handle_command ($details) {
+    my @cmd = $details->[0]->@*;
+    my $f = $details->[1];
+
     # First, the rules: pubsub or plain
     my $is_sub_command = (
         $self->{protocol_level} eq 'resp2' and exists $SUBSCRIPTION_COMMANDS{$cmd[0]}
     );
 
-    return Future->fail(
+    return $f->fail(
         'Currently in pubsub mode, cannot send regular commands until unsubscribed',
         redis =>
             0 + (keys %{$self->{subscription_channel}}),
             0 + (keys %{$self->{subscription_pattern_channel}})
     ) if $self->{protocol_level} ne 'resp3' and exists $self->{pubsub} and not exists $ALLOWED_SUBSCRIPTION_COMMANDS{$cmd[0]};
 
-    my $f = $self->loop->new_future->set_label(
-        $self->command_label(@cmd)
-    );
-    $tracer->span_for_future($f) if $self->opentracing;
-    $log->tracef("Will have to wait for %d MULTI tx", 0 + @{$self->{pending_multi}}) unless $self->{_is_multi};
-    my $code = sub {
-        my $cmd = join ' ', @cmd;
-        $log->tracef('Outgoing [%s]', $cmd);
-        my $depth = $self->pipeline_depth;
-        $log->tracef("Pipeline depth now %d/%d", 0 + @{$self->{pending}}, $depth);
-        if($depth && $self->{pending}->@* >= $depth) {
-            $log->tracef("Pipeline full, deferring %s (%d others in that queue)", $cmd, 0 + @{$self->{awaiting_pipeline}});
-            push @{$self->{awaiting_pipeline}}, [ \@cmd, $f ];
-            return $f;
-        }
-        my $data = $self->wire_protocol->encode_from_client(@cmd);
+    my $cmd = join ' ', @cmd;
 
-        push @{$self->{pending}}, [ $cmd, $f ];
+    $log->tracef('Outgoing [%s]', $cmd);
+    my $data = $self->wire_protocol->encode_from_client(@cmd);
+    push @{$self->{pending}}, [ $cmd, $f ];
 
-        # Void-context write allows IaStream to combine multiple writes on the same connection.
-        $self->stream->write($data);
-        return $f
-    };
-    $log->tracef(
-        'Multi %s with %d pending and connected state %s',
-        $self->{_is_multi},
-        0 + @{$self->{pending_multi}},
-        $self->connected->state,
-    );
-    return (
-        # Is this a command issued during the initial connection phase?
-        $self->{connection_in_progress}
-        ? Future->done
-        # Are we the owner of a current MULTI transaction?
-        : $self->{_is_multi}
-        ? $self->connected
-        : Future->wait_all(
-            $self->connected,
-            @{$self->{pending_multi}}
-        )
-    )->then($code)
-     ->retain;
+    # Void-context write allows IaStream to combine multiple writes on the same connection.
+    $self->stream->write($data);
+    if(lc($cmd[0]) eq 'multi') {
+        $self->{multi_queue} = Future::Queue->new(
+            (
+                $self->pipeline_depth
+                ? (max_items => $self->pipeline_depth)
+                : ()
+            ),
+            prototype => $self->future
+        );
+    }
+    return;
 }
 
 async method xread (@args) {

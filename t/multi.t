@@ -1,8 +1,11 @@
 use strict;
 use warnings;
+use experimental qw(signatures);
 
 use Test::More;
 use Test::Fatal;
+use Future::AsyncAwait;
+use Future::Utils qw(fmap_void);
 
 use Net::Async::Redis;
 use IO::Async::Loop;
@@ -35,6 +38,7 @@ subtest 'basic MULTI' => sub {
     })->get;
     done_testing;
 };
+
 subtest 'MULTI combined with regular requests' => sub {
     my $data;
     my $multi = $redis->multi(sub {
@@ -48,8 +52,6 @@ subtest 'MULTI combined with regular requests' => sub {
             }, undef, 'no exception on ->get');
         });
     });
-    await $multi;
-    is($data, '123', 'data is correct after multi');
     my $f = $redis->get('x')->on_ready(sub {
         my $f = shift;
         is(exception {
@@ -61,8 +63,32 @@ subtest 'MULTI combined with regular requests' => sub {
         $multi,
         $f
     )->get;
+    is($data, '123', 'data is correct after multi');
     done_testing;
 };
+
+subtest 'MULTI while existing MULTI is active' => sub { (async sub {
+    my $data;
+    my $k = "multi.key";
+    await $redis->hset($k, x => "y");
+    await $redis->expire($k, 60);
+    my %result;
+    await fmap_void(async sub ($item) {
+        await $redis->multi(sub ($tx) {
+            $tx->hset($k, $item => '' . reverse $item);
+            $tx->hget($k, $item)->on_ready(sub {
+                my $f = shift;
+                is(exception {
+                    ($data) = $f->get;
+                    $result{$item} = $data;
+                    is($data, '' . reverse($item), 'data is correct inside MULTI');
+                }, undef, 'no exception on ->get');
+            });
+            return;
+        });
+    }, concurrent => 64, foreach => [1..1000]);
+    done_testing;
+})->()->get };
 
 done_testing;
 
