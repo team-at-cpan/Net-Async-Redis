@@ -1470,7 +1470,7 @@ Returns a list of keys.
 my $keyspec_cache = Cache::LRU->new(
     size => 10_000
 );
-method extract_keys_for_command ($command, $def) {
+sub extract_keys_for_command ($class, $command, $def = undef) {
     my $cache = 0;
     unless($def) {
         my $cached = $keyspec_cache->get(join "\x{01FF}", $command->@*);
