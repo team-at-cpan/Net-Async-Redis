@@ -1,6 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [Refactoring]
+
+    - migrated to Object::Pad, for better OO handling (still uses a hashref-based object
+    implementation, for backwards compatibility)
 
 4.002     2023-10-26 11:39:40+08:00 Asia/Singapore
     [Bugs fixed]
