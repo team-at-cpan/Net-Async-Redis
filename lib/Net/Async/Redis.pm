@@ -1,13 +1,13 @@
 package Net::Async::Redis;
 # ABSTRACT: Redis support for IO::Async
 
+use Object::Pad;
+class Net::Async::Redis :isa(IO::Async::Notifier);
 use strict;
 use warnings;
+use experimental qw(signatures);
 
-use parent qw(
-    Net::Async::Redis::Commands
-    IO::Async::Notifier
-);
+use parent qw(Net::Async::Redis::Commands);
 
 our $VERSION = '4.002';
 # AUTHORITY
