@@ -67,5 +67,4 @@ workflows:
     - redis5
     - redis6
     - redis7
-    - compatibility
 
