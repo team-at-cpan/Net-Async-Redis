@@ -261,32 +261,33 @@ participating in the transaction.
 async method multi ($code) {
     die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
 
-    my $multi = Net::Async::Redis::Cluster::Multi->new(
-        redis => $self,
-    );
-
     # Start a transaction on all primary nodes
     my $cmd = Net::Async::Redis::Commands->can('multi');
-    my @multi = await fmap_concat(async sub ($node) {
+    my %multi_for_node = await fmap_concat(async sub ($node) {
         my $redis = await $node->primary_connection;
         my $multi = Net::Async::Redis::Multi->new(
             redis => $redis,
         );
-        await $redis->$cmd->on_ready(sub {
-            my $f = shift;
+        await $redis->$cmd->on_ready(sub ($f) {
             my $state = $f->state;
             warn "fail - " . $f->failure if $f->is_failed;
             warn "cancel" if $f->is_cancelled
         });
-        $multi
-    }, foreach => [$self->{nodes}->@*], concurrent => 4);
+        $node => $multi
+    }, foreach => [$self->{nodes}->@*], concurrent => 16);
+
     # At this point we know all nodes are safely in MULTI mode,
     # so we can start sending requests
-    my $res = await $multi->exec($code);
+    my $multi = Net::Async::Redis::Cluster::Multi->new(
+        redis => $self,
+        multi => \%multi_for_node,
+    );
+    my $res = await $multi->$code;
 
-    await fmap_void(async sub ($multi) {
-        $multi->exec(sub { })
-    }, foreach => \@multi, concurrent => 4);
+    await fmap_void(sub {
+        shift->exec(sub { })
+    }, foreach => [ values %multi_for_node ], concurrent => 4);
+
     return $res;
 }
 
@@ -546,13 +547,8 @@ sub execute_command {
 
 async sub find_node_and_execute_command {
     my ($self, @cmd) = @_;
-    my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
-    my @slots = map { $self->hash_slot_for_key($_) } @keys;
-    my %slots = map { $_ => 1 } @slots;
-    die 'Multiple slots for command' if keys(%slots) > 1;
-    my $slot = $cmd[0] =~ /^p?(?:un)?s?subscribe/i ? 0 : shift(@slots);
-    $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
-    my $redis = await $self->connection_for_slot($slot);
+    my $redis = await $self->find_node(@cmd);
+
     # Some commands have modifiers around them for RESP2/3 transparent support
     my ($command, @args) = @cmd;
     try {
@@ -565,6 +561,17 @@ async sub find_node_and_execute_command {
         await $self->register_moved_slot($slot => $host_port);
         return await $self->execute_command(@cmd);
     }
+}
+
+async sub find_node {
+    my ($self, @cmd) = @_;
+    my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
+    my @slots = map { $self->hash_slot_for_key($_) } @keys;
+    my %slots = map { $_ => 1 } @slots;
+    die 'Multiple slots for command' if keys(%slots) > 1;
+    my $slot = $cmd[0] =~ /^p?(?:un)?s?subscribe/i ? 0 : shift(@slots);
+    $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
+    return await $self->connection_for_slot($slot);
 }
 
 =head2 ryu

@@ -62,18 +62,9 @@ sub AUTOLOAD {
         my ($self, @args) = @_;
         my $f = $self->redis->future->set_label($method);
         push @{$self->{queued_requests}}, $f;
-        my $ff = do {
-            # $self->redis->{_is_multi} //= 0;
-            dynamically $self->redis->{_is_multi} = $self->redis->{multi_queue};
-            $self->redis->$method(@args);
-        };
-        my ($resp) = await $ff;
-        return await $f if $resp eq 'QUEUED';
-
-        # my $addr = refaddr($f);
-        # extract_by { $addr == refaddr($_) } @{$self->{queued_requests}};
-        $f->fail($resp);
-        die $resp;
+        my $node = await $self->redis->find_node(@args);
+        my $multi = $self->{multi}{$node} or die 'node not found - ' . $node;
+        return $multi->$method(@args);
     };
     set_subname $method => $code;
     { no strict 'refs'; *$method = sub { $code->(@_)->retain } }
