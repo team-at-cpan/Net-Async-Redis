@@ -731,8 +731,7 @@ Example:
 
 =cut
 
-async sub multi {
-    my ($self, $code) = @_;
+async method multi ($code) {
     die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
 
     my $multi = Net::Async::Redis::Multi->new(
