@@ -62,9 +62,9 @@ sub AUTOLOAD {
         my ($self, @args) = @_;
         my $f = $self->redis->future->set_label($method);
         push @{$self->{queued_requests}}, $f;
-        my $node = await $self->redis->find_node(@args);
-        my $multi = $self->{multi}{$node} or die 'node not found - ' . $node;
-        return $multi->$method(@args);
+        my $node = await $self->redis->find_node($method => @args);
+        my $multi = $self->{multi}{$node->id} or die 'node not found - ' . $node;
+        return await $multi->$method(@args);
     };
     set_subname $method => $code;
     { no strict 'refs'; *$method = sub { $code->(@_)->retain } }

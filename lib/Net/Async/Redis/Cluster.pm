@@ -263,18 +263,15 @@ async method multi ($code) {
 
     # Start a transaction on all primary nodes
     my $cmd = Net::Async::Redis::Commands->can('multi');
+    my $node_count = 0 + $self->{nodes}->@*;
     my %multi_for_node = await fmap_concat(async sub ($node) {
         my $redis = await $node->primary_connection;
         my $multi = Net::Async::Redis::Multi->new(
             redis => $redis,
         );
-        await $redis->$cmd->on_ready(sub ($f) {
-            my $state = $f->state;
-            warn "fail - " . $f->failure if $f->is_failed;
-            warn "cancel" if $f->is_cancelled
-        });
-        $node => $multi
-    }, foreach => [$self->{nodes}->@*], concurrent => 16);
+        await $redis->$cmd;
+        $node->id => $multi
+    }, foreach => [$self->{nodes}->@*], concurrent => $node_count);
 
     # At this point we know all nodes are safely in MULTI mode,
     # so we can start sending requests
@@ -282,13 +279,13 @@ async method multi ($code) {
         redis => $self,
         multi => \%multi_for_node,
     );
-    my $res = await $multi->$code;
+    $multi->$code;
 
     await fmap_void(sub {
         shift->exec(sub { })
-    }, foreach => [ values %multi_for_node ], concurrent => 4);
+    }, foreach => [ values %multi_for_node ], concurrent => $node_count);
 
-    return $res;
+    return;
 }
 
 async sub discard {
@@ -298,7 +295,7 @@ async sub discard {
         my ($node) = @_;
         $node->primary_connection->then(sub {
             dynamically $self->{_is_multi} = 1;
-            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled })
+            shift->$cmd
         });
     }, foreach => [$self->{nodes}->@*], concurrent => 4);
     (shift @{$self->{pending_multi}})->done;
@@ -306,18 +303,12 @@ async sub discard {
 }
 
 async method exec (@args) {
-    $log->infof('Calling ->exec, with multi = %s and queue %s', '' . $self->{_is_multi}, '' . $self->{multi_queue});
+    $log->tracef('Calling ->exec, with multi = %s and queue %s', '' . $self->{_is_multi}, '' . $self->{multi_queue});
     my (@res) = await fmap_concat(async sub {
         my ($node) = @_;
         my $conn = await $node->primary_connection;
-        $log->infof('Per node ->exec, with multi = %s and queue %s', '' . $self->{_is_multi}, '' . $self->{multi_queue});
-        return await $conn->exec->on_ready(sub {
-            my $f = shift;
-            my $state = $f->state;
-            warn "fail - " . $f->failure if $f->is_failed;
-            warn "cancel" if $f->is_cancelled;
-            $log->infof('Results: %s', $f->get) if $f->is_done;
-        });
+        $log->tracef('Per node ->exec, with multi = %s and queue %s', '' . $self->{_is_multi}, '' . $self->{multi_queue});
+        return await $conn->exec;
     }, foreach => [$self->{nodes}->@*], concurrent => 4);
     return [ map { $_->@* } grep { $_ } @res ];
 };
@@ -547,7 +538,8 @@ sub execute_command {
 
 async sub find_node_and_execute_command {
     my ($self, @cmd) = @_;
-    my $redis = await $self->find_node(@cmd);
+    my $node = await $self->find_node(@cmd);
+    my $redis = await $node->primary_connection;
 
     # Some commands have modifiers around them for RESP2/3 transparent support
     my ($command, @args) = @cmd;
@@ -571,7 +563,7 @@ async sub find_node {
     die 'Multiple slots for command' if keys(%slots) > 1;
     my $slot = $cmd[0] =~ /^p?(?:un)?s?subscribe/i ? 0 : shift(@slots);
     $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
-    return await $self->connection_for_slot($slot);
+    return $self->node_for_slot($slot);
 }
 
 =head2 ryu
