@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+5.000     2023-11-05 21:22:40+08:00 Asia/Singapore
     [Refactoring]
 
     - migrated to Object::Pad, for better OO handling (still uses a hashref-based object
