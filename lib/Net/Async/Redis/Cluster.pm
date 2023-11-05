@@ -1,14 +1,15 @@
 package Net::Async::Redis::Cluster;
 
+use Object::Pad;
+class Net::Async::Redis::Cluster :isa(IO::Async::Notifier);
+
 use strict;
 use warnings;
+use experimental qw(signatures);
 
 use utf8;
 
-use parent qw(
-    Net::Async::Redis::Commands
-    IO::Async::Notifier
-);
+use parent qw(Net::Async::Redis::Commands);
 
 # VERSION
 
@@ -71,6 +72,7 @@ use Log::Any qw($log);
 
 use Net::Async::Redis;
 use Net::Async::Redis::Cluster::Node;
+use Net::Async::Redis::Cluster::Multi;
 
 use overload
     '""' => sub { 'NaRedis::Cluster[]' },
@@ -256,34 +258,34 @@ participating in the transaction.
 
 =cut
 
-async sub multi {
-    my ($self, $code) = @_;
+async method multi ($code) {
     die 'Need a coderef' unless $code and reftype($code) eq 'CODE';
-
-    my $multi = Net::Async::Redis::Multi->new(
-        redis => $self,
-    );
-    my @pending = @{$self->{pending_multi} ||= []};
-
-    $log->tracef('Have %d pending MULTI transactions',
-        0 + @pending
-    );
-    push @{$self->{pending_multi}}, $self->loop->new_future;
-
-    await Future->wait_all(
-        @pending
-    ) if @pending;
 
     # Start a transaction on all primary nodes
     my $cmd = Net::Async::Redis::Commands->can('multi');
-    await fmap_concat(sub {
-        my ($node) = @_;
-        $node->primary_connection->then(sub {
-            dynamically $self->{_is_multi} = 1;
-            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled })
-        });
-    }, foreach => [$self->{nodes}->@*], concurrent => 4);
-    return await $multi->exec($code)
+    my $node_count = 0 + $self->{nodes}->@*;
+    my %multi_for_node = await fmap_concat(async sub ($node) {
+        my $redis = await $node->primary_connection;
+        my $multi = Net::Async::Redis::Multi->new(
+            redis => $redis,
+        );
+        await $redis->$cmd;
+        $node->id => $multi
+    }, foreach => [$self->{nodes}->@*], concurrent => $node_count);
+
+    # At this point we know all nodes are safely in MULTI mode,
+    # so we can start sending requests
+    my $multi = Net::Async::Redis::Cluster::Multi->new(
+        redis => $self,
+        multi => \%multi_for_node,
+    );
+    $multi->$code;
+
+    await fmap_void(sub {
+        shift->exec(sub { })
+    }, foreach => [ values %multi_for_node ], concurrent => $node_count);
+
+    return;
 }
 
 async sub discard {
@@ -293,26 +295,21 @@ async sub discard {
         my ($node) = @_;
         $node->primary_connection->then(sub {
             dynamically $self->{_is_multi} = 1;
-            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled })
+            shift->$cmd
         });
     }, foreach => [$self->{nodes}->@*], concurrent => 4);
     (shift @{$self->{pending_multi}})->done;
     return;
 }
 
-async sub exec {
-    my ($self, @args) = @_;
-    my $cmd = Net::Async::Redis::Commands->can('exec');
-$log->infof('About to EXEC');
-    my (@res) = await fmap_concat(sub {
+async method exec (@args) {
+    $log->tracef('Calling ->exec, with multi = %s and queue %s', '' . $self->{_is_multi}, '' . $self->{multi_queue});
+    my (@res) = await fmap_concat(async sub {
         my ($node) = @_;
-        $node->primary_connection->then(sub {
-            dynamically $self->{_is_multi} = 1;
-            shift->$cmd->on_ready(sub { my $f = shift; my $state = $f->state; warn "fail - " . $f->failure if $f->is_failed; warn "cancel" if $f->is_cancelled; $log->infof('Results: %s', $f->get) if $f->is_done; })
-        });
+        my $conn = await $node->primary_connection;
+        $log->tracef('Per node ->exec, with multi = %s and queue %s', '' . $self->{_is_multi}, '' . $self->{multi_queue});
+        return await $conn->exec;
     }, foreach => [$self->{nodes}->@*], concurrent => 4);
-$log->infof('Results were: %s', \@res);
-    (shift @{$self->{pending_multi}})->done;
     return [ map { $_->@* } grep { $_ } @res ];
 };
 
@@ -541,17 +538,14 @@ sub execute_command {
 
 async sub find_node_and_execute_command {
     my ($self, @cmd) = @_;
-    my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
-    my @slots = map { $self->hash_slot_for_key($_) } @keys;
-    my %slots = map { $_ => 1 } @slots;
-    die 'Multiple slots for command' if keys(%slots) > 1;
-    my $slot = $cmd[0] =~ /^p?(?:un)?s?subscribe/i ? 0 : shift(@slots);
-    $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
-    my $redis = await $self->connection_for_slot($slot);
+    my $node = await $self->find_node(@cmd);
+    my $redis = await $node->primary_connection;
+
     # Some commands have modifiers around them for RESP2/3 transparent support
     my ($command, @args) = @cmd;
     try {
         $command = lc $command;
+        $log->infof('multi status = %s', $self->{_is_multi});
         return await $redis->$command(@args);
     } catch ($e) {
         die $e unless $e =~ /MOVED/;
@@ -559,6 +553,17 @@ async sub find_node_and_execute_command {
         await $self->register_moved_slot($slot => $host_port);
         return await $self->execute_command(@cmd);
     }
+}
+
+async sub find_node {
+    my ($self, @cmd) = @_;
+    my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
+    my @slots = map { $self->hash_slot_for_key($_) } @keys;
+    my %slots = map { $_ => 1 } @slots;
+    die 'Multiple slots for command' if keys(%slots) > 1;
+    my $slot = $cmd[0] =~ /^p?(?:un)?s?subscribe/i ? 0 : shift(@slots);
+    $log->tracef('Look up hash slot for %s - %d', \@keys, $slot);
+    return $self->node_for_slot($slot);
 }
 
 =head2 ryu

@@ -1,4 +1,4 @@
-package Net::Async::Redis::Multi;
+package Net::Async::Redis::Cluster::Multi;
 
 use strict;
 use warnings;
@@ -19,6 +19,8 @@ use Syntax::Keyword::Try;
 use Syntax::Keyword::Dynamically;
 use Future::AsyncAwait;
 use Scalar::Util qw(weaken blessed);
+use Sub::Util qw(set_subname);
+
 use Log::Any qw($log);
 
 sub new {
@@ -34,36 +36,10 @@ async sub exec {
     try {
         my $f = $self->$code;
         $f->retain if blessed($f) and $f->isa('Future');
-
-        $log->tracef('MULTI exec');
-        dynamically $self->redis->{_is_multi} = $self->redis->{multi_queue};
-        my ($exec_result) = await $self->redis->exec;
-        $self->redis->{multi_queue}->finish;
-        my @reply = $exec_result->@*;
-        my $success = 0;
-        my $failure = 0;
-        while(@reply) {
-            try {
-                my $reply = shift @reply;
-                my $queued = shift @{$self->{queued_requests}} or die 'invalid queued request';
-                $queued->done($reply) unless $queued->is_ready;
-                ++$success
-            } catch {
-                $log->warnf("Failure during transaction: %s", $@);
-                ++$failure
-            }
-        }
-        return $success, $failure;
+        return 0;
     } catch {
         my $err = $@;
         $log->errorf('Failed to complete multi - %s', $err);
-        for my $queued (splice @{$self->{queued_requests}}) {
-            try {
-                $queued->fail("Transaction failed", redis => 'transaction_failure') unless $queued->is_ready;
-            } catch {
-                $log->warnf("Failure during transaction: %s", $@);
-            }
-        }
         die $@;
     }
 }
@@ -76,8 +52,6 @@ Accessor for the L<Net::Async::Redis> instance.
 
 sub redis { shift->{redis} }
 
-use Sub::Util qw(set_subname);
-
 sub AUTOLOAD {
     my ($method) = our $AUTOLOAD =~ m{::([^:]+)$};
 
@@ -88,18 +62,9 @@ sub AUTOLOAD {
         my ($self, @args) = @_;
         my $f = $self->redis->future->set_label($method);
         push @{$self->{queued_requests}}, $f;
-        my $ff = do {
-            # $self->redis->{_is_multi} //= 0;
-            dynamically $self->redis->{_is_multi} = $self->redis->{multi_queue};
-            $self->redis->$method(@args);
-        };
-        my ($resp) = await $ff;
-        return await $f if $resp eq 'QUEUED';
-
-        # my $addr = refaddr($f);
-        # extract_by { $addr == refaddr($_) } @{$self->{queued_requests}};
-        $f->fail($resp);
-        die $resp;
+        my $node = await $self->redis->find_node($method => @args);
+        my $multi = $self->{multi}{$node->id} or die 'node not found - ' . $node;
+        return await $multi->$method(@args);
     };
     set_subname $method => $code;
     { no strict 'refs'; *$method = sub { $code->(@_)->retain } }
