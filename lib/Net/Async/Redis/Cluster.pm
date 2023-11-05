@@ -545,7 +545,6 @@ async sub find_node_and_execute_command {
     my ($command, @args) = @cmd;
     try {
         $command = lc $command;
-        $log->infof('multi status = %s', $self->{_is_multi});
         return await $redis->$command(@args);
     } catch ($e) {
         die $e unless $e =~ /MOVED/;
