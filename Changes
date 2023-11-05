@@ -4,7 +4,18 @@ Revision history for {{$dist->name}}
     [Refactoring]
 
     - migrated to Object::Pad, for better OO handling (still uses a hashref-based object
-    implementation, for backwards compatibility)
+    implementation, for backwards compatibility). Since this has the potential to be a big
+    change, and may affect backward compatibility, the major version has been increased,
+    and the Object::Pad migration will be released in steps during this version series
+    (e.g. conversion to `field` instead of `$self->{accessor}`, move Net::Async::Redis::Commands
+    to a rôle)
+    - MULTI handling rewritten to handle cluster mode and mixed regular/transactional commands
+    better
+
+    [Bugs fixed]
+
+    - previous versions exhibited excessive memory usage and poor performance when attempting
+    to call MULTI within MULTI, the refactoring now includes tests to cover this scenario
 
 4.002     2023-10-26 11:39:40+08:00 Asia/Singapore
     [Bugs fixed]
