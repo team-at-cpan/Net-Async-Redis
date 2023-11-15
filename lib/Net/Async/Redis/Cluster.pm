@@ -700,6 +700,10 @@ async sub find_node_and_execute_command ($self, @cmd) {
 async sub find_node {
     my ($self, @cmd) = @_;
     my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
+    unless(@keys) {
+        return $self->{nodes}[rand($self->{nodes}->@*)];
+    }
+
     my @slots = map { $self->hash_slot_for_key($_) } @keys;
     my %slots = map { $_ => 1 } @slots;
     die 'Multiple slots for command' if keys(%slots) > 1;
