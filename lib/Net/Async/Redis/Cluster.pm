@@ -680,8 +680,7 @@ sub execute_command {
     return $self->find_node_and_execute_command(@cmd)->retain;
 }
 
-async sub find_node_and_execute_command {
-    my ($self, @cmd) = @_;
+async sub find_node_and_execute_command ($self, @cmd) {
     my $node = await $self->find_node(@cmd);
     my $redis = await $node->primary_connection;
 
