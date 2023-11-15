@@ -313,6 +313,142 @@ async method exec (@args) {
     return [ map { $_->@* } grep { $_ } @res ];
 };
 
+=head1 METHODS - All nodes
+
+These methods operate on all nodes at once, and return
+the data in hashref mapping node ID to the response.
+
+=cut
+
+async method bgrewriteaof {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->bgrewriteaof
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method bgsave {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->bgsave
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method save {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->save
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method role {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->role
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method shutdown {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->shutdown
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method info (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->info(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method time (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->time(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method slowlog_reset (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->slowlog_reset(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method slowlog_len (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->slowlog_len(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method slowlog_get (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->slowlog_get(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+=head1 METHODS - Any node
+
+These methods operate pick a random node to operate on,
+returning the data as if this was a regular L<Net::Async::Redis>
+instance.
+
+=cut
+
+
 =head1 METHODS - Internal
 
 =cut
