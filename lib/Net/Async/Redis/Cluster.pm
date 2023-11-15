@@ -11,7 +11,7 @@ use utf8;
 
 use parent qw(Net::Async::Redis::Commands);
 
-our $VERSION = '5.000'; # VERSION
+our $VERSION = '5.001'; # VERSION
 
 =encoding utf8
 
@@ -313,6 +313,142 @@ async method exec (@args) {
     return [ map { $_->@* } grep { $_ } @res ];
 };
 
+=head1 METHODS - All nodes
+
+These methods operate on all nodes at once, and return
+the data in hashref mapping node ID to the response.
+
+=cut
+
+async method bgrewriteaof {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->bgrewriteaof
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method bgsave {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->bgsave
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method save {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->save
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method role {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->role
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method shutdown {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->shutdown
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method info (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->info(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method time (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->time(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method slowlog_reset (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->slowlog_reset(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method slowlog_len (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->slowlog_len(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+async method slowlog_get (@args) {
+    my @nodes = $self->node_list;
+    return {
+         await fmap_concat(async sub ($node) {
+            my $conn = await $node->primary_connection;
+            return (
+                $node->id => await $conn->slowlog_get(@args)
+            )
+        }, foreach => [ @nodes ], concurrent => 0 + @nodes)
+    };
+}
+
+=head1 METHODS - Any node
+
+These methods operate pick a random node to operate on,
+returning the data as if this was a regular L<Net::Async::Redis>
+instance.
+
+=cut
+
+
 =head1 METHODS - Internal
 
 =cut
@@ -388,6 +524,14 @@ sub replace_nodes {
     delete $self->{slot_cache};
     $_->remove_from_parent for splice $self->{nodes}->@*;
     $self->add_child($_) for $nodes->@*;
+    my $primary_by_hostport = { };
+    for my $node ($nodes->@*) {
+        if(my $conn = $primary_by_hostport->{$node->host_port}) {
+            $node->primary_connection($primary_by_hostport->{$node->host_port});
+        } else {
+            $primary_by_hostport->{$node->host_port} = $node->primary_connection;
+        }
+    }
     $self->{nodes} = $nodes;
     $self
 }
@@ -536,8 +680,7 @@ sub execute_command {
     return $self->find_node_and_execute_command(@cmd)->retain;
 }
 
-async sub find_node_and_execute_command {
-    my ($self, @cmd) = @_;
+async sub find_node_and_execute_command ($self, @cmd) {
     my $node = await $self->find_node(@cmd);
     my $redis = await $node->primary_connection;
 
@@ -545,7 +688,6 @@ async sub find_node_and_execute_command {
     my ($command, @args) = @cmd;
     try {
         $command = lc $command;
-        $log->infof('multi status = %s', $self->{_is_multi});
         return await $redis->$command(@args);
     } catch ($e) {
         die $e unless $e =~ /MOVED/;
@@ -558,6 +700,10 @@ async sub find_node_and_execute_command {
 async sub find_node {
     my ($self, @cmd) = @_;
     my @keys = Net::Async::Redis->extract_keys_for_command(\@cmd);
+    unless(@keys) {
+        return $self->{nodes}[rand($self->{nodes}->@*)];
+    }
+
     my @slots = map { $self->hash_slot_for_key($_) } @keys;
     my %slots = map { $_ => 1 } @slots;
     die 'Multiple slots for command' if keys(%slots) > 1;

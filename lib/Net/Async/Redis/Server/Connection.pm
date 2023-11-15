@@ -5,7 +5,7 @@ use warnings;
 
 use parent qw(IO::Async::Notifier);
 
-our $VERSION = '5.000'; # VERSION
+our $VERSION = '5.001'; # VERSION
 
 =head1 NAME
 
@@ -77,7 +77,7 @@ sub stream { shift->{stream} }
 
 sub on_close {
     my ($self) = @_;
-    $log->infof('Closing server connection');
+    $log->tracef('Connection to server closing');
     $self->server->client_disconnect($self);
 }
 
