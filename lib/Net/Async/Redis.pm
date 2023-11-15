@@ -423,6 +423,15 @@ will be preserved for subsequent L</connect> calls.
 =cut
 
 method connect (%args) {
+    return $self->{connection} if $self->{connection};
+    my $f = $self->connect_to_server(%args)->on_ready(sub {
+        $log->tracef('connection call complete - %s', $_[0]->state);
+        delete $self->{connection} unless shift->is_done
+    });
+    return $self->{connection} = $f;
+}
+
+async method connect_to_server (%args) {
     $self->configure(%args) if %args;
     my $uri = $self->uri->clone;
     for (qw(host port)) {
@@ -445,7 +454,9 @@ method connect (%args) {
     $log->tracef('About to start connection to %s', "$uri");
     my $tls = $self->{tls} // $uri->secure // 0;
     require IO::Async::SSL if $tls;
-    $self->{connection} //= $self->loop->connect(
+    await $self->loop->later;
+
+    my $sock = await $self->loop->connect(
         service => $uri->port // 6379,
         host    => $uri->host,
         socktype => 'stream',
@@ -453,92 +464,89 @@ method connect (%args) {
             extensions => ['SSL'],
             $self->ssl_options->%*,
         ) : (),
-    )->then(async sub {
-        my ($sock) = @_;
-        $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
-        $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
-        my $proto = $self->wire_protocol;
-        my $stream = IO::Async::Stream->new(
-            handle              => $sock,
-            read_len            => $self->stream_read_len,
-            write_len           => $self->stream_write_len,
-            # Arbitrary multipliers for our stream values,
-            # in a memory-constrained environment it's expected
-            # that ->stream_read_len would be configured with
-            # low enough values for this not to be a concern.
-            read_high_watermark => 16 * $self->stream_read_len,
-            read_low_watermark  => 2 * $self->stream_read_len,
-            on_closed           => $self->curry::weak::notify_close,
-            on_read             => sub {
-                $proto->parse($_[1]);
-                0
-            }
-        );
-        $self->add_child($stream);
-        Scalar::Util::weaken(
-            $self->{stream} = $stream
-        );
-
-        try {
-            # Pretend we tried and failed if the old version was specifically requested
-            die 'ERR unknown command' if $self->{protocol} and $self->{protocol} eq 'resp2';
-
-            # Try issuing a HELLO to detect RESP3 or above
-            dynamically $self->{connection_in_progress} = 1;
-            await $self->hello(
-                3, defined($auth) ? (
-                    qw(AUTH), $username, $auth
-                ) : (), defined($self->client_name) ? (
-                    qw(SETNAME), $self->client_name
-                ) : ()
-            );
-            $log->tracef('RESP3 detected');
-            $self->{protocol_level} = 'resp3';
-
-            $proto->{hashrefs} = $self->{hashrefs};
-            $proto->{protocol} = $self->{protocol_level};
-        } catch {
-            # If we had an auth failure or invalid client name, all bets are off:
-            # immediately raise those back to the caller
-            die $@ unless $@ =~ /ERR unknown command/;
-
-            $log->tracef('Older Redis version detected, dropping back to RESP2 protocol');
-            $self->{protocol_level} = 'resp2';
-
-            die 'extended data structures require RESP3 (Redis version 6+)' if $self->{hashrefs};
-
-            $proto->{hashrefs} = $self->{hashrefs};
-            $proto->{protocol} = $self->{protocol_level};
-
-            dynamically $self->{connection_in_progress} = 1;
-            await $self->auth($auth) if defined $auth;
-            dynamically $self->{connection_in_progress} = 1;
-            await $self->client_setname($self->client_name) if defined $self->client_name;
+    );
+    $self->{endpoint} = join ':', $sock->peerhost, $sock->peerport;
+    $self->{local_endpoint} = join ':', $sock->sockhost, $sock->sockport;
+    my $proto = $self->wire_protocol;
+    my $stream = IO::Async::Stream->new(
+        handle              => $sock,
+        read_len            => $self->stream_read_len,
+        write_len           => $self->stream_write_len,
+        # Arbitrary multipliers for our stream values,
+        # in a memory-constrained environment it's expected
+        # that ->stream_read_len would be configured with
+        # low enough values for this not to be a concern.
+        read_high_watermark => 16 * $self->stream_read_len,
+        read_low_watermark  => 2 * $self->stream_read_len,
+        on_closed           => $self->curry::weak::notify_close,
+        on_read             => sub {
+            $proto->parse($_[1]);
+            0
         }
+    );
+    $self->add_child($stream);
+    Scalar::Util::weaken(
+        $self->{stream} = $stream
+    );
+
+    try {
+        # Pretend we tried and failed if the old version was specifically requested
+        die 'ERR unknown command' if $self->{protocol} and $self->{protocol} eq 'resp2';
+
+        # Try issuing a HELLO to detect RESP3 or above
+        dynamically $self->{connection_in_progress} = 1;
+        await $self->hello(
+            3, defined($auth) ? (
+                qw(AUTH), $username, $auth
+            ) : (), defined($self->client_name) ? (
+                qw(SETNAME), $self->client_name
+            ) : ()
+        );
+        $log->tracef('RESP3 detected');
+        $self->{protocol_level} = 'resp3';
+
+        $proto->{hashrefs} = $self->{hashrefs};
+        $proto->{protocol} = $self->{protocol_level};
+    } catch {
+        # If we had an auth failure or invalid client name, all bets are off:
+        # immediately raise those back to the caller
+        die $@ unless $@ =~ /ERR unknown command/;
+
+        $log->tracef('Older Redis version detected, dropping back to RESP2 protocol');
+        $self->{protocol_level} = 'resp2';
+
+        die 'extended data structures require RESP3 (Redis version 6+)' if $self->{hashrefs};
+
+        $proto->{hashrefs} = $self->{hashrefs};
+        $proto->{protocol} = $self->{protocol_level};
 
         dynamically $self->{connection_in_progress} = 1;
-        if($uri->database) {
-            try {
-                $log->tracef('Select database %s', $uri->database);
-                await $self->select($uri->database);
-            } catch($e) {
-                die 'Failed to switch database on Redis connection - ' . $e;
-            }
+        await $self->auth($auth) if defined $auth;
+        dynamically $self->{connection_in_progress} = 1;
+        await $self->client_setname($self->client_name) if defined $self->client_name;
+    }
+
+    dynamically $self->{connection_in_progress} = 1;
+    if($uri->database) {
+        try {
+            $log->tracef('Select database %s', $uri->database);
+            await $self->select($uri->database);
+        } catch($e) {
+            die 'Failed to switch database on Redis connection - ' . $e;
         }
-        if($self->is_client_side_cache_enabled) {
-            try {
-                $log->tracef('Client-side cache requested');
-                await $self->client_side_connection;
-                $log->tracef('Client-side connection established');
-            } catch($e) {
-                die 'This version of Redis does not support clientside caching' if $e =~ /Unknown subcommand .*tracking/i;
-                $log->errorf('Clientside cache setup failure in ->connect - %s', $e);
-                die 'Failed to enable clientside caching on Redis connection - ' . $e;
-            }
+    }
+    if($self->is_client_side_cache_enabled) {
+        try {
+            $log->tracef('Client-side cache requested');
+            await $self->client_side_connection;
+            $log->tracef('Client-side connection established');
+        } catch($e) {
+            die 'This version of Redis does not support clientside caching' if $e =~ /Unknown subcommand .*tracking/i;
+            $log->errorf('Clientside cache setup failure in ->connect - %s', $e);
+            die 'Failed to enable clientside caching on Redis connection - ' . $e;
         }
-        return;
-    })->on_fail(sub { delete $self->{connection} })
-      ->on_cancel(sub { delete $self->{connection} });
+    }
+    return $stream;
 }
 
 =head2 connected
