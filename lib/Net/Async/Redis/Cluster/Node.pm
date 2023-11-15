@@ -1,11 +1,8 @@
 package Net::Async::Redis::Cluster::Node;
-
-use strict;
-use warnings;
+use Object::Pad;
+class Net::Async::Redis::Cluster::Node :isa(IO::Async::Notifier);
 
 # VERSION
-
-use parent qw(IO::Async::Notifier);
 
 use Scalar::Util qw(refaddr);
 use Future::AsyncAwait;
@@ -16,8 +13,7 @@ use overload
     bool => sub { 1 },
     fallback => 1;
 
-sub configure {
-    my ($self, %args) = @_;
+method configure (%args) {
     for my $k (qw(start end primary replicas), @Net::Async::Redis::Cluster::CONFIG_KEYS) {
         $self->{$k} = delete $args{$k} if exists $args{$k};
     }
