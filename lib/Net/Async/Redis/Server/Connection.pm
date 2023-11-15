@@ -77,7 +77,7 @@ sub stream { shift->{stream} }
 
 sub on_close {
     my ($self) = @_;
-    $log->infof('Closing server connection');
+    $log->tracef('Connection to server closing');
     $self->server->client_disconnect($self);
 }
 

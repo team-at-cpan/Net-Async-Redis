@@ -9,7 +9,7 @@ use experimental qw(signatures);
 
 use parent qw(Net::Async::Redis::Commands);
 
-our $VERSION = '5.000';
+our $VERSION = '5.001';
 # AUTHORITY
 
 =head1 NAME
