@@ -47,14 +47,12 @@ sub id { $_[0]->{primary}[2] // $_[0]->host_port }
 sub host_port { join ':', @{$_[0]->{primary}}[0, 1] }
 sub cluster { shift->{cluster} }
 
-sub primary_connection {
-    my ($self) = @_;
+method primary_connection ($conn = undef) {
+    $self->{primary_connection} = $conn if $conn;
     return $self->{primary_connection} ||= $self->establish_primary_connection;
 }
 
-async sub establish_primary_connection {
-    my ($self) = @_;
-
+async method establish_primary_connection {
     $self->add_child(
         my $redis = Net::Async::Redis->new(
             $self->Net::Async::Redis::Cluster::node_config,
