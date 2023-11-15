@@ -524,6 +524,14 @@ sub replace_nodes {
     delete $self->{slot_cache};
     $_->remove_from_parent for splice $self->{nodes}->@*;
     $self->add_child($_) for $nodes->@*;
+    my $primary_by_hostport = { };
+    for my $node ($nodes->@*) {
+        if(my $conn = $primary_by_hostport->{$node->host_port}) {
+            $node->primary_connection($primary_by_hostport->{$node->host_port});
+        } else {
+            $primary_by_hostport->{$node->host_port} = $node->primary_connection;
+        }
+    }
     $self->{nodes} = $nodes;
     $self
 }
