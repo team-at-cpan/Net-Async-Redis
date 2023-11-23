@@ -183,7 +183,6 @@ use File::ShareDir ();
 
 use Log::Any qw($log);
 use Metrics::Any qw($metrics), strict => 0;
-use OpenTracing::Any qw($tracer);
 
 use List::Util qw(pairmap);
 use Scalar::Util qw(reftype blessed refaddr);
@@ -208,7 +207,45 @@ L<OpenTracing::Any> for details.
 
 =cut
 
-use constant OPENTRACING_ENABLED => $ENV{USE_OPENTRACING} // 0;
+use constant OPENTRACING_ENABLED   => $ENV{USE_OPENTRACING} // 0;
+
+=head2 OPENTRACING_ENABLED
+
+Defaults to false, this can be controlled by the C<USE_OPENTELEMETRY>
+environment variable. This provides a way to set the default C<opentelemetry>
+mode for all L<Net::Async::Redis> instances - you can enable/disable
+for a specific instance via L</configure>:
+
+ $redis->configure(opentelemetry => 1);
+
+When enabled, this will create a span for every Redis request. See
+L<OpenTelemetry> or L<https://opentelemetry.io> for details.
+
+=cut
+
+use constant OPENTELEMETRY_ENABLED => $ENV{USE_OPENTELEMETRY} // 0;
+
+our $provider;
+our $tracer;
+BEGIN {
+    if(OPENTRACING_ENABLED) {
+        require OpenTracing::Any;
+        OpenTracing::Any->import(qw($tracer));
+    }
+
+    if(OPENTELEMETRY_ENABLED) {
+        require OpenTelemetry;
+        require OpenTelemetry::Context;
+        require OpenTelemetry::Trace;
+        require OpenTelemetry::Constants;
+        OpenTelemetry::Constants->import(qw( SPAN_STATUS_ERROR SPAN_STATUS_OK ));
+        $provider = OpenTelemetry->tracer_provider;
+        $tracer = $provider->tracer(
+            name => __PACKAGE__,
+            version => __PACKAGE__->VERSION
+        );
+    }
+}
 
 # These only apply to the legacy RESP2 protocol. Since RESP3, connections
 # are no longer restricted once pubsub activity has started.
@@ -282,6 +319,8 @@ Applies configuration parameters - currently supports:
 
 =item * C<opentracing>
 
+=item * C<opentelemetry>
+
 =item * C<protocol> - either 'resp2' or 'resp3', default is autodetect
 
 =item * C<hashrefs> - RESP3 (Redis 6.0+) supports more data types, currently the only difference this
@@ -307,6 +346,7 @@ method configure (%args) {
         on_disconnect
         client_name
         opentracing
+        opentelemetry
         protocol
         hashrefs
         tls_cert_file
@@ -341,6 +381,8 @@ method configure (%args) {
     }
 
     die 'hashref support requires RESP3 (Redis version 6+)' if defined $self->{protocol} and $self->{protocol} eq 'resp2' and $self->{hashrefs};
+
+    die 'opentelemetry requested but not available, set USE_OPENTELEMETRY=1 in the environment to enable' if $self->opentelemetry and not OPENTELEMETRY_ENABLED;
     $self->next::method(%args)
 }
 
@@ -946,6 +988,14 @@ Indicates whether L<OpenTracing::Any> support is enabled.
 
 method opentracing { $self->{opentracing} }
 
+=head2 opentelemetry
+
+Indicates whether L<OpenTelemetry> support is enabled.
+
+=cut
+
+method opentelemetry { $self->{opentelemetry} }
+
 =head1 METHODS - Deprecated
 
 This are still supported, but no longer recommended.
@@ -1164,6 +1214,43 @@ method command_label (@cmd) {
     return $cmd[0];
 }
 
+=head2 span_for_future
+
+See L<https://opentelemetry.io/docs/specs/semconv/database/redis/> for current semantic conventions around Redis.
+
+=cut
+
+method span_for_future ($f, %args) {
+    $args{name} //= $f->label // 'Future';
+    my $span = $tracer->create_span(
+        %args,
+        parent => OpenTelemetry::Context->current
+    );
+
+    my $context = OpenTelemetry::Trace->context_with_span($span);
+
+    return $f->on_ready(sub {
+        dynamically OpenTelemetry::Context->current = $context;
+        if($f->is_done) {
+            $span->set_status(
+                SPAN_STATUS_OK
+            );
+        } elsif($f->is_cancelled) {
+            $span->set_status(
+                SPAN_STATUS_OK
+            );
+        } else {
+            my $e = $f->failure;
+            $span->record_exception($e);
+            $span->set_status(
+                SPAN_STATUS_ERROR,
+                $e
+            );
+        }
+        $span->end;
+    });
+}
+
 =head2 execute_command
 
 Queues the given command for execution.
@@ -1178,6 +1265,14 @@ sub execute_command {
         $self->command_label(@cmd)
     );
     $tracer->span_for_future($f) if $self->opentracing;
+    $self->span_for_future(
+        $f,
+        attributes => {
+            'db.system'               => 'redis',
+            'db.redis.database_index' => $self->database,
+            'db.statement'            => join(' ', map { /\s/ ? qq{"$_"} : $_ } @cmd),
+        }
+    ) if OPENTELEMETRY_ENABLED && $self->opentelemetry;
 
     my $item = [ \@cmd, $f];
     if($self->{connection_in_progress}) {
