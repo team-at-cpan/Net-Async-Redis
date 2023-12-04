@@ -209,7 +209,7 @@ L<OpenTracing::Any> for details.
 
 use constant OPENTRACING_ENABLED   => $ENV{USE_OPENTRACING} // 0;
 
-=head2 OPENTRACING_ENABLED
+=head2 OPENTELEMETRY_ENABLED
 
 Defaults to false, this can be controlled by the C<USE_OPENTELEMETRY>
 environment variable. This provides a way to set the default C<opentelemetry>
