@@ -1221,6 +1221,8 @@ See L<https://opentelemetry.io/docs/specs/semconv/database/redis/> for current s
 =cut
 
 method span_for_future ($f, %args) {
+    return $f unless OPENTELEMETRY_ENABLED;
+
     $args{name} //= $f->label // 'Future';
     my $span = $tracer->create_span(
         %args,
@@ -1233,17 +1235,17 @@ method span_for_future ($f, %args) {
         dynamically OpenTelemetry::Context->current = $context;
         if($f->is_done) {
             $span->set_status(
-                SPAN_STATUS_OK
+                OpenTelemetry::Constants->SPAN_STATUS_OK
             );
         } elsif($f->is_cancelled) {
             $span->set_status(
-                SPAN_STATUS_OK
+                OpenTelemetry::Constants->SPAN_STATUS_OK
             );
         } else {
             my $e = $f->failure;
             $span->record_exception($e);
             $span->set_status(
-                SPAN_STATUS_ERROR,
+                OpenTelemetry::Constants->SPAN_STATUS_ERROR,
                 $e
             );
         }
