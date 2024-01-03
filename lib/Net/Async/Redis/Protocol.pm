@@ -225,5 +225,5 @@ L<Net::Async::Redis/CONTRIBUTORS>.
 
 =head1 LICENSE
 
-Copyright Tom Molesworth and others 2015-2023. Licensed under the same terms as Perl itself.
+Copyright Tom Molesworth and others 2015-2024. Licensed under the same terms as Perl itself.
 

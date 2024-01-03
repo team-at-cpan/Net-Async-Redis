@@ -1774,5 +1774,5 @@ tests and feedback:
 
 =head1 LICENSE
 
-Copyright Tom Molesworth and others 2015-2023.
+Copyright Tom Molesworth and others 2015-2024.
 Licensed under the same terms as Perl itself.
