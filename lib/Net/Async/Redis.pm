@@ -1452,8 +1452,7 @@ invalidation events.
 
 =cut
 
-async sub enable_clientside_cache {
-    my ($self, $redis) = @_;
+async method enable_clientside_cache ($redis) {
     my $f = $self->{client_side_cache_ready} = $self->loop->new_future;
     try {
         $log->tracef('At this point we want an ID');
