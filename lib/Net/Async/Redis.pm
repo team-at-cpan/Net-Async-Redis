@@ -549,10 +549,10 @@ async method connect_to_server (%args) {
 
         $proto->{hashrefs} = $self->{hashrefs};
         $proto->{protocol} = $self->{protocol_level};
-    } catch {
+    } catch ($e) {
         # If we had an auth failure or invalid client name, all bets are off:
         # immediately raise those back to the caller
-        die $@ unless $@ =~ /ERR unknown command/;
+        die $e unless $e =~ /ERR unknown command/;
 
         $log->tracef('Older Redis version detected, dropping back to RESP2 protocol');
         $self->{protocol_level} = 'resp2';
