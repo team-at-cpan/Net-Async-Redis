@@ -677,7 +677,9 @@ we will attempt to rebuild the slot hashes and try again
 sub execute_command {
     my ($self, @cmd) = @_;
     $log->tracef('Will execute %s on cluster', join(' ', @cmd));
-    return $self->find_node_and_execute_command(@cmd)->retain;
+    return $self->adopt_future(
+        $self->find_node_and_execute_command(@cmd)
+    );
 }
 
 async sub find_node_and_execute_command ($self, @cmd) {

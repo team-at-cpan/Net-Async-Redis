@@ -107,23 +107,25 @@ sub on_message {
     $self->{last_command} = $command;
     $self->{last_command_at} = $self->server->time;
     $log->tracef('Database method: %s', $code);
-    (
-        $code
-        ? $code->($db, @data)
-        : Future->done(qq{ERR unknown command '$command'})
-    )->then(sub {
-        my $data = shift;
-        $self->stream->write(
-            $self->protocol->encode($data)
-        )
-    }, sub {
-        my $err = shift;
-        $self->stream->write(
-            $self->protocol->encode(
-                qq{ERR failed to process '$command' - $err}
+    $self->adopt_future(
+        (
+            $code
+            ? $code->($db, @data)
+            : Future->done(qq{ERR unknown command '$command'})
+        )->then(sub {
+            my $data = shift;
+            $self->stream->write(
+                $self->protocol->encode($data)
             )
-        );
-    })->retain;
+        }, sub {
+            my $err = shift;
+            $self->stream->write(
+                $self->protocol->encode(
+                    qq{ERR failed to process '$command' - $err}
+                )
+            );
+        })
+    );
 }
 
 sub db {

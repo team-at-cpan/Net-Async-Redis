@@ -960,7 +960,7 @@ async sub watch_keyspace {
         my $k = $message->channel;
         $k =~ s/^[^:]+://;
         my $f = $code->($message->payload, $k);
-        $f->retain if blessed($f) and $f->isa('Future');
+        $self->adopt_future($f) if blessed($f) and $f->isa('Future');
     }) if $code;
     return $ev;
 }
@@ -1277,12 +1277,14 @@ sub execute_command {
     my $item = [ \@cmd, $f];
     if($self->{connection_in_progress}) {
         $self->handle_command($item);
-        return $f->retain;
+        return $self->adopt_future($f);
     }
     my $queue = $self->{_is_multi} // $self->command_queue;
     # We register this as a command we want to run - it'll be
     # send to the server once nothing else is in the way
-    return $queue->push($item)->then(sub { $f })->retain;
+    return $self->adopt_future(
+        $queue->push($item)->then(sub { $f })
+    );
 }
 
 method command_queue {
