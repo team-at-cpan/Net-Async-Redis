@@ -798,23 +798,24 @@ See L<https://redis.io/topics/client-side-caching> for more details on this feat
 
 =cut
 
-async sub client_side_connection {
-    my ($self) = @_;
+async method client_side_connection {
     return if $self->{client_side_connection};
 
     if($self->{protocol_level} eq 'resp3') {
-        $self->{client_side_cache_ready} = Future->done;
+        $log->tracef('Client side cache uses same connection due to RESP3');
         Scalar::Util::weaken($self->{client_side_connection} = $self);
         await $self->enable_clientside_cache($self);
         return;
     }
 
+    $log->tracef('Client side cache needs a new connection due to RESP2');
     $self->{client_side_connection} = my $redis = ref($self)->new(
         host => $self->host,
         port => $self->port,
         auth => $self->{auth},
     );
     $self->add_child($redis);
+    await $redis->connect;
     await $self->enable_clientside_cache($redis);
     return;
 }
