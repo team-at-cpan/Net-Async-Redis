@@ -1276,14 +1276,12 @@ sub execute_command {
     my $item = [ \@cmd, $f];
     if($self->{connection_in_progress}) {
         $self->handle_command($item);
-        return $self->adopt_future($f);
+        return $f->retain;
     }
     my $queue = $self->{_is_multi} // $self->command_queue;
     # We register this as a command we want to run - it'll be
     # send to the server once nothing else is in the way
-    return $self->adopt_future(
-        $queue->push($item)->then(sub { $f })
-    );
+    return $queue->push($item)->then(sub { $f })->retain;
 }
 
 method command_queue {
