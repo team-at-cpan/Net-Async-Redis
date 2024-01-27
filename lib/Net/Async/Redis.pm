@@ -164,7 +164,6 @@ Note that this module uses L<Future::AsyncAwait> internally.
 =cut
 
 use mro;
-use Class::Method::Modifiers;
 use Syntax::Keyword::Try;
 use Syntax::Keyword::Dynamically;
 use Syntax::Keyword::Match;
@@ -878,9 +877,8 @@ method client_side_cache_size { $self->{client_side_cache_size} }
 # For now, we're only caching the GET/SET requests. Client-side caching
 # support in the Redis server covers other commands, though: eventually
 # we'll be extending this for all read commands.
-around get => async sub {
-    my ($code, $self, $k) = @_;
-    return await $self->$code($k) unless $self->is_client_side_cache_enabled;
+async method get ($k) {
+    return await $self->next::method($k) unless $self->is_client_side_cache_enabled;
 
     my $cache = $self->client_side_cache;
     $log->tracef('Check cache for [%s]', $k);
@@ -894,7 +892,7 @@ around get => async sub {
     }
 
     $log->tracef('Key [%s] was not cached', $k);
-    my $f = $self->$code($k);
+    my $f = $self->next::method($k);
     # Set our cache entry regardless of whether it completes
     # immediately or not...
     $cache->set(
