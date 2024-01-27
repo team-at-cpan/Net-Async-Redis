@@ -465,9 +465,11 @@ will be preserved for subsequent L</connect> calls.
 
 method connect (%args) {
     return $self->{connection} if $self->{connection};
-    my $f = $self->connect_to_server(%args)->on_ready(sub {
-        $log->tracef('connection call complete - %s', $_[0]->state);
-        delete $self->{connection} unless shift->is_done
+    $self->{connection_in_progress} = 1;
+    my $f = $self->connect_to_server(%args)->on_ready(sub ($f) {
+        $log->tracef('connection call complete - %s', $f->state);
+        $self->{connection_in_progress} = 0;
+        delete $self->{connection} unless $f->is_done
     });
     return $self->{connection} = $f;
 }
@@ -535,7 +537,6 @@ async method connect_to_server (%args) {
         die 'ERR unknown command' if $self->{protocol} and $self->{protocol} eq 'resp2';
 
         # Try issuing a HELLO to detect RESP3 or above
-        dynamically $self->{connection_in_progress} = 1;
         await $self->hello(
             3, defined($auth) ? (
                 qw(AUTH), $username, $auth
@@ -561,13 +562,10 @@ async method connect_to_server (%args) {
         $proto->{hashrefs} = $self->{hashrefs};
         $proto->{protocol} = $self->{protocol_level};
 
-        dynamically $self->{connection_in_progress} = 1;
         await $self->auth($auth) if defined $auth;
-        dynamically $self->{connection_in_progress} = 1;
         await $self->client_setname($self->client_name) if defined $self->client_name;
     }
 
-    dynamically $self->{connection_in_progress} = 1;
     if($uri->database) {
         try {
             $log->tracef('Select database %s', $uri->database);
