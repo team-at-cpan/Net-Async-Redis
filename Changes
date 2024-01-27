@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+6.000     2024-01-28 05:00:01+08:00 Asia/Singapore
     [New features]
 
     - Initial OpenTelemetry support, thanks to JJATRIA's work on implementing (see OpenTelemetry::SDK).
