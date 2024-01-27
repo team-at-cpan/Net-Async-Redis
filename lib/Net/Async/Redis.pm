@@ -370,7 +370,7 @@ method configure (%args) {
         delete $self->{client_side_cache};
         if($self->loop) {
             my $conn = delete $self->{client_side_connection};
-            $self->remove_child($conn) if $conn and $conn->parent;
+            $conn->remove_from_parent if $conn;
         }
     }
     my $uri = $self->{uri} = URI->new($self->{uri}) unless ref $self->uri;
