@@ -1,13 +1,10 @@
 package Net::Async::Redis;
 # ABSTRACT: Redis support for IO::Async
 
-use Object::Pad;
-class Net::Async::Redis :isa(IO::Async::Notifier);
-use strict;
-use warnings;
-use experimental qw(signatures);
-
-use parent qw(Net::Async::Redis::Commands);
+use Full::Class qw(:v1), isa => [
+    'IO::Async::Notifier',
+    'Net::Async::Redis::Commands'
+];
 
 our $VERSION = '6.000';
 # AUTHORITY
@@ -163,12 +160,6 @@ Note that this module uses L<Future::AsyncAwait> internally.
 
 =cut
 
-use mro;
-use Syntax::Keyword::Try;
-use Syntax::Keyword::Dynamically;
-use Syntax::Keyword::Match;
-use curry::weak;
-use Future::AsyncAwait;
 use Future::Queue;
 use IO::Async::Stream;
 use Ryu::Async;
@@ -180,7 +171,6 @@ use Path::Tiny;
 use Dir::Self;
 use File::ShareDir ();
 
-use Log::Any qw($log);
 use Metrics::Any qw($metrics), strict => 0;
 
 use List::Util qw(pairmap);
