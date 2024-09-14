@@ -73,7 +73,7 @@ Current features include:
 =item * cluster support via L<Net::Async::Redis::Cluster>, including key specifications from L<https://redis.io/docs/reference/key-specs/> to route commands to
 the correct node(s)
 
-=item * see L<Net::Async::Redis::XS> for a faster XS version (can be 40x faster than the pure Perl version, particularly when parsing large L</xreadgroup> responses)
+=item * see L<Net::Async::Redis::XS> for a faster XS version (can be 40x faster than the pure Perl version, particularly when parsing large L<Net::Async::Redis::Commands/XREADGROUP> responses)
 
 =back
 
