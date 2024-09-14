@@ -1291,20 +1291,20 @@ method command_queue {
 }
 
 async method command_processing {
-    my $queue = $self->{command_queue};
-    await $self->connected;
     while(1) {
+        await $self->connected;
         # An active MULTI always takes priority over regular commands
         if(my $queue = $self->{multi_queue}) {
             while(my $next = await $queue->shift) {
                 $self->handle_command($next);
             }
             delete $self->{multi_queue};
+        } else {
+            my $queue = $self->{command_queue};
+            my $next = await $queue->shift
+                or last;
+            $self->handle_command($next);
         }
-        my $queue = $self->{command_queue};
-        my $next = await $queue->shift
-            or last;
-        $self->handle_command($next);
     }
 }
 
