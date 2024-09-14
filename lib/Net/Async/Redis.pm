@@ -1286,7 +1286,7 @@ method command_queue {
         ),
         prototype => $self->future
     );
-    $self->{command_processing} = $self->command_processing->on_ready(sub { delete $self->{command_processing} });
+    $self->{command_processing} ||= $self->command_processing->on_ready(sub { delete $self->{command_processing} });
     return $queue;
 }
 
