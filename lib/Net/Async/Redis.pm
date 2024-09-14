@@ -1311,6 +1311,10 @@ async method command_processing {
 method handle_command ($details) {
     my @cmd = $details->[0]->@*;
     my $f = $details->[1];
+    if($f->is_ready) {
+        $log->tracef('Ignoring command %s since it is marked as ', \@cmd, $f->state);
+        return $f;
+    }
 
     # First, the rules: pubsub or plain
     my $is_sub_command = (
