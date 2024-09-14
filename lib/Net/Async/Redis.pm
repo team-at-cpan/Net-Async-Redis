@@ -1270,8 +1270,10 @@ sub execute_command {
     }
     my $queue = $self->{_is_multi} // $self->command_queue;
     # We register this as a command we want to run - it'll be
-    # send to the server once nothing else is in the way
-    return $queue->push($item)->then(sub { $f })->retain;
+    # sent to the server once nothing else is in the way.
+    # We currently don't support cancellation - any attempt to
+    # do so will be ignored, the command will still be executed.
+    return $queue->push($item)->then(sub { $f })->retain->without_cancel;
 }
 
 method command_queue {
