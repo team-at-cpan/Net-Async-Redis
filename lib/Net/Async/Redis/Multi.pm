@@ -82,7 +82,7 @@ sub AUTOLOAD {
     my ($method) = our $AUTOLOAD =~ m{::([^:]+)$};
 
     # We only need to check this once
-    die "Unknown method $method" unless Net::Async::Redis::Commands->can($method);
+    die "Unknown method $method" unless Net::Async::Redis::Commands->can($method) or Net::Async::Redis->can($method);
 
     my $code = async sub {
         my ($self, @args) = @_;
