@@ -1337,6 +1337,7 @@ method handle_command ($details) {
     # Void-context write allows IaStream to combine multiple writes on the same connection.
     $self->stream->write($data);
     if(lc($cmd[0]) eq 'multi') {
+        die 'Already processing MULTI, cannot start a new one' if $self->{multi_queue};
         $self->{multi_queue} = Future::Queue->new(
             (
                 $self->pipeline_depth
