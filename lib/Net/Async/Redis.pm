@@ -1286,10 +1286,17 @@ method command_queue {
 async method command_processing {
     while(1) {
         await $self->connected;
+
         # An active MULTI always takes priority over regular commands
         if(my $queue = $self->{multi_queue}) {
-            while(my $next = await $queue->shift) {
-                $self->handle_command($next);
+            try {
+                while(my $next = await $queue->shift) {
+                    $self->handle_command($next);
+                }
+            } catch ($e) {
+                $log->errorf('Failed processing MULTI commands - %s', $e);
+                delete $self->{multi_queue};
+                die $e;
             }
             delete $self->{multi_queue};
         } else {
