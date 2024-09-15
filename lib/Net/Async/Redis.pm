@@ -5,7 +5,7 @@ use Full::Class qw(:v1), extends => 'IO::Async::Notifier', does => [
     'Net::Async::Redis::Commands'
 ];
 
-our $VERSION = '6.000';
+our $VERSION = '6.001';
 # AUTHORITY
 
 =head1 NAME
