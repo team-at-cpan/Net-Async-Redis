@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+6.001     2024-09-15 09:27:56+08:00 Asia/Singapore
     [New features]
 
     - should handle reconnect more gracefully when commands are queued and
