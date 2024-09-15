@@ -1018,7 +1018,6 @@ method on_message ($data) {
 method complete_message ($data) {
     my $next = shift @{$self->{pending}} or die "No pending handler";
     $self->next_in_pipeline if @{$self->{awaiting_pipeline}};
-    return if $next->[1]->is_cancelled;
 
     # This shouldn't happen, preferably
     $log->errorf("our [%s] entry is ready, original was [%s]??", $data, $next->[0]) if $next->[1]->is_ready;
