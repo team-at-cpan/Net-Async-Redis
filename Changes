@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+6.002     2024-09-18 07:44:19+08:00 Asia/Singapore
     [Bugs fixed]
 
     - switch back to plain inheritance, since Object::Pad rôles do not yet allow
