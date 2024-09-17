@@ -1,11 +1,9 @@
 package Net::Async::Redis;
 # ABSTRACT: Redis support for IO::Async
 
-use Full::Class qw(:v1), extends => 'IO::Async::Notifier', does => [
-    'Net::Async::Redis::Commands'
-];
+use Full::Class qw(:v1), extends => qw(Net::Async::Redis::Commands);
 
-our $VERSION = '6.001';
+our $VERSION = '6.002';
 # AUTHORITY
 
 =head1 NAME
