@@ -1,6 +1,9 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [Bugs fixed]
+
+    - SSUBSCRIBE and SPUBLISH were not correctly applying slot mapping, which could lead to infinite loops in a cluster
 
 6.002     2024-09-18 07:44:19+08:00 Asia/Singapore
     [Bugs fixed]
