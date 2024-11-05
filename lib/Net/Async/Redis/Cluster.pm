@@ -459,6 +459,7 @@ sub configure {
     for (@CONFIG_KEYS) {
         $self->{$_} = delete $args{$_} if exists $args{$_};
     }
+    $self->{read_from_replica} = delete $args{read_from_replica} if exists $args{read_from_replica};
     die 'invalid protocol requested: ' . $self->{protocol} if defined $self->{protocol} and not $self->{protocol} =~ /^resp[23]$/;
 
     die 'hashref support requires RESP3 (Redis version 6+)' if defined $self->{protocol} and $self->{protocol} eq 'resp2' and $self->{hashrefs};
@@ -667,7 +668,13 @@ sub execute_command {
 
 async sub find_node_and_execute_command ($self, @cmd) {
     my $node = await $self->find_node(@cmd);
-    my $redis = await $node->primary_connection;
+    my $redis = await (
+           $self->{read_from_replica}
+        && $node->replica_count
+        && Net::Async::Redis->extract_spec_for_command(\@cmd)->{acl_cat}{'@read'}
+        ? $node->replica_connection
+        : $node->primary_connection
+    );
 
     # Some commands have modifiers around them for RESP2/3 transparent support
     my ($command, @args) = @cmd;

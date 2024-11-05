@@ -1573,32 +1573,18 @@ Returns a list of keys.
 my $keyspec_cache = Cache::LRU->new(
     size => 10_000
 );
+
 sub extract_keys_for_command ($class, $command, $def = undef) {
-    my $cache = 0;
-    unless($def) {
-        my $cached = $keyspec_cache->get(join "\x{01FF}", $command->@*);
-        return $cached->@* if $cached;
-        $def //= \%COMMAND_DEFINITION;
-        ++$cache;
-    }
+    my $cached = $keyspec_cache->get(join "\x{01FF}", $command->@*);
+    return $cached->@* if $cached;
 
-    # The command itself is represented as a method name
-    my (@components) = $command->@*;
-    my ($cmd) = @components;
-    my $info = $def->{lc $cmd} or die 'command not found: ' . $cmd;
-
-    # Identify the full matching command against the known definitions
-    my $idx = 0;
-    while(@components && $info->{subcommands} && $info->{subcommands}->@* && $#components >= $idx) {
-        my $next = "${cmd}_" . $components[++$idx];
-        last unless exists $def->{lc $next};
-        $cmd = $next;
-        $info = $def->{lc $cmd};
-    }
-
+    my $info = $class->extract_spec_for_command($command, $def);
     # Commands can have zero or more keyspecs which tell us where to find the key information. Each
     # command may have multiple keyspec definitions.
     my @keys;
+
+    my @components = $command->@*;
+    my $cmd = join ' ', $command->@*;
 
     KEYSPEC:
     for my $key_spec ($info->{key_spec}->@*) {
@@ -1681,8 +1667,31 @@ sub extract_keys_for_command ($class, $command, $def = undef) {
             }
         }
     }
-    $keyspec_cache->set(join("\x{01FF}", $command->@*), \@keys) if $cache;
+    $keyspec_cache->set(join("\x{01FF}", $command->@*), \@keys);
     return @keys;
+}
+
+sub extract_spec_for_command ($class, $command, $def = undef) {
+    my $cache = 0;
+    unless($def) {
+        $def //= \%COMMAND_DEFINITION;
+        ++$cache;
+    }
+
+    # The command itself is represented as a method name
+    my (@components) = $command->@*;
+    my ($cmd) = @components;
+    my $info = $def->{lc $cmd} or die 'command not found: ' . $cmd;
+
+    # Identify the full matching command against the known definitions
+    my $idx = 0;
+    while(@components && $info->{subcommands} && $info->{subcommands}->@* && $#components >= $idx) {
+        my $next = "${cmd}_" . $components[++$idx];
+        last unless exists $def->{lc $next};
+        $cmd = $next;
+        $info = $def->{lc $cmd};
+    }
+    return $info;
 }
 
 =head2 ssl_options
