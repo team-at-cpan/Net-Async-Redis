@@ -45,6 +45,8 @@ Note that this adds some overhead to lookups, so you may be better served
 by options such as the L<https://github.com/twitter/twemproxy|twemproxy>
 proxy routing dæmon, or a service mesh such as L<https://istio.io/|istio>.
 
+See L</configure> for additional cluster configuration parameters.
+
 =cut
 
 use Future::Utils qw(fmap_void fmap_concat);
@@ -453,6 +455,18 @@ sub node_config {
     my ($self) = @_;
     return %{$self}{grep exists $self->{$_}, @CONFIG_KEYS};
 }
+
+=head2 configure
+
+Takes the same parameters as L<Net::Async::Redis/configure>, with the addition of:
+
+=over 4
+
+=item * C<use_read_replica> - direct read commands to replicas, instead of the primary nodes
+
+=back
+
+=cut
 
 sub configure {
     my ($self, %args) = @_;
