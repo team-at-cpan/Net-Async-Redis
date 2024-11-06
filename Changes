@@ -1,6 +1,11 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    [New features]
+
+    - cluster direct access to replica connection via `$node->replica_connection`
+    - direct all read-only queries to replicas instead of primaries via `use_read_replica` parameter
+    to Net::Async::Redis::Cluster constructor or `->configure` method
 
 6.003     2024-10-23 06:15:05+08:00 Asia/Singapore
     [Bugs fixed]
