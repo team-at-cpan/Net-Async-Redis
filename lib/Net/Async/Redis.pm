@@ -163,10 +163,6 @@ use Ryu::Async;
 use URI;
 use URI::redis;
 use Cache::LRU;
-use YAML::XS ();
-use Path::Tiny;
-use Dir::Self;
-use File::ShareDir ();
 
 use Metrics::Any qw($metrics), strict => 0;
 
@@ -254,17 +250,7 @@ our %SUBSCRIPTION_COMMANDS = (
     MESSAGE      => 1,
     PMESSAGE     => 1,
 );
-
-our %COMMAND_DEFINITION = do {
-    my $path = Path::Tiny::path(__DIR__)->parent(3)->child('share/commands.yaml');
-    $path = Path::Tiny::path(
-        File::ShareDir::dist_file(
-            'Net-Async-Redis',
-            'commands.yaml'
-        )
-    ) unless $path->exists;
-    YAML::XS::LoadFile("$path")->%*
-};
+our %COMMAND_DEFINITION = %Net::Async::Redis::Commands::COMMAND_DEFINITION;
 
 # Add support for secure Redis `rediss://...` URIs
 unless(URI::rediss->can('new')) {

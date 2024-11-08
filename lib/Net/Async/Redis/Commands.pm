@@ -17,6 +17,11 @@ for each available Redis command.
 
 =cut
 
+use Dir::Self;
+use File::ShareDir ();
+use YAML::XS ();
+use Path::Tiny;
+
 =head1 PACKAGE VARIABLES
 
 =head2 KEY_FINDER
@@ -221,6 +226,33 @@ our %KEY_FINDER = (
     'ZUNION' => 2,
     'ZUNIONSTORE' => 3,
 );
+
+our %COMMAND_DEFINITION;
+
+UNITCHECK {
+    %COMMAND_DEFINITION = do {
+        my $path = Path::Tiny::path(__DIR__)->parent(3)->child('share/commands.yaml');
+        $path = Path::Tiny::path(
+            File::ShareDir::dist_file(
+                'Net-Async-Redis',
+                'commands.yaml'
+            )
+        ) unless $path->exists;
+        YAML::XS::LoadFile("$path")->%*
+    };
+    { # Populate any methods we don't have yet
+        my $class = Object::Pad::MOP::Class->for_class(__PACKAGE__);
+        for my $k (sort keys %COMMAND_DEFINITION) {
+            my $method = $k =~ s/[\.-]+/_/gr;
+            unless(__PACKAGE__->can($method)) {
+                $log->tracef('Adding new Redis method [%s] for %s', $method, $k);
+                $class->add_method($method => sub ($self, @args) {
+                    $self->execute_command(split(/_/, $k) => @args)
+                });
+            }
+        }
+    }
+}
 
 =head1 METHODS - Bitmap
 
