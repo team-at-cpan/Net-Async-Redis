@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+6.005     2024-11-08 23:45:45+08:00 Asia/Singapore
     [New features]
 
     - automatic creation of Redis methods based on extracted keyspec as a fallback
