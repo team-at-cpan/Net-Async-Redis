@@ -3,7 +3,7 @@ package Net::Async::Redis;
 
 use Full::Class qw(:v1), extends => qw(Net::Async::Redis::Commands);
 
-our $VERSION = '6.004';
+our $VERSION = '6.005';
 # AUTHORITY
 
 =head1 NAME
