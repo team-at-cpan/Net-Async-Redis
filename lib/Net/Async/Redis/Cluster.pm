@@ -688,7 +688,6 @@ async sub execute_command_on_node ($self, %args) {
     my $node = delete $args{node} or die 'need a node';
     my $command = delete $args{command} or die 'need a command';
     $log->tracef('Will execute %s on cluster', join ' ', $command->@*);
-    return $self->find_node_and_execute_command($command->@*)->retain;
 
     # Some commands have modifiers around them for RESP2/3 transparent support
     my ($method, @args) = $command->@*;
